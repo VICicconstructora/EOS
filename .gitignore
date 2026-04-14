@@ -33,3 +33,9 @@ Thumbs.db
 
 # Extracted epub / temp files
 epub_extracted/
+
+# Claude Code local settings (contiene rutas locales)
+.claude/settings.local.json
+
+# Superpowers / herramientas de IDE
+.superpowers/

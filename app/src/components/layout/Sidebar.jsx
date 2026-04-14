@@ -5,7 +5,7 @@ import { useApp } from '../../context/AppContext'
 import {
   LayoutDashboard, Eye, Users, BarChart3, AlertTriangle,
   Settings2, Rocket, CalendarDays, Settings, LogOut, Globe,
-  Map, BookOpen
+  Map, BookOpen, UserCheck, Building, Scale
 } from 'lucide-react'
 
 const EOS_MODULES = [
@@ -107,6 +107,38 @@ export default function Sidebar({ isOpen, onClose }) {
         >
           <BookOpen size={18} className="nav-item-icon" />
           Biblioteca EOS
+        </NavLink>
+
+        {/* IC Constructora — Módulos propios */}
+        <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', padding: 'var(--space-3) var(--space-4) var(--space-1)', marginTop: 'var(--space-2)' }}>
+          IC Constructora
+        </div>
+
+        <NavLink
+          to="/rrhh"
+          className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+          onClick={handleNavClick}
+        >
+          <UserCheck size={18} className="nav-item-icon" style={{ color: 'var(--eos-people)' }} />
+          RRHH
+        </NavLink>
+
+        <NavLink
+          to="/lotes"
+          className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+          onClick={handleNavClick}
+        >
+          <Building size={18} className="nav-item-icon" style={{ color: 'var(--brand-primary)' }} />
+          Lotes
+        </NavLink>
+
+        <NavLink
+          to="/juridico"
+          className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+          onClick={handleNavClick}
+        >
+          <Scale size={18} className="nav-item-icon" style={{ color: 'var(--eos-process)' }} />
+          Jurídico
         </NavLink>
       </nav>
 

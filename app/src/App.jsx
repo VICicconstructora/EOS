@@ -19,6 +19,9 @@ const ReunionesPage     = lazy(() => import('./pages/ReunionesPage'))
 const ConfiguracionPage = lazy(() => import('./pages/ConfiguracionPage'))
 const ImplementacionPage = lazy(() => import('./pages/ImplementacionPage'))
 const BibliotecaPage     = lazy(() => import('./pages/BibliotecaPage'))
+const RRHHPage           = lazy(() => import('./pages/RRHHPage'))
+const LotesPage          = lazy(() => import('./pages/LotesPage'))
+const JuridicoPage       = lazy(() => import('./pages/JuridicoPage'))
 
 function PageFallback() {
   return (
@@ -68,6 +71,9 @@ function AppLayout() {
             <Route path="/configuracion" element={<ConfiguracionPage />} />
             <Route path="/implementacion" element={<ImplementacionPage />} />
             <Route path="/biblioteca"     element={<BibliotecaPage />} />
+            <Route path="/rrhh"           element={<RRHHPage />} />
+            <Route path="/lotes"          element={<LotesPage />} />
+            <Route path="/juridico"       element={<JuridicoPage />} />
             <Route path="*"              element={<Navigate to="/" replace />} />
           </Routes>
           </Suspense>
