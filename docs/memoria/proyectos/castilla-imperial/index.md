@@ -86,6 +86,43 @@ Los 120 parqueaderos del proyecto pueden asignarse a **Imperial 2B** (incluidos 
 
 Proyecto No VIS en Kennedy, estrato 3. Comparte lote con Castilla Living (VIS, misma dirección Calle 8 #86-65). Los parqueaderos del proyecto tienen su propio código ERP (200) y P&G independiente — ver nota crítica sobre doble-conteo.
 
+## Datos Operativos (Datamart)
+
+_Fuente: Datamart.xlsx — actualizado 2026-05-09_
+
+**Director de Proyecto:** ALIDA RUIZ
+
+### Etapas
+
+| Etapa | Estado | Fiducia | Crédito | Monto | Venc. Crédito | Ventas Proy. |
+|-------|--------|---------|---------|-------|---------------|-------------|
+| E2A | INACTIVO | — | DAVIVIENDA | — |  | $32.4B |
+| E2B | ACTIVO | DAVIVIENDA | DAVIVIENDA | $22.0B | 2026-04-29 🔴 | $36.4B |
+| EPARQUEADEROS | ACTIVO | — | No Aplica | — |  | $3.6B |
+
+### Pólizas
+
+| Etapa | Entidad TR | Venc. TR | Entidad RC | Venc. RC |
+|-------|------------|----------|------------|----------|
+| E2A | AXA COLPATRIA SEGUROS S.A |  | — |  |
+| E2B | SBS Seguros Colombia | 2023-08-01 🔴 | SBS Seguros Colombia | 2026-07-30 |
+| EPARQUEADEROS | — |  | — |  |
+
+### Licencias
+
+| Etapa | Lic. Urbanismo | Lic. Construcción | Venc. Lic. Const. | Próx. Trámite |
+|-------|----------------|-------------------|-------------------|---------------|
+| E2A | 11001-3-21-0405 | 11001-3-19-1440 | 2022-06-26 🔴 | — |
+| E2B | 11001-3-21-0405 | 11001-3-19-1440 | 2022-06-26 🔴 | — |
+| EPARQUEADEROS | 11001-3-21-0405 | 16-3-0062 | 2018-05-03 🔴 | — |
+
+### Alarmas
+
+- 🔴 **Crédito VENCIDA:** E2B: DAVIVIENDA, vence 2026-04-29 (-10 días)
+- 🔴 **Póliza TR VENCIDA:** E2B: SBS Seguros Colombia, vence 2023-08-01 (-1012 días)
+- 🔴 **Licencia Construcción VENCIDA:** E2A: venció 2022-06-26 (-1413 días)
+- 🔴 **Licencia Construcción VENCIDA:** E2B: venció 2022-06-26 (-1413 días)
+- 🔴 **Licencia Construcción VENCIDA:** EPARQUEADEROS: venció 2018-05-03 (-2928 días)
 ## Changelog
 
 | Versión | Fecha | Cambio | Autor |

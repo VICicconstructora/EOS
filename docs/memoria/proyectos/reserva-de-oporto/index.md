@@ -82,6 +82,55 @@ En el PPTO, E3 consolida los IDs ERP 115 y 339 ("RESERVA DE OPORTO ETAPA 3 + ETA
 
 Proyecto propio más grande de IC: 840 apartamentos, 9 torres, 4 etapas en Evaristo García, Cali. Certificación EDGE. Con 742 ventas acumuladas está prácticamente vendido. Las E1-E2 entran en entrega diciembre 2025; E3-E4 en diciembre 2026. El esquema PPTO consolida E3+E4 en un solo código.
 
+## Datos Operativos (Datamart)
+
+_Fuente: Datamart.xlsx — actualizado 2026-05-09_
+
+**Director de Proyecto:** JHON MANOSALVA
+
+### Etapas
+
+| Etapa | Estado | Fiducia | Crédito | Monto | Venc. Crédito | Ventas Proy. |
+|-------|--------|---------|---------|-------|---------------|-------------|
+| E1 | ACTIVO | ALIANZA FIDUCIARIA | DAVIVIENDA | $48.4B | 2026-05-08 🔴 | $42.5B |
+| E2 | ACTIVO | ALIANZA FIDUCIARIA | DAVIVIENDA | — | 2026-05-08 🔴 | $46.3B |
+| E3 | ACTIVO | ALIANZA FIDUCIARIA | DAVIVIENDA | $27.0B | 2026-12-31 | $17.1B |
+| E4 | ACTIVO | ALIANZA FIDUCIARIA | DAVIVIENDA | — | 2026-12-31 | $39.1B |
+
+### Pólizas
+
+| Etapa | Entidad TR | Venc. TR | Entidad RC | Venc. RC |
+|-------|------------|----------|------------|----------|
+| E1 | SURA | 2022-12-21 🔴 | SURA | 2022-03-20 🔴 |
+| E2 | SURA | 2022-12-21 🔴 | SURA | 2022-03-20 🔴 |
+| E3 | SURA | 2024-11-15 🔴 | SURA | 2024-11-15 🔴 |
+| E4 | SURA | 2024-11-15 🔴 | SURA | 2024-11-15 🔴 |
+
+### Licencias
+
+| Etapa | Lic. Urbanismo | Lic. Construcción | Venc. Lic. Const. | Próx. Trámite |
+|-------|----------------|-------------------|-------------------|---------------|
+| E1 | U-76001-2-19-0868 | U-76001-2-19-0868 | 2022-09-07 🔴 | — |
+| E2 | U-76001-2-19-0868 | U-76001-2-19-0868 | 2022-09-07 🔴 | — |
+| E3 | U-76001-2-19-0868 | U-76001-2-19-0868 | 2022-09-07 🔴 | — |
+| E4 | U-76001-2-19-0868 | U-76001-2-19-0868 | 2022-09-07 🔴 | — |
+
+### Alarmas
+
+- 🔴 **Crédito VENCIDA:** E1: DAVIVIENDA, vence 2026-05-08 (-1 días)
+- 🔴 **Crédito VENCIDA:** E2: DAVIVIENDA, vence 2026-05-08 (-1 días)
+- 🔴 **Póliza TR VENCIDA:** E1: SURA, vence 2022-12-21 (-1235 días)
+- 🔴 **Póliza RC VENCIDA:** E1: SURA, vence 2022-03-20 (-1511 días)
+- 🔴 **Póliza TR VENCIDA:** E2: SURA, vence 2022-12-21 (-1235 días)
+- 🔴 **Póliza RC VENCIDA:** E2: SURA, vence 2022-03-20 (-1511 días)
+- 🔴 **Póliza TR VENCIDA:** E3: SURA, vence 2024-11-15 (-540 días)
+- 🔴 **Póliza RC VENCIDA:** E3: SURA, vence 2024-11-15 (-540 días)
+- 🔴 **Póliza TR VENCIDA:** E4: SURA, vence 2024-11-15 (-540 días)
+- 🔴 **Póliza RC VENCIDA:** E4: SURA, vence 2024-11-15 (-540 días)
+- 🔴 **Licencia Construcción VENCIDA:** E1: venció 2022-09-07 (-1340 días)
+- 🔴 **Licencia Construcción VENCIDA:** E2: venció 2022-09-07 (-1340 días)
+- 🔴 **Licencia Construcción VENCIDA:** E3: venció 2022-09-07 (-1340 días)
+- 🔴 **Licencia Construcción VENCIDA:** E4: venció 2022-09-07 (-1340 días)
 ## Changelog
 
 | Versión | Fecha | Cambio | Autor |

@@ -72,6 +72,44 @@ estado: construccion
 
 Proyecto No VIS en Chapinero Alto, Bogotá. Producto premium con 3 torres (Central, Sur, Norte). E1 y E2 se consolidan en PPTO ("Primera Este E 1-2"). E3 Norte tiene su propio código PPTO y 18 ventas (inicio de preventa). La escala de áreas (34–118m²) cubre desde estudios hasta apartamentos grandes.
 
+## Datos Operativos (Datamart)
+
+_Fuente: Datamart.xlsx — actualizado 2026-05-09_
+
+**Director de Proyecto:** JHON MANOSALVA
+
+### Etapas
+
+| Etapa | Estado | Fiducia | Crédito | Monto | Venc. Crédito | Ventas Proy. |
+|-------|--------|---------|---------|-------|---------------|-------------|
+| ECENTRO | ACTIVO | FIDUCIARIA DAVIVIENDA S.A. | ITAU | $48.0B | 2026-10-31 | $99.7B |
+| ESUR | ACTIVO | FIDUCIARIA DAVIVIENDA S.A. | ITAU | — | 2026-10-31 | $99.7B |
+| ENORTE | ACTIVO | FIDUCIARIA DAVIVIENDA S.A. | Pendiente | — |  | $78.6B |
+
+### Pólizas
+
+| Etapa | Entidad TR | Venc. TR | Entidad RC | Venc. RC |
+|-------|------------|----------|------------|----------|
+| ECENTRO | SURA | 2025-02-28 🔴 | SURA | 2026-02-28 🔴 |
+| ESUR | SURA | 2025-02-28 🔴 | SURA | 2026-02-28 🔴 |
+| ENORTE | — |  | — |  |
+
+### Licencias
+
+| Etapa | Lic. Urbanismo | Lic. Construcción | Venc. Lic. Const. | Próx. Trámite |
+|-------|----------------|-------------------|-------------------|---------------|
+| ECENTRO | 11001-5-24-2726 | 11001-4-21-1547 | 2024-04-04 🔴 | 2026-04-05 |
+| ESUR | 11001-5-24-2726 | 11001-4-21-1547 | 2024-04-04 🔴 | 2026-04-05 |
+| ENORTE | 11001-5-24-2726 | POR TRAMITAR |  | — |
+
+### Alarmas
+
+- 🔴 **Póliza TR VENCIDA:** ECENTRO: SURA, vence 2025-02-28 (-435 días)
+- 🔴 **Póliza RC VENCIDA:** ECENTRO: SURA, vence 2026-02-28 (-70 días)
+- 🔴 **Póliza TR VENCIDA:** ESUR: SURA, vence 2025-02-28 (-435 días)
+- 🔴 **Póliza RC VENCIDA:** ESUR: SURA, vence 2026-02-28 (-70 días)
+- 🔴 **Licencia Construcción VENCIDA:** ECENTRO: venció 2024-04-04 (-765 días)
+- 🔴 **Licencia Construcción VENCIDA:** ESUR: venció 2024-04-04 (-765 días)
 ## Changelog
 
 | Versión | Fecha | Cambio | Autor |

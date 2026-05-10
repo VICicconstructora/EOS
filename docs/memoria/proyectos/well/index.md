@@ -63,6 +63,34 @@ estado: construccion
 
 IC actúa como constructor; DOM Real Estate (Dom Urbanum) lleva la gerencia, estructuración y comercialización. Proyecto de concepto coliving/inversión en Pasadena (Suba), orientado a renta corta. Único proyecto sin etapas múltiples en catálogo PPTO. Datos de ejecución en Historico.xlsx.
 
+## Datos Operativos (Datamart)
+
+_Fuente: Datamart.xlsx — actualizado 2026-05-09_
+
+**Director de Proyecto:** DIEGO BENAVIDES
+
+### Etapas
+
+| Etapa | Estado | Fiducia | Crédito | Monto | Venc. Crédito | Ventas Proy. |
+|-------|--------|---------|---------|-------|---------------|-------------|
+| E1 | ACTIVO | Alianza Fiduciaria | BANCO DE BOGOTA | $29.2B | 2027-04-16 | $52.8B |
+
+### Pólizas
+
+| Etapa | Entidad TR | Venc. TR | Entidad RC | Venc. RC |
+|-------|------------|----------|------------|----------|
+| E1 | Seguros Mundial | 2026-05-14 🟡 | Seguros Mundial | 2027-05-15 |
+
+### Licencias
+
+| Etapa | Lic. Urbanismo | Lic. Construcción | Venc. Lic. Const. | Próx. Trámite |
+|-------|----------------|-------------------|-------------------|---------------|
+| E1 | 11001-1-21-4777 | 11001-1-21-4777 | 2025-09-26 🔴 | 2026-09-23 |
+
+### Alarmas
+
+- 🟡 **Póliza TR POR VENCER:** E1: Seguros Mundial, vence 2026-05-14 (5 días)
+- 🔴 **Licencia Construcción VENCIDA:** E1: venció 2025-09-26 (-225 días)
 ## Changelog
 
 | Versión | Fecha | Cambio | Autor |

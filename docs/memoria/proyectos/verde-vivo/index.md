@@ -57,6 +57,53 @@ estado: construccion
 
 Proyecto VIS con Once Constructora en Madrid Cundinamarca, mismo urbanismo que Azul Celeste y Azul Turquesa (Ciudadela La Prosperidad). Es el único proyecto VIS de la alianza IC-Once en esta ciudadela. Datos de ejecución en Historico.xlsx.
 
+## Datos Operativos (Datamart)
+
+_Fuente: Datamart.xlsx — actualizado 2026-05-09_
+
+**Director de Proyecto:** DIEGO BENAVIDES
+
+### Etapas
+
+| Etapa | Estado | Fiducia | Crédito | Monto | Venc. Crédito | Ventas Proy. |
+|-------|--------|---------|---------|-------|---------------|-------------|
+| E1 | INACTIVO | Colmena Fiduciaria | BANCOLOMBIA | $15.9B | 2023-08-08 🔴 | $30.2B |
+| E2 | ACTIVO | Colmena Fiduciaria | BANCOLOMBIA | $16.0B | 2026-07-01 🟡 | $34.2B |
+| E3 | ACTIVO | Colmena Fiduciaria | BANCOLOMBIA | $16.2B | 2026-09-01 | $35.9B |
+| E4 | INACTIVO | Colmena Fiduciaria | Pendiente | — |  | $23.0B |
+
+### Pólizas
+
+| Etapa | Entidad TR | Venc. TR | Entidad RC | Venc. RC |
+|-------|------------|----------|------------|----------|
+| E1 | SBS Seguros Colombia | 2022-01-01 🔴 | SBS Seguros Colombia | 2022-01-01 🔴 |
+| E2 | SBS Seguros Colombia | 2022-04-01 🔴 | SBS Seguros Colombia | 2022-04-01 🔴 |
+| E3 | SBS Seguros Colombia | 2026-03-01 🔴 | SBS Seguros Colombia | 2026-03-01 🔴 |
+| E4 | — |  | — |  |
+
+### Licencias
+
+| Etapa | Lic. Urbanismo | Lic. Construcción | Venc. Lic. Const. | Próx. Trámite |
+|-------|----------------|-------------------|-------------------|---------------|
+| E1 | RES 247 | RES 247 | 2022-05-11 🔴 | — |
+| E2 | RES 247 | RES 247 | 2022-05-11 🔴 | — |
+| E3 | RES 247 | RES 247 | 2022-05-11 🔴 | — |
+| E4 | RES 247 | RES 247 | 2022-05-11 🔴 | — |
+
+### Alarmas
+
+- 🔴 **Crédito VENCIDA:** E1: BANCOLOMBIA, vence 2023-08-08 (-1005 días)
+- 🟡 **Crédito POR VENCER:** E2: BANCOLOMBIA, vence 2026-07-01 (53 días)
+- 🔴 **Póliza TR VENCIDA:** E1: SBS Seguros Colombia, vence 2022-01-01 (-1589 días)
+- 🔴 **Póliza RC VENCIDA:** E1: SBS Seguros Colombia, vence 2022-01-01 (-1589 días)
+- 🔴 **Póliza TR VENCIDA:** E2: SBS Seguros Colombia, vence 2022-04-01 (-1499 días)
+- 🔴 **Póliza RC VENCIDA:** E2: SBS Seguros Colombia, vence 2022-04-01 (-1499 días)
+- 🔴 **Póliza TR VENCIDA:** E3: SBS Seguros Colombia, vence 2026-03-01 (-69 días)
+- 🔴 **Póliza RC VENCIDA:** E3: SBS Seguros Colombia, vence 2026-03-01 (-69 días)
+- 🔴 **Licencia Construcción VENCIDA:** E1: venció 2022-05-11 (-1459 días)
+- 🔴 **Licencia Construcción VENCIDA:** E2: venció 2022-05-11 (-1459 días)
+- 🔴 **Licencia Construcción VENCIDA:** E3: venció 2022-05-11 (-1459 días)
+- 🔴 **Licencia Construcción VENCIDA:** E4: venció 2022-05-11 (-1459 días)
 ## Changelog
 
 | Versión | Fecha | Cambio | Autor |

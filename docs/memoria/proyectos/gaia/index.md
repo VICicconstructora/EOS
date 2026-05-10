@@ -68,6 +68,43 @@ estado: construccion
 
 Condominio campestre en Cerritos, Pereira, estrato 5. Producto premium (casas unifamiliares) que explica la baja velocidad de ventas (24 unidades). La naturaleza del producto (menor # de unidades, ticket alto, comprador más exigente) hace que las métricas no sean comparables directamente con proyectos de apartamentos masivos.
 
+## Datos Operativos (Datamart)
+
+_Fuente: Datamart.xlsx — actualizado 2026-05-09_
+
+**Director de Proyecto:** ALIDA RUIZ
+
+### Etapas
+
+| Etapa | Estado | Fiducia | Crédito | Monto | Venc. Crédito | Ventas Proy. |
+|-------|--------|---------|---------|-------|---------------|-------------|
+| E1 | ACTIVO | ALIANZA FIDUCIARIA | DAVIVIENDA | $13.5B | 2026-06-30 🟡 | $12.3B |
+| E2 | ACTIVO | ALIANZA FIDUCIARIA | DAVIVIENDA | — | 2026-06-30 🟡 | $13.4B |
+
+### Pólizas
+
+| Etapa | Entidad TR | Venc. TR | Entidad RC | Venc. RC |
+|-------|------------|----------|------------|----------|
+| E1 | ALLIANZ | 2024-02-10 🔴 | ALLIANZ | 2024-02-10 🔴 |
+| E2 | ALLIANZ | 2024-02-10 🔴 | ALLIANZ | 2024-02-10 🔴 |
+
+### Licencias
+
+| Etapa | Lic. Urbanismo | Lic. Construcción | Venc. Lic. Const. | Próx. Trámite |
+|-------|----------------|-------------------|-------------------|---------------|
+| E1 | 66001-1-23-2785 | 66001-1-22-2035 | 2023-04-12 🔴 | 2026-04-20 |
+| E2 | 66001-1-23-2785 | 66001-1-22-2035 | 2023-04-12 🔴 | 2026-04-20 |
+
+### Alarmas
+
+- 🟡 **Crédito POR VENCER:** E1: DAVIVIENDA, vence 2026-06-30 (52 días)
+- 🟡 **Crédito POR VENCER:** E2: DAVIVIENDA, vence 2026-06-30 (52 días)
+- 🔴 **Póliza TR VENCIDA:** E1: ALLIANZ, vence 2024-02-10 (-819 días)
+- 🔴 **Póliza RC VENCIDA:** E1: ALLIANZ, vence 2024-02-10 (-819 días)
+- 🔴 **Póliza TR VENCIDA:** E2: ALLIANZ, vence 2024-02-10 (-819 días)
+- 🔴 **Póliza RC VENCIDA:** E2: ALLIANZ, vence 2024-02-10 (-819 días)
+- 🔴 **Licencia Construcción VENCIDA:** E1: venció 2023-04-12 (-1123 días)
+- 🔴 **Licencia Construcción VENCIDA:** E2: venció 2023-04-12 (-1123 días)
 ## Changelog
 
 | Versión | Fecha | Cambio | Autor |

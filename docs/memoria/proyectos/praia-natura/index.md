@@ -77,6 +77,41 @@ La Etapa 3 fue reclasificada de `Estructuracion` a `Proyectos` en el catálogo P
 
 Único proyecto de IC en Santa Marta. Concepto hotelero con amenidades de playa. E3 apenas inicia preventa (2 ventas). La escala de áreas (47–132m²) sugiere una oferta diversificada: estudios/un cuarto para inversión hasta penthouse para uso familiar o vacacional.
 
+## Datos Operativos (Datamart)
+
+_Fuente: Datamart.xlsx — actualizado 2026-05-09_
+
+**Director de Proyecto:** ALIDA RUIZ
+
+### Etapas
+
+| Etapa | Estado | Fiducia | Crédito | Monto | Venc. Crédito | Ventas Proy. |
+|-------|--------|---------|---------|-------|---------------|-------------|
+| E1 | ACTIVO | — | DAVIVIENDA | $32.0B | 2026-08-11 | $70.2B |
+| E2 | ACTIVO | — | DAVIVIENDA | $38.0B | 2027-07-15 | $66.8B |
+| E3 | ACTIVO | — | Pendiente | — |  | $79.8B |
+
+### Pólizas
+
+| Etapa | Entidad TR | Venc. TR | Entidad RC | Venc. RC |
+|-------|------------|----------|------------|----------|
+| E1 | SURA | 2026-01-27 🔴 | SURA | 2027-06-01 |
+| E2 | SURA | 2026-05-27 🟡 | SURA | 2027-06-01 |
+| E3 | SURA | 2027-06-01 | SURA | 2027-06-01 |
+
+### Licencias
+
+| Etapa | Lic. Urbanismo | Lic. Construcción | Venc. Lic. Const. | Próx. Trámite |
+|-------|----------------|-------------------|-------------------|---------------|
+| E1 | 47001-2-22-0050 | 47001-2-22-0050 | 2024-06-10 🔴 | 2026-04-16 |
+| E2 | 47001-2-22-0050 | RES 0266 | 2027-10-31 | 2027-06-01 |
+| E3 | 47001-2-22-0050 | POR TRAMITAR |  | — |
+
+### Alarmas
+
+- 🔴 **Póliza TR VENCIDA:** E1: SURA, vence 2026-01-27 (-102 días)
+- 🟡 **Póliza TR POR VENCER:** E2: SURA, vence 2026-05-27 (18 días)
+- 🔴 **Licencia Construcción VENCIDA:** E1: venció 2024-06-10 (-698 días)
 ## Changelog
 
 | Versión | Fecha | Cambio | Autor |

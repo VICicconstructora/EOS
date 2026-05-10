@@ -69,6 +69,39 @@ estado: construccion
 
 Proyecto VIS que comparte lote con Castilla Imperial (No VIS) en Kennedy. Dos torres de 22 pisos con 503 ventas acumuladas — alta velocidad de ventas para VIS en Bogotá.
 
+## Datos Operativos (Datamart)
+
+_Fuente: Datamart.xlsx — actualizado 2026-05-09_
+
+**Director de Proyecto:** ALIDA RUIZ
+
+### Etapas
+
+| Etapa | Estado | Fiducia | Crédito | Monto | Venc. Crédito | Ventas Proy. |
+|-------|--------|---------|---------|-------|---------------|-------------|
+| E1B | ACTIVO | — | DAVIVIENDA | $65.0B | 2026-09-30 | $64.1B |
+| E2A | ACTIVO | — | DAVIVIENDA | — | 2026-09-30 | $62.7B |
+
+### Pólizas
+
+| Etapa | Entidad TR | Venc. TR | Entidad RC | Venc. RC |
+|-------|------------|----------|------------|----------|
+| E1B | SURA | 2026-05-20 🟡 | SURA | 2027-05-20 |
+| E2A | SURA | 2026-05-20 🟡 | SURA | 2027-05-20 |
+
+### Licencias
+
+| Etapa | Lic. Urbanismo | Lic. Construcción | Venc. Lic. Const. | Próx. Trámite |
+|-------|----------------|-------------------|-------------------|---------------|
+| E1B | 11001-3-21-0405 | 11001-5-23-1808 | 2023-02-15 🔴 | — |
+| E2A | 11001-3-21-0405 | 11001-5-23-1808 | 2023-02-15 🔴 | — |
+
+### Alarmas
+
+- 🟡 **Póliza TR POR VENCER:** E1B: SURA, vence 2026-05-20 (11 días)
+- 🟡 **Póliza TR POR VENCER:** E2A: SURA, vence 2026-05-20 (11 días)
+- 🔴 **Licencia Construcción VENCIDA:** E1B: venció 2023-02-15 (-1179 días)
+- 🔴 **Licencia Construcción VENCIDA:** E2A: venció 2023-02-15 (-1179 días)
 ## Changelog
 
 | Versión | Fecha | Cambio | Autor |

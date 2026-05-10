@@ -59,6 +59,48 @@ estado: construccion
 
 Proyecto con Once Constructora en Madrid Cundinamarca, Ciudadela La Prosperidad (mismo urbanismo que Azul Celeste y Verde Vivo). 545 unidades, 7 torres de 12 pisos, 3 etapas activas. Fiduciaria: Colmena. Datos de ejecución en Historico.xlsx.
 
+## Datos Operativos (Datamart)
+
+_Fuente: Datamart.xlsx — actualizado 2026-05-09_
+
+**Director de Proyecto:** DIEGO BENAVIDES
+
+### Etapas
+
+| Etapa | Estado | Fiducia | Crédito | Monto | Venc. Crédito | Ventas Proy. |
+|-------|--------|---------|---------|-------|---------------|-------------|
+| E1 | INACTIVO | Colmena Fiduciaria | DAVIVIENDA | $18.5B | 2021-06-17 🔴 | $34.2B |
+| E2 | ACTIVO | Colmena Fiduciaria | DAVIVIENDA | $19.4B | 2026-12-15 | $38.7B |
+| E3 | INACTIVO | Colmena Fiduciaria | DAVIVIENDA | — |  | $25.2B |
+| E4 | INACTIVO | Colmena Fiduciaria | Pendiente | — |  | $59.7B |
+
+### Pólizas
+
+| Etapa | Entidad TR | Venc. TR | Entidad RC | Venc. RC |
+|-------|------------|----------|------------|----------|
+| E1 | SBS Seguros Colombia |  | SBS Seguros Colombia |  |
+| E2 | SBS Seguros Colombia | 2024-03-05 🔴 | SBS Seguros Colombia | 2024-03-05 🔴 |
+| E3 | — |  | — |  |
+| E4 | — |  | — |  |
+
+### Licencias
+
+| Etapa | Lic. Urbanismo | Lic. Construcción | Venc. Lic. Const. | Próx. Trámite |
+|-------|----------------|-------------------|-------------------|---------------|
+| E1 | RES 244 | RES 244 | 2021-02-02 🔴 | — |
+| E2 | RES 244 | RES 244 | 2021-02-02 🔴 | — |
+| E3 | RES 244 | RES 244 | 2021-02-02 🔴 | — |
+| E4 | RES 244 | RES 244 | 2021-02-02 🔴 | — |
+
+### Alarmas
+
+- 🔴 **Crédito VENCIDA:** E1: DAVIVIENDA, vence 2021-06-17 (-1787 días)
+- 🔴 **Póliza TR VENCIDA:** E2: SBS Seguros Colombia, vence 2024-03-05 (-795 días)
+- 🔴 **Póliza RC VENCIDA:** E2: SBS Seguros Colombia, vence 2024-03-05 (-795 días)
+- 🔴 **Licencia Construcción VENCIDA:** E1: venció 2021-02-02 (-1922 días)
+- 🔴 **Licencia Construcción VENCIDA:** E2: venció 2021-02-02 (-1922 días)
+- 🔴 **Licencia Construcción VENCIDA:** E3: venció 2021-02-02 (-1922 días)
+- 🔴 **Licencia Construcción VENCIDA:** E4: venció 2021-02-02 (-1922 días)
 ## Changelog
 
 | Versión | Fecha | Cambio | Autor |

@@ -1,0 +1,12 @@
+{
+  "name": "sync-datamart",
+  "version": "1.0.0",
+  "description": "Lee Datamart.xlsx y actualiza docs/memoria/proyectos/ cada 8 días",
+  "main": "sync-datamart.js",
+  "scripts": {
+    "start": "node sync-datamart.js"
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}
