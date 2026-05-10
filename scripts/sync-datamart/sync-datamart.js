@@ -19,6 +19,24 @@ const xlsx = require('xlsx');
 const fs   = require('fs');
 const path = require('path');
 
+// ─── Guardia de 8 días ────────────────────────────────────────────────────────
+// Cuando se ejecuta desde Task Scheduler (diario), solo procede si han pasado
+// ≥8 días desde la última ejecución. Saltar con --force para ignorar.
+
+const FORCE       = process.argv.includes('--force');
+const LAST_RUN_FILE = path.join(__dirname, '.last-run');
+const INTERVALO_DIAS = 8;
+
+if (!FORCE && fs.existsSync(LAST_RUN_FILE)) {
+  const lastRun  = new Date(fs.readFileSync(LAST_RUN_FILE, 'utf8').trim());
+  const diffDias = (Date.now() - lastRun.getTime()) / 86400000;
+  if (diffDias < INTERVALO_DIAS) {
+    const proxima = new Date(lastRun.getTime() + INTERVALO_DIAS * 86400000);
+    console.log(`[sync-datamart] Saltando — última ejecución hace ${diffDias.toFixed(1)} días. Próxima: ${proxima.toISOString().split('T')[0]}`);
+    process.exit(0);
+  }
+}
+
 // ─── Configuración ────────────────────────────────────────────────────────────
 
 const DATAMART_PATH = process.env.DATAMART_PATH
@@ -414,6 +432,9 @@ if (!fs.existsSync(REPORTES_ROOT)) {
 
 const reportePath = path.join(REPORTES_ROOT, `datamart-${TODAY_STR}.md`);
 fs.writeFileSync(reportePath, RL.join('\n'), 'utf8');
+
+// Guardar timestamp de última ejecución exitosa
+fs.writeFileSync(LAST_RUN_FILE, new Date().toISOString(), 'utf8');
 
 console.log(`\n────────────────────────────────────────`);
 console.log(`Actualizados: ${actualizados} proyectos`);
