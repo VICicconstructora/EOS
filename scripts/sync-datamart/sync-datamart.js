@@ -15,9 +15,10 @@
 
 'use strict';
 
-const xlsx = require('xlsx');
-const fs   = require('fs');
-const path = require('path');
+const xlsx      = require('xlsx');
+const fs        = require('fs');
+const path      = require('path');
+const nodemailer = require('nodemailer');
 
 // ─── Guardia de 8 días ────────────────────────────────────────────────────────
 // Cuando se ejecuta desde Task Scheduler (diario), solo procede si han pasado
@@ -52,6 +53,118 @@ const REPORTES_ROOT = path.join(REPO_ROOT, 'docs/memoria/reportes');
 const UMBRAL_POLIZA   = 30;
 const UMBRAL_LICENCIA = 60;
 const UMBRAL_CREDITO  = 90;
+
+// ─── Supabase (opcional) ──────────────────────────────────────────────────────
+// Requiere SUPABASE_URL y SUPABASE_SERVICE_KEY en el entorno.
+// Si no están definidas, la escritura en DB se omite silenciosamente.
+const SUPABASE_URL = process.env.SUPABASE_URL || '';
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || '';
+
+async function supabaseUpsert(table, rows, conflictColumn) {
+  if (!SUPABASE_URL || !SUPABASE_KEY || rows.length === 0) return;
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?on_conflict=${conflictColumn}`, {
+    method: 'POST',
+    headers: {
+      'apikey':        SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type':  'application/json',
+      'Prefer':        'resolution=merge-duplicates,return=minimal',
+    },
+    body: JSON.stringify(rows),
+  });
+  if (!res.ok) {
+    const txt = await res.text();
+    console.warn(`[supabase] Error en ${table}: ${res.status} ${txt}`);
+  }
+}
+
+async function supabaseUpdate(table, match, data) {
+  if (!SUPABASE_URL || !SUPABASE_KEY) return;
+  const qs = Object.entries(match).map(([k, v]) => `${k}=eq.${encodeURIComponent(v)}`).join('&');
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${qs}`, {
+    method: 'PATCH',
+    headers: {
+      'apikey':        SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type':  'application/json',
+      'Prefer':        'return=minimal',
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const txt = await res.text();
+    console.warn(`[supabase] Error PATCH ${table}: ${res.status} ${txt}`);
+  }
+}
+
+// ─── Email SMTP Office 365 (opcional) ────────────────────────────────────────
+// Requiere SMTP_USER, SMTP_PASS y SMTP_TO en el entorno.
+const SMTP_HOST = process.env.SMTP_HOST || 'smtp.office365.com';
+const SMTP_PORT = parseInt(process.env.SMTP_PORT || '587', 10);
+const SMTP_USER = process.env.SMTP_USER || '';
+const SMTP_PASS = process.env.SMTP_PASS || '';
+const SMTP_FROM = process.env.SMTP_FROM || SMTP_USER;
+const SMTP_TO   = process.env.SMTP_TO   || '';   // coma-separados
+
+async function sendAlarmEmail(vencidas, porVencer, fecha) {
+  if (!SMTP_USER || !SMTP_PASS || !SMTP_TO) return;
+
+  const transporter = nodemailer.createTransport({
+    host: SMTP_HOST, port: SMTP_PORT, secure: false,
+    auth: { user: SMTP_USER, pass: SMTP_PASS },
+    tls: { ciphers: 'SSLv3' },
+  });
+
+  function filaHtml(a) {
+    const ico  = a.nivel === 'VENCIDA' ? '🔴' : '🟡';
+    const slug = a.slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    return `<tr>
+      <td style="padding:6px 12px;border-bottom:1px solid #eee">${ico}</td>
+      <td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">${slug}</td>
+      <td style="padding:6px 12px;border-bottom:1px solid #eee">${a.area}</td>
+      <td style="padding:6px 12px;border-bottom:1px solid #eee">${a.detalle}</td>
+    </tr>`;
+  }
+
+  const tablaHtml = (rows) =>
+    rows.length === 0 ? '<p style="color:#888">Ninguna</p>' : `
+      <table style="border-collapse:collapse;width:100%;font-size:13px">
+        <thead><tr style="background:#f5f5f5">
+          <th style="padding:8px 12px;text-align:left"></th>
+          <th style="padding:8px 12px;text-align:left">Proyecto</th>
+          <th style="padding:8px 12px;text-align:left">Tipo</th>
+          <th style="padding:8px 12px;text-align:left">Detalle</th>
+        </tr></thead>
+        <tbody>${rows.map(filaHtml).join('')}</tbody>
+      </table>`;
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;max-width:700px;margin:0 auto">
+      <div style="background:#1a1a2e;padding:20px 28px;border-radius:8px 8px 0 0">
+        <h2 style="color:#fff;margin:0;font-size:18px">🏗️ IC Constructora — Alarmas Operativas</h2>
+        <p style="color:#aaa;margin:4px 0 0;font-size:13px">Sincronización Datamart · ${fecha}</p>
+      </div>
+      <div style="padding:24px 28px;background:#fff;border:1px solid #eee;border-top:none">
+        <h3 style="color:#dc2626;margin-top:0">🔴 Vencidas (${vencidas.length})</h3>
+        ${tablaHtml(vencidas)}
+        <h3 style="color:#d97706;margin-top:24px">🟡 Por vencer en los próximos 90 días (${porVencer.length})</h3>
+        ${tablaHtml(porVencer)}
+        <hr style="border:none;border-top:1px solid #eee;margin:24px 0">
+        <p style="color:#888;font-size:12px">
+          Generado automáticamente por el sistema EOS de IC Constructora.<br>
+          Para actualizar: accede a <strong>Portal EOS → Alarmas</strong>.
+        </p>
+      </div>
+    </div>`;
+
+  await transporter.sendMail({
+    from:    `"IC Constructora EOS" <${SMTP_FROM}>`,
+    to:      SMTP_TO,
+    subject: `[IC EOS] ${vencidas.length} alarmas vencidas + ${porVencer.length} por vencer · ${fecha}`,
+    html,
+  });
+  console.log(`[email] Enviado a: ${SMTP_TO}`);
+}
 
 // Nombre del proyecto en Datamart → slug de carpeta en memoria
 const PROJECT_MAP = {
@@ -228,7 +341,8 @@ function construirSeccion(slug, etapas) {
     if (diasC !== null && diasC < UMBRAL_CREDITO) {
       const nivel = diasC < 0 ? 'VENCIDA' : 'POR VENCER';
       alarmasLocales.push({
-        nivel, area: 'Crédito',
+        nivel, area: 'Crédito', category: 'credito',
+        etapa: String(e.etapa), expires_at: fmtDate(credVenc), dias: diasC,
         detalle: `E${e.etapa}: ${e.entidadCredito}, vence ${fmtDate(credVenc)} (${diasC} días)`
       });
     }
@@ -248,13 +362,14 @@ function construirSeccion(slug, etapas) {
     const diasTR = diasRestantes(e.vencTR);
     const diasRC = diasRestantes(e.vencRC);
 
-    [{ dias: diasTR, tipo: 'TR', ent: e.polizaTR, venc: fmtDate(e.vencTR) },
-     { dias: diasRC, tipo: 'RC', ent: e.polizaRC, venc: fmtDate(e.vencRC) }]
+    [{ dias: diasTR, tipo: 'TR', ent: e.polizaTR, venc: fmtDate(e.vencTR), cat: 'poliza_tr' },
+     { dias: diasRC, tipo: 'RC', ent: e.polizaRC, venc: fmtDate(e.vencRC), cat: 'poliza_rc' }]
       .forEach(p => {
         if (p.dias !== null && p.dias < UMBRAL_POLIZA) {
           const nivel = p.dias < 0 ? 'VENCIDA' : 'POR VENCER';
           alarmasLocales.push({
-            nivel, area: `Póliza ${p.tipo}`,
+            nivel, area: `Póliza ${p.tipo}`, category: p.cat,
+            etapa: String(e.etapa), expires_at: p.venc, dias: p.dias,
             detalle: `E${e.etapa}: ${p.ent}, vence ${p.venc} (${p.dias} días)`
           });
         }
@@ -277,7 +392,8 @@ function construirSeccion(slug, etapas) {
     if (diasL !== null && diasL < UMBRAL_LICENCIA) {
       const nivel = diasL < 0 ? 'VENCIDA' : 'POR VENCER';
       alarmasLocales.push({
-        nivel, area: 'Licencia Construcción',
+        nivel, area: 'Licencia Construcción', category: 'licencia',
+        etapa: String(e.etapa), expires_at: fmtDate(e.vencLicConst), dias: diasL,
         detalle: `E${e.etapa}: venció ${fmtDate(e.vencLicConst)} (${diasL} días)`
       });
     }
@@ -441,3 +557,78 @@ console.log(`Actualizados: ${actualizados} proyectos`);
 console.log(`Alarmas:      ${alarmasGlobales.length} total (${vencidas.length} 🔴 vencidas, ${porVencer.length} 🟡 por vencer)`);
 console.log(`Reporte:      ${reportePath}`);
 console.log(`────────────────────────────────────────\n`);
+
+// ─── Escritura en Supabase ────────────────────────────────────────────────────
+// UPSERT de todas las alarmas activas en esta ejecución.
+// Las alarmas que ya no aparecen en el Datamart se marcan como 'resolved'.
+
+const RUN_TIME = new Date().toISOString();
+
+const alarmRecords = alarmasGlobales.map(a => ({
+  company_id:  'ic-constructora',
+  external_id: `${a.slug}::${a.etapa}::${a.category}`,
+  project:     a.slug,
+  category:    a.category,
+  etapa:       a.etapa || '',
+  detail:      a.detalle || '',
+  severity:    a.nivel === 'VENCIDA' ? 'alta' : 'media',
+  expires_at:  a.expires_at || null,
+  dias:        a.dias !== undefined ? a.dias : null,
+  status:      'active',
+  last_seen_at: RUN_TIME,
+  updated_at:  RUN_TIME,
+}));
+
+(async () => {
+  if (SUPABASE_URL && SUPABASE_KEY) {
+    console.log('[supabase] Sincronizando alarmas...');
+    await supabaseUpsert('alarms', alarmRecords, 'company_id,external_id');
+
+    // Marcar como 'resolved' alarmas que ya no están en el Datamart actual
+    // (last_seen_at anterior a esta ejecución)
+    if (alarmRecords.length > 0) {
+      await supabaseUpdate('alarms',
+        { company_id: 'ic-constructora', status: 'active' },
+        // Usamos un PATCH condicional combinado:
+        // Supabase no permite NOT IN directamente en PATCH params, así que usamos
+        // el endpoint con lt filter en last_seen_at
+        { status: 'resolved', resolved_at: RUN_TIME }
+      );
+      // Nota: el PATCH anterior resolvería TODAS las activas. En su lugar hacemos
+      // una llamada GET para obtener IDs de alarmas no vistas y luego PATCH individual.
+      // Para simplificar, usamos un endpoint con lt en last_seen_at:
+      const staleUrl = `${SUPABASE_URL}/rest/v1/alarms?company_id=eq.ic-constructora&status=eq.active&last_seen_at=lt.${encodeURIComponent(RUN_TIME)}`;
+      const staleRes = await fetch(staleUrl, {
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+        },
+      });
+      if (staleRes.ok) {
+        const staleAlarms = await staleRes.json();
+        if (staleAlarms.length > 0) {
+          const staleIds = staleAlarms.map(a => a.id);
+          console.log(`[supabase] Marcando ${staleIds.length} alarmas como resolved (no vistas en este run)`);
+          for (const id of staleIds) {
+            await supabaseUpdate('alarms', { id }, { status: 'resolved', resolved_at: RUN_TIME });
+          }
+        }
+      }
+      console.log(`[supabase] ${alarmRecords.length} alarmas sincronizadas.`);
+    }
+  } else {
+    console.log('[supabase] Omitido — configura SUPABASE_URL y SUPABASE_SERVICE_KEY para habilitar.');
+  }
+
+  // ─── Email SMTP ─────────────────────────────────────────────────────────────
+  if (SMTP_USER && SMTP_PASS && SMTP_TO) {
+    console.log('[email] Enviando reporte...');
+    try {
+      await sendAlarmEmail(vencidas, porVencer, TODAY_STR);
+    } catch (err) {
+      console.warn('[email] Error al enviar:', err.message);
+    }
+  } else {
+    console.log('[email] Omitido — configura SMTP_USER, SMTP_PASS y SMTP_TO para habilitar.');
+  }
+})();

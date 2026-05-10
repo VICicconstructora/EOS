@@ -1,12 +1,15 @@
 // src/components/layout/Sidebar.jsx
+import { useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
 import {
   LayoutDashboard, Eye, Users, BarChart3, AlertTriangle,
   Settings2, Rocket, CalendarDays, Settings, LogOut, Globe,
-  Map, BookOpen, UserCheck, Building, Scale
+  Map, BookOpen, UserCheck, Building, Scale, TrendingUp, ScanLine, ExternalLink,
+  Gauge, ChevronUp, ChevronDown, BellRing, CheckSquare,
 } from 'lucide-react'
+import { useAlarms } from '../../lib/useAlarms'
 
 const EOS_MODULES = [
   { key: 'vision',   path: '/vision',   icon: Eye,           color: 'var(--eos-vision)' },
@@ -21,6 +24,8 @@ export default function Sidebar({ isOpen, onClose }) {
   const { t, i18n } = useTranslation()
   const { logout, displayName, isDemoMode } = useApp()
   const location = useLocation()
+  const [footerOpen, setFooterOpen] = useState(false)
+  const { countCritical } = useAlarms()
 
   function toggleLang() {
     const next = i18n.language === 'es' ? 'en' : 'es'
@@ -115,6 +120,39 @@ export default function Sidebar({ isOpen, onClose }) {
         </div>
 
         <NavLink
+          to="/alarmas"
+          className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+          onClick={handleNavClick}
+        >
+          <BellRing size={18} className="nav-item-icon" style={{ color: 'var(--status-error)' }} />
+          Alarmas
+          {countCritical > 0 && (
+            <span style={{
+              marginLeft: 'auto',
+              background: 'var(--status-error)',
+              color: '#fff',
+              fontSize: '0.65rem',
+              fontWeight: 700,
+              padding: '1px 6px',
+              borderRadius: 'var(--radius-full)',
+              lineHeight: 1.6,
+              flexShrink: 0,
+            }}>
+              {countCritical > 99 ? '99+' : countCritical}
+            </span>
+          )}
+        </NavLink>
+
+        <NavLink
+          to="/tareas"
+          className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+          onClick={handleNavClick}
+        >
+          <CheckSquare size={18} className="nav-item-icon" style={{ color: 'var(--brand-primary)' }} />
+          Tareas
+        </NavLink>
+
+        <NavLink
           to="/rrhh"
           className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
           onClick={handleNavClick}
@@ -140,6 +178,44 @@ export default function Sidebar({ isOpen, onClose }) {
           <Scale size={18} className="nav-item-icon" style={{ color: 'var(--eos-process)' }} />
           Jurídico
         </NavLink>
+
+        <NavLink
+          to="/kpis"
+          className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+          onClick={handleNavClick}
+        >
+          <Gauge size={18} className="nav-item-icon" style={{ color: '#10b981' }} />
+          KPIs
+        </NavLink>
+
+        {/* Herramientas externas */}
+        <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', padding: 'var(--space-3) var(--space-4) var(--space-1)', marginTop: 'var(--space-2)' }}>
+          Herramientas
+        </div>
+
+        <a
+          href={import.meta.env.VITE_INDICADORES_URL || 'http://localhost:8501'}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="nav-item"
+          style={{ textDecoration: 'none' }}
+        >
+          <TrendingUp size={18} className="nav-item-icon" style={{ color: '#10b981' }} />
+          Indicadores
+          <ExternalLink size={12} style={{ marginLeft: 'auto', opacity: 0.5 }} />
+        </a>
+
+        <a
+          href={import.meta.env.VITE_TOTAL_URL || 'http://localhost:5174'}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="nav-item"
+          style={{ textDecoration: 'none' }}
+        >
+          <ScanLine size={18} className="nav-item-icon" style={{ color: '#6366f1' }} />
+          Análisis de Planos
+          <ExternalLink size={12} style={{ marginLeft: 'auto', opacity: 0.5 }} />
+        </a>
       </nav>
 
       {/* Footer */}
@@ -150,7 +226,7 @@ export default function Sidebar({ isOpen, onClose }) {
             border: '1px solid rgba(232,160,32,0.3)',
             borderRadius: 'var(--radius-md)',
             padding: '8px 12px',
-            marginBottom: 12,
+            marginBottom: 8,
             fontSize: '0.75rem',
             color: 'var(--brand-primary)',
           }}>
@@ -158,26 +234,41 @@ export default function Sidebar({ isOpen, onClose }) {
           </div>
         )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <button className="nav-item" onClick={toggleLang} style={{ borderRadius: 'var(--radius-md)' }}>
-            <Globe size={16} className="nav-item-icon" />
-            {i18n.language === 'es' ? 'English' : 'Español'}
-          </button>
-          <NavLink to="/configuracion" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} onClick={handleNavClick}>
-            <Settings size={16} className="nav-item-icon" />
-            {t('nav.configuracion')}
-          </NavLink>
-          <button className="nav-item" onClick={logout} style={{ borderRadius: 'var(--radius-md)' }}>
-            <LogOut size={16} className="nav-item-icon" />
-            {t('common.logout')}
-          </button>
-        </div>
-
-        <div style={{ marginTop: 12, padding: '8px 0', borderTop: '1px solid var(--border-subtle)' }}>
-          <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+        {/* User row — always visible, click to expand/collapse actions */}
+        <button
+          onClick={() => setFooterOpen(o => !o)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            width: '100%', padding: '8px 4px',
+            background: 'none', border: 'none', cursor: 'pointer',
+            borderTop: '1px solid var(--border-subtle)',
+          }}
+        >
+          <div className="avatar avatar-sm" style={{ flexShrink: 0, fontSize: '0.75rem' }}>
+            {displayName.charAt(0).toUpperCase()}
+          </div>
+          <span style={{ flex: 1, fontSize: '0.78rem', color: 'var(--text-muted)', textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {displayName}
-          </p>
-        </div>
+          </span>
+          {footerOpen ? <ChevronDown size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} /> : <ChevronUp size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />}
+        </button>
+
+        {footerOpen && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2, paddingTop: 4 }}>
+            <button className="nav-item" onClick={toggleLang} style={{ borderRadius: 'var(--radius-md)' }}>
+              <Globe size={16} className="nav-item-icon" />
+              {i18n.language === 'es' ? 'English' : 'Español'}
+            </button>
+            <NavLink to="/configuracion" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} onClick={handleNavClick}>
+              <Settings size={16} className="nav-item-icon" />
+              {t('nav.configuracion')}
+            </NavLink>
+            <button className="nav-item" onClick={logout} style={{ borderRadius: 'var(--radius-md)', color: 'var(--text-muted)' }}>
+              <LogOut size={16} className="nav-item-icon" />
+              {t('common.logout')}
+            </button>
+          </div>
+        )}
       </div>
     </aside>
   )

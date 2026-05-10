@@ -1,12 +1,14 @@
 {
   "name": "sync-datamart",
-  "version": "1.0.0",
-  "description": "Lee Datamart.xlsx y actualiza docs/memoria/proyectos/ cada 8 días",
+  "version": "1.1.0",
+  "description": "Lee Datamart.xlsx y actualiza docs/memoria/proyectos/ cada 8 días, escribe alarmas en Supabase y envía email SMTP",
   "main": "sync-datamart.js",
   "scripts": {
-    "start": "node sync-datamart.js"
+    "start": "node sync-datamart.js",
+    "force": "node sync-datamart.js --force"
   },
   "dependencies": {
+    "nodemailer": "^6.9.13",
     "xlsx": "^0.18.5"
   }
 }
