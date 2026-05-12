@@ -71,7 +71,7 @@ Proyecto VIS en Jamundí (Valle del Cauca), municipio contiguo a Cali. E1 con 9 
 
 ## Datos Operativos (Datamart)
 
-_Fuente: Datamart.xlsx — actualizado 2026-05-09_
+_Fuente: Datamart.xlsx — actualizado 2026-05-10_
 
 **Director de Proyecto:** JHON MANOSALVA
 
@@ -104,9 +104,9 @@ _Fuente: Datamart.xlsx — actualizado 2026-05-09_
 
 ### Alarmas
 
-- 🟡 **Crédito POR VENCER:** E1: DAVIVIENDA, vence 2026-06-01 (23 días)
-- 🔴 **Póliza TR VENCIDA:** E1: SURA, vence 2025-09-27 (-224 días)
-- 🔴 **Póliza RC VENCIDA:** E1: SURA, vence 2025-09-27 (-224 días)
+- 🟡 **Crédito POR VENCER:** E1: DAVIVIENDA, vence 2026-06-01 (22 días)
+- 🔴 **Póliza TR VENCIDA:** E1: SURA, vence 2025-09-27 (-225 días)
+- 🔴 **Póliza RC VENCIDA:** E1: SURA, vence 2025-09-27 (-225 días)
 ## Changelog
 
 | Versión | Fecha | Cambio | Autor |

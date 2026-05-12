@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Bash(claude mcp *)",
+      "Bash(cmd.exe /c \"dir \\\\\"C:\\\\Users\\\\Administrador\\\\AppData\\\\Roaming\\\\Claude\\\\claude-code\\\\2.1.111\\\\\"\")",
+      "Bash(cmd.exe /c \"dir \\\\\"C:\\\\Users\\\\Administrador\\\\AppData\\\\Roaming\\\\Claude\\\\\"\")",
+      "Bash(cmd.exe /c \"dir \\\\\"%APPDATA%\\\\Claude\\\\\"\")",
+      "Bash(cmd.exe /c \"echo %USERNAME% && echo %APPDATA%\")",
+      "mcp__829f17d3-3115-4b84-a20d-8ab6ce3f9697__list_projects"
+    ]
+  }
+}

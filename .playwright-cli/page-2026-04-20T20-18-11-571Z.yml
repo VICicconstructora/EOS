@@ -1,0 +1,458 @@
+- generic [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e7]:
+        - generic [ref=e10]:
+          - button "App launcher" [ref=e12] [cursor=pointer]:
+            - img [ref=e14]
+          - img [ref=e16]
+          - tablist [ref=e28]:
+            - tab "Photos" [ref=e30] [cursor=pointer]
+            - tab "Files" [selected] [ref=e31] [cursor=pointer]
+        - search [ref=e34]:
+          - button "search icon" [ref=e35] [cursor=pointer]:
+            - img [ref=e36]
+          - searchbox "Search" [ref=e38]
+        - generic [ref=e39]:
+          - generic [ref=e40] [cursor=pointer]:
+            - button "Get more storage" [ref=e137]:
+              - img [ref=e44]
+              - generic [ref=e139]: Get more storage
+            - button "Settings" [ref=e46]:
+              - img [ref=e48]
+          - button "J Juan Paulo Mc Allister" [ref=e52] [cursor=pointer]:
+            - generic [ref=e54]:
+              - generic [ref=e55]: J
+              - img "Juan Paulo Mc Allister" [ref=e56]
+    - generic [ref=e58]:
+      - navigation "Page navigation" [ref=e60]:
+        - button "Create or upload" [expanded] [ref=e65] [cursor=pointer]:
+          - img [ref=e67]
+          - generic [ref=e69]: Create or upload
+        - generic [ref=e70]:
+          - button "Juan Paulo Mc Allister, Navigation Pane" [expanded] [ref=e71] [cursor=pointer]:
+            - img [ref=e74]
+          - generic [ref=e76]:
+            - generic [ref=e77]:
+              - generic: Juan Paulo Mc Allister
+            - list "Juan Paulo Mc Allister" [ref=e78]:
+              - listitem [ref=e79] [cursor=pointer]:
+                - link "Home" [ref=e81]:
+                  - /url: https://onedrive.live.com/?view=1
+                  - generic [ref=e82]:
+                    - img [ref=e85]
+                    - generic [ref=e88]: Home
+              - listitem [ref=e89] [cursor=pointer]:
+                - link "My files" [ref=e91]:
+                  - /url: https://onedrive.live.com/?view=0
+                  - generic [ref=e92]:
+                    - img [ref=e95]
+                    - generic [ref=e98]: My files
+              - listitem [ref=e99] [cursor=pointer]:
+                - link "Shared" [ref=e101]:
+                  - /url: https://onedrive.live.com/?view=3
+                  - generic [ref=e102]:
+                    - img [ref=e105]
+                    - generic [ref=e108]: Shared
+              - listitem [ref=e109] [cursor=pointer]:
+                - link "Recycle bin" [ref=e111]:
+                  - /url: https://onedrive.live.com/?view=5
+                  - generic [ref=e112]:
+                    - img [ref=e115]
+                    - generic [ref=e118]: Recycle bin
+          - generic [ref=e119]:
+            - button "Browse files by " [expanded] [ref=e120] [cursor=pointer]:
+              - generic: Browse files by
+              - generic [ref=e121]: 
+            - list "Browse files by" [ref=e124]:
+              - listitem [ref=e125] [cursor=pointer]:
+                - link "People" [ref=e127]:
+                  - /url: https://onedrive.live.com/?view=33
+                  - generic [ref=e128]:
+                    - img [ref=e131]
+                    - generic [ref=e134]: People
+          - generic [ref=e141]:
+            - button " Get more storage" [ref=e142]:
+              - generic [ref=e143]: 
+              - generic [ref=e144]: Get more storage
+            - generic [ref=e145]: Storage
+            - generic [ref=e149]:
+              - 'link "Storage: 508.8 GB used of 1 TB (49%)" [ref=e150] [cursor=pointer]':
+                - /url: /?v=managestorage&sw=bypassConfig
+                - text: 508.8 GB
+              - generic [ref=e151]: used of 1 TB (49%)
+      - main [ref=e154]:
+        - menubar [ref=e542]:
+          - generic [ref=e543]:
+            - menuitem "Share" [ref=e544] [cursor=pointer]:
+              - generic [ref=e545]:
+                - generic [ref=e546]: 
+                - generic [ref=e547]: Share
+            - menuitem "Copy link" [ref=e548] [cursor=pointer]:
+              - generic [ref=e549]:
+                - generic [ref=e550]: 
+                - generic [ref=e551]: Copy link
+            - menuitem "Download" [ref=e552] [cursor=pointer]:
+              - generic [ref=e553]:
+                - generic [ref=e554]: 
+                - generic [ref=e555]: Download
+            - menuitem "Create album from folder" [ref=e556] [cursor=pointer]:
+              - generic [ref=e557]:
+                - generic [ref=e558]: 
+                - generic [ref=e559]: Create album from folder
+          - generic [ref=e560]:
+            - menuitem "Sort all items by" [ref=e561] [cursor=pointer]:
+              - generic [ref=e562]:
+                - generic [ref=e563]: 
+                - generic [ref=e564]: Sort
+                - generic [ref=e565]: 
+            - menuitem "Switch view options" [ref=e566] [cursor=pointer]:
+              - generic [ref=e567]:
+                - generic [ref=e568]: 
+                - generic [ref=e569]: 
+            - menuitem "Open the details pane" [ref=e570] [cursor=pointer]:
+              - generic [ref=e571]:
+                - generic [ref=e572]: 
+                - generic [ref=e573]: Details
+        - list [ref=e576]:
+          - listitem [ref=e577]:
+            - button "My files" [ref=e578] [cursor=pointer]
+            - text: 
+          - listitem [ref=e579]:
+            - heading "Documentos" [level=1] [ref=e580]:
+              - generic [ref=e581]: Documentos
+        - tabpanel [ref=e179]:
+          - generic [ref=e182]:
+            - grid "Documentos" [ref=e582]:
+              - row "Select all rows Tipo Nombre Modificado File size Compartir" [ref=e184]:
+                - gridcell "Select all rows" [ref=e185]:
+                  - checkbox "Select all rows" [ref=e186] [cursor=pointer]
+                - columnheader "Tipo" [ref=e188]:
+                  - button "Tipo" [ref=e189]:
+                    - img [ref=e190]: 
+                - columnheader "Nombre" [ref=e191]:
+                  - button "Nombre" [ref=e192]:
+                    - generic [ref=e193]: Nombre
+                    - generic [ref=e194]: 
+                - columnheader "Modificado" [ref=e195]:
+                  - button "Modificado" [ref=e196]:
+                    - generic [ref=e197]: Modificado
+                    - generic [ref=e198]: 
+                - columnheader "File size" [ref=e199]:
+                  - button "File size" [ref=e200]:
+                    - generic [ref=e201]: File size
+                    - generic [ref=e202]: 
+                - columnheader "Compartir" [ref=e203]:
+                  - button "Compartir" [ref=e204]:
+                    - generic [ref=e205]: Compartir
+                    - generic [ref=e206]: 
+              - generic [ref=e583]:
+                - row "Select row Yellow folder Claude 8 de abril 1 item Private" [ref=e584]:
+                  - gridcell "Select row" [ref=e585]:
+                    - checkbox "Select row" [ref=e586] [cursor=pointer]
+                  - gridcell "Yellow folder" [ref=e588]:
+                    - img "Yellow folder" [ref=e590]:
+                      - img [ref=e591]
+                  - gridcell "Claude" [ref=e596]:
+                    - button "Claude" [ref=e597] [cursor=pointer]
+                    - generic:  
+                  - gridcell "8 de abril" [ref=e598]
+                  - gridcell "1 item" [ref=e599]
+                  - gridcell "Private" [ref=e600]:
+                    - button "Private" [ref=e601] [cursor=pointer]:
+                      - generic [ref=e602]: Private
+                - row "Select row Yellow folder Documentos 6/16/2023 7 items Private" [ref=e603]:
+                  - gridcell "Select row" [ref=e604]:
+                    - checkbox "Select row" [ref=e605] [cursor=pointer]
+                  - gridcell "Yellow folder" [ref=e607]:
+                    - img "Yellow folder" [ref=e609]:
+                      - img [ref=e610]
+                  - gridcell "Documentos" [ref=e615]:
+                    - button "Documentos" [ref=e616] [cursor=pointer]
+                    - generic:  
+                  - gridcell "6/16/2023" [ref=e617]
+                  - gridcell "7 items" [ref=e618]
+                  - gridcell "Private" [ref=e619]:
+                    - button "Private" [ref=e620] [cursor=pointer]:
+                      - generic [ref=e621]: Private
+                - row "Select row shared Yellow folder Ejercicios 2/3/2025 4 items  Shared" [ref=e622]:
+                  - gridcell "Select row" [ref=e623]:
+                    - checkbox "Select row" [ref=e624] [cursor=pointer]
+                  - gridcell "shared Yellow folder" [ref=e626]:
+                    - generic [ref=e627]:
+                      - img "shared" [ref=e628]: 
+                      - img "Yellow folder" [ref=e629]:
+                        - img [ref=e630]
+                  - gridcell "Ejercicios" [ref=e635]:
+                    - button "Ejercicios" [ref=e636] [cursor=pointer]
+                    - generic:  
+                  - gridcell "2/3/2025" [ref=e637]
+                  - gridcell "4 items" [ref=e638]
+                  - gridcell " Shared" [ref=e639]:
+                    - button " Shared" [ref=e640] [cursor=pointer]:
+                      - text: 
+                      - generic [ref=e641]: Shared
+                - row "Select row Yellow folder Excel 5/4/2022 5 items Private" [ref=e642]:
+                  - gridcell "Select row" [ref=e643]:
+                    - checkbox "Select row" [ref=e644] [cursor=pointer]
+                  - gridcell "Yellow folder" [ref=e646]:
+                    - img "Yellow folder" [ref=e648]:
+                      - img [ref=e649]
+                  - gridcell "Excel" [ref=e654]:
+                    - button "Excel" [ref=e655] [cursor=pointer]
+                    - generic:  
+                  - gridcell "5/4/2022" [ref=e656]
+                  - gridcell "5 items" [ref=e657]
+                  - gridcell "Private" [ref=e658]:
+                    - button "Private" [ref=e659] [cursor=pointer]:
+                      - generic [ref=e660]: Private
+                - row "Select row Yellow folder Impuestos 8/14/2024 1 item Private" [ref=e661]:
+                  - gridcell "Select row" [ref=e662]:
+                    - checkbox "Select row" [ref=e663] [cursor=pointer]
+                  - gridcell "Yellow folder" [ref=e665]:
+                    - img "Yellow folder" [ref=e667]:
+                      - img [ref=e668]
+                  - gridcell "Impuestos" [ref=e673]:
+                    - button "Impuestos" [ref=e674] [cursor=pointer]
+                    - generic:  
+                  - gridcell "8/14/2024" [ref=e675]
+                  - gridcell "1 item" [ref=e676]
+                  - gridcell "Private" [ref=e677]:
+                    - button "Private" [ref=e678] [cursor=pointer]:
+                      - generic [ref=e679]: Private
+                - row "Select row Yellow folder Plantillas personalizadas de Office 8/30/2025 0 items Private" [ref=e680]:
+                  - gridcell "Select row" [ref=e681]:
+                    - checkbox "Select row" [ref=e682] [cursor=pointer]
+                  - gridcell "Yellow folder" [ref=e684]:
+                    - img "Yellow folder" [ref=e686]:
+                      - img [ref=e687]
+                  - gridcell "Plantillas personalizadas de Office" [ref=e692]:
+                    - button "Plantillas personalizadas de Office" [ref=e693] [cursor=pointer]
+                    - generic:  
+                  - gridcell "8/30/2025" [ref=e694]
+                  - gridcell "0 items" [ref=e695]
+                  - gridcell "Private" [ref=e696]:
+                    - button "Private" [ref=e697] [cursor=pointer]:
+                      - generic [ref=e698]: Private
+                - row "Select row Yellow folder Proyectos More Actions Share 11/3/2023 10 items Private" [ref=e699]:
+                  - gridcell "Select row" [ref=e700]:
+                    - checkbox "Select row" [ref=e701] [cursor=pointer]
+                  - gridcell "Yellow folder" [ref=e703]:
+                    - img "Yellow folder" [ref=e705]:
+                      - img [ref=e706]
+                  - gridcell "Proyectos More Actions Share" [ref=e711]:
+                    - button "Proyectos" [ref=e712] [cursor=pointer]
+                    - generic [ref=e713]:
+                      - button "More Actions" [ref=e714] [cursor=pointer]: 
+                      - button "Share" [ref=e715] [cursor=pointer]: 
+                  - gridcell "11/3/2023" [ref=e716]
+                  - gridcell "10 items" [ref=e717]
+                  - gridcell "Private" [ref=e718]:
+                    - button "Private" [ref=e719] [cursor=pointer]:
+                      - generic [ref=e720]: Private
+                - row "Select row Yellow folder Scripts de Office 30 de enero 0 items Private" [ref=e721]:
+                  - gridcell "Select row" [ref=e722]:
+                    - checkbox "Select row" [ref=e723] [cursor=pointer]
+                  - gridcell "Yellow folder" [ref=e725]:
+                    - img "Yellow folder" [ref=e727]:
+                      - img [ref=e728]
+                  - gridcell "Scripts de Office" [ref=e733]:
+                    - button "Scripts de Office" [ref=e734] [cursor=pointer]
+                    - generic:  
+                  - gridcell "30 de enero" [ref=e735]
+                  - gridcell "0 items" [ref=e736]
+                  - gridcell "Private" [ref=e737]:
+                    - button "Private" [ref=e738] [cursor=pointer]:
+                      - generic [ref=e739]: Private
+                - row "Select row Yellow folder Visual Studio 2022 6/27/2022 0 items Private" [ref=e740]:
+                  - gridcell "Select row" [ref=e741]:
+                    - checkbox "Select row" [ref=e742] [cursor=pointer]
+                  - gridcell "Yellow folder" [ref=e744]:
+                    - img "Yellow folder" [ref=e746]:
+                      - img [ref=e747]
+                  - gridcell "Visual Studio 2022" [ref=e752]:
+                    - button "Visual Studio 2022" [ref=e753] [cursor=pointer]
+                    - generic:  
+                  - gridcell "6/27/2022" [ref=e754]
+                  - gridcell "0 items" [ref=e755]
+                  - gridcell "Private" [ref=e756]:
+                    - button "Private" [ref=e757] [cursor=pointer]:
+                      - generic [ref=e758]: Private
+                - row "Select row Yellow folder YouCam 1/27/2023 0 items Private" [ref=e759]:
+                  - gridcell "Select row" [ref=e760]:
+                    - checkbox "Select row" [ref=e761] [cursor=pointer]
+                  - gridcell "Yellow folder" [ref=e763]:
+                    - img "Yellow folder" [ref=e765]:
+                      - img [ref=e766]
+                  - gridcell "YouCam" [ref=e771]:
+                    - button "YouCam" [ref=e772] [cursor=pointer]
+                    - generic:  
+                  - gridcell "1/27/2023" [ref=e773]
+                  - gridcell "0 items" [ref=e774]
+                  - gridcell "Private" [ref=e775]:
+                    - button "Private" [ref=e776] [cursor=pointer]:
+                      - generic [ref=e777]: Private
+                - row "Select row .docx 020226 ACUERDO MARCO - AZULES.docx 2 de febrero 51.4 KB Private" [ref=e778]:
+                  - gridcell "Select row" [ref=e779]:
+                    - checkbox "Select row" [ref=e780] [cursor=pointer]
+                  - gridcell ".docx" [ref=e782]:
+                    - img ".docx" [ref=e783]
+                  - gridcell "020226 ACUERDO MARCO - AZULES.docx" [ref=e784]:
+                    - button "020226 ACUERDO MARCO - AZULES.docx" [ref=e785] [cursor=pointer]
+                    - generic:  
+                  - gridcell "2 de febrero" [ref=e786]
+                  - gridcell "51.4 KB" [ref=e787]
+                  - gridcell "Private" [ref=e788]:
+                    - button "Private" [ref=e789] [cursor=pointer]:
+                      - generic [ref=e790]: Private
+                - row "Select row .docx CUENTAS DE COBRO JUAN Y ANA.docx 18 de enero 15.0 KB Private" [ref=e791]:
+                  - gridcell "Select row" [ref=e792]:
+                    - checkbox "Select row" [ref=e793] [cursor=pointer]
+                  - gridcell ".docx" [ref=e795]:
+                    - img ".docx" [ref=e796]
+                  - gridcell "CUENTAS DE COBRO JUAN Y ANA.docx" [ref=e797]:
+                    - button "CUENTAS DE COBRO JUAN Y ANA.docx" [ref=e798] [cursor=pointer]
+                    - generic:  
+                  - gridcell "18 de enero" [ref=e799]
+                  - gridcell "15.0 KB" [ref=e800]
+                  - gridcell "Private" [ref=e801]:
+                    - button "Private" [ref=e802] [cursor=pointer]:
+                      - generic [ref=e803]: Private
+                - row "Select row .xlsx Datamart Sinco.xlsx 5/20/2024 10.8 MB Private" [ref=e804]:
+                  - gridcell "Select row" [ref=e805]:
+                    - checkbox "Select row" [ref=e806] [cursor=pointer]
+                  - gridcell ".xlsx" [ref=e808]:
+                    - img ".xlsx" [ref=e809]
+                  - gridcell "Datamart Sinco.xlsx" [ref=e810]:
+                    - button "Datamart Sinco.xlsx" [ref=e811] [cursor=pointer]
+                    - generic:  
+                  - gridcell "5/20/2024" [ref=e812]
+                  - gridcell "10.8 MB" [ref=e813]
+                  - gridcell "Private" [ref=e814]:
+                    - button "Private" [ref=e815] [cursor=pointer]:
+                      - generic [ref=e816]: Private
+                - row "Select row .pptx GanAppdo.pptx 10/20/2025 12.2 MB Private" [ref=e817]:
+                  - gridcell "Select row" [ref=e818]:
+                    - checkbox "Select row" [ref=e819] [cursor=pointer]
+                  - gridcell ".pptx" [ref=e821]:
+                    - img ".pptx" [ref=e822]
+                  - gridcell "GanAppdo.pptx" [ref=e823]:
+                    - button "GanAppdo.pptx" [ref=e824] [cursor=pointer]
+                    - generic:  
+                  - gridcell "10/20/2025" [ref=e825]
+                  - gridcell "12.2 MB" [ref=e826]
+                  - gridcell "Private" [ref=e827]:
+                    - button "Private" [ref=e828] [cursor=pointer]:
+                      - generic [ref=e829]: Private
+                - row "Select row .pdf img001.pdf 8/1/2022 221 KB Private" [ref=e830]:
+                  - gridcell "Select row" [ref=e831]:
+                    - checkbox "Select row" [ref=e832] [cursor=pointer]
+                  - gridcell ".pdf" [ref=e834]:
+                    - img ".pdf" [ref=e835]
+                  - gridcell "img001.pdf" [ref=e836]:
+                    - button "img001.pdf" [ref=e837] [cursor=pointer]
+                    - generic:  
+                  - gridcell "8/1/2022" [ref=e838]
+                  - gridcell "221 KB" [ref=e839]
+                  - gridcell "Private" [ref=e840]:
+                    - button "Private" [ref=e841] [cursor=pointer]:
+                      - generic [ref=e842]: Private
+                - row "Select row .pdf img002.pdf 8/1/2022 550 KB Private" [ref=e843]:
+                  - gridcell "Select row" [ref=e844]:
+                    - checkbox "Select row" [ref=e845] [cursor=pointer]
+                  - gridcell ".pdf" [ref=e847]:
+                    - img ".pdf" [ref=e848]
+                  - gridcell "img002.pdf" [ref=e849]:
+                    - button "img002.pdf" [ref=e850] [cursor=pointer]
+                    - generic:  
+                  - gridcell "8/1/2022" [ref=e851]
+                  - gridcell "550 KB" [ref=e852]
+                  - gridcell "Private" [ref=e853]:
+                    - button "Private" [ref=e854] [cursor=pointer]:
+                      - generic [ref=e855]: Private
+                - row "Select row .pptx Junta 2025-02-20.pptx 2/17/2025 20.4 MB Private" [ref=e856]:
+                  - gridcell "Select row" [ref=e857]:
+                    - checkbox "Select row" [ref=e858] [cursor=pointer]
+                  - gridcell ".pptx" [ref=e860]:
+                    - img ".pptx" [ref=e861]
+                  - gridcell "Junta 2025-02-20.pptx" [ref=e862]:
+                    - button "Junta 2025-02-20.pptx" [ref=e863] [cursor=pointer]
+                    - generic:  
+                  - gridcell "2/17/2025" [ref=e864]
+                  - gridcell "20.4 MB" [ref=e865]
+                  - gridcell "Private" [ref=e866]:
+                    - button "Private" [ref=e867] [cursor=pointer]:
+                      - generic [ref=e868]: Private
+                - row "Select row .xlsx Libro1.xlsx 7/10/2025 23.1 MB Private" [ref=e869]:
+                  - gridcell "Select row" [ref=e870]:
+                    - checkbox "Select row" [ref=e871] [cursor=pointer]
+                  - gridcell ".xlsx" [ref=e873]:
+                    - img ".xlsx" [ref=e874]
+                  - gridcell "Libro1.xlsx" [ref=e875]:
+                    - button "Libro1.xlsx" [ref=e876] [cursor=pointer]
+                    - generic:  
+                  - gridcell "7/10/2025" [ref=e877]
+                  - gridcell "23.1 MB" [ref=e878]
+                  - gridcell "Private" [ref=e879]:
+                    - button "Private" [ref=e880] [cursor=pointer]:
+                      - generic [ref=e881]: Private
+                - row "Select row .xlsx Once.xlsx 3/23/2025 11.9 KB Private" [ref=e882]:
+                  - gridcell "Select row" [ref=e883]:
+                    - checkbox "Select row" [ref=e884] [cursor=pointer]
+                  - gridcell ".xlsx" [ref=e886]:
+                    - img ".xlsx" [ref=e887]
+                  - gridcell "Once.xlsx" [ref=e888]:
+                    - button "Once.xlsx" [ref=e889] [cursor=pointer]
+                    - generic:  
+                  - gridcell "3/23/2025" [ref=e890]
+                  - gridcell "11.9 KB" [ref=e891]
+                  - gridcell "Private" [ref=e892]:
+                    - button "Private" [ref=e893] [cursor=pointer]:
+                      - generic [ref=e894]: Private
+                - row "Select row .zip project-bolt-sb1-h7beeyku.zip 10/20/2025 54.7 KB Private" [ref=e895]:
+                  - gridcell "Select row" [ref=e896]:
+                    - checkbox "Select row" [ref=e897] [cursor=pointer]
+                  - gridcell ".zip" [ref=e899]:
+                    - img ".zip" [ref=e900]
+                  - gridcell "project-bolt-sb1-h7beeyku.zip" [ref=e901]:
+                    - button "project-bolt-sb1-h7beeyku.zip" [ref=e902] [cursor=pointer]
+                    - generic:  
+                  - gridcell "10/20/2025" [ref=e903]
+                  - gridcell "54.7 KB" [ref=e904]
+                  - gridcell "Private" [ref=e905]:
+                    - button "Private" [ref=e906] [cursor=pointer]:
+                      - generic [ref=e907]: Private
+                - row "Select row .docx Talento Humano.docx 7/10/2025 16.7 KB Private" [ref=e908]:
+                  - gridcell "Select row" [ref=e909]:
+                    - checkbox "Select row" [ref=e910] [cursor=pointer]
+                  - gridcell ".docx" [ref=e912]:
+                    - img ".docx" [ref=e913]
+                  - gridcell "Talento Humano.docx" [ref=e914]:
+                    - button "Talento Humano.docx" [ref=e915] [cursor=pointer]
+                    - generic:  
+                  - gridcell "7/10/2025" [ref=e916]
+                  - gridcell "16.7 KB" [ref=e917]
+                  - gridcell "Private" [ref=e918]:
+                    - button "Private" [ref=e919] [cursor=pointer]:
+                      - generic [ref=e920]: Private
+                - row "Select row .txt vendedor de inventario.txt 10 de marzo 363 bytes Private" [ref=e921]:
+                  - gridcell "Select row" [ref=e922]:
+                    - checkbox "Select row" [ref=e923] [cursor=pointer]
+                  - gridcell ".txt" [ref=e925]:
+                    - img ".txt" [ref=e926]
+                  - gridcell "vendedor de inventario.txt" [ref=e927]:
+                    - button "vendedor de inventario.txt" [ref=e928] [cursor=pointer]
+                    - generic:  
+                  - gridcell "10 de marzo" [ref=e929]
+                  - gridcell "363 bytes" [ref=e930]
+                  - gridcell "Private" [ref=e931]:
+                    - button "Private" [ref=e932] [cursor=pointer]:
+                      - generic [ref=e933]: Private
+            - grid [active] [ref=e534]
+            - status [ref=e535]
+      - generic "Ask Copilot about your files" [ref=e934]:
+        - button "Copilot actions" [ref=e935]
+  - generic:
+    - img

@@ -1,0 +1,9 @@
+[     178ms] [LOG] Not one page nav, startPrefetch @ https://res-1.cdn.office.net/files/odsp-web-prod_2026-04-03.008/odbspartan/odc-prefetch.js:274
+[     308ms] [LOG] Session ID: 8949eb3b-7fb2-4150-b0c2-77f325a17153 @ https://res-1.cdn.office.net/files/odsp-web-prod_2026-04-03.008/odbspartan/odcfiles.js:281
+[     308ms] [LOG] Time in UTC:  Mon, 20 Apr 2026 20:30:29 GMT @ https://res-1.cdn.office.net/files/odsp-web-prod_2026-04-03.008/odbspartan/odcfiles.js:281
+[    1882ms] [LOG] 1871 install done:  ServiceWorker @ https://res-1.cdn.office.net/files/odsp-web-prod_2026-04-03.008/odbspartan/229.js:14
+[    2074ms] [LOG] Session ID: 6df3f3e9-f34f-4df6-a0fd-fb236b33c337 @ https://res-1.cdn.office.net/files/odsp-web-prod_2026-04-03.008/odspwebworkers/en-us/spartanlistpostpltworker.js:6
+[    2074ms] [LOG] Time in UTC:  Mon, 20 Apr 2026 20:30:31 GMT @ https://res-1.cdn.office.net/files/odsp-web-prod_2026-04-03.008/odspwebworkers/en-us/spartanlistpostpltworker.js:6
+[    3885ms] [WARNING] Some icons were re-registered. Applications should only call registerIcons for any given icon once. Redefining what an icon is may have unintended consequences. Duplicates include: 
+DefenderApp, OneDriveLogo, OutlookLogoInverse, OneNoteLogoInverse, ExcelLogoInverse, WordLogoInverse, PowerPointLogoInverse, SharepointLogoInverse, WordLogo, OneNoteLogo (+ 3 more) @ https://res-1.cdn.office.net/files/odsp-web-prod_2026-04-03.008/odbspartan/odcfiles.js:621
+[    8239ms] [WARNING] The resource https://res-1.cdn.office.net/files/fabric-cdn-prod_20260113.001/onedrive-assets/onedrive-font-face-definitions.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ https://onedrive.live.com/?id=%2Fpersonal%2Ff3391de9aa182488%2FDocuments%2FDocumentos%2FDocumentos%2FIndicadores&view=0:0

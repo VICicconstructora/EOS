@@ -1,0 +1,56 @@
+[    1680ms] [INFO] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: https://www.microsoft.com/mwf/_h/v3.54/mwf.app/fonts/mwfmdl2-v3.54.woff @ https://www.microsoft.com/es-co/microsoft-365/onedrive/online-cloud-storage:0
+[    1838ms] [INFO] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: https://www.microsoft.com/golf/etc.clientlibs/onecloud/clientlibs/clientlib-mwf-new/resources/fonts/MWFFluentIcons.woff2 @ https://www.microsoft.com/es-co/microsoft-365/onedrive/online-cloud-storage:488
+[    2175ms] Identifier 'LocalStorageUtil' has already been declared
+[    2203ms] Identifier 'LocalStorageUtil' has already been declared
+[    2438ms] Identifier 'LocalStorageUtil' has already been declared
+[    2442ms] Identifier 'LocalStorageUtil' has already been declared
+[    3398ms] [LOG] 1DS Initialized.. @ https://www.microsoft.com/golf/etc.clientlibs/microsoft/components/structure/page/clientlibs/custom-oneds.ACSHASHbf880242325f20f5b8644293f4586135.min.js:0
+[    3883ms] [LOG] note request: [] @ https://publisher.liveperson.net/iframe-le-tag/iframe-cs.html?lpsite=60270350&lpsection=office365-leadgen-es-co&buttons=hiddenchat:497
+[    4246ms] [LOG] MWF v2.8.1 @ https://www.microsoft.com/golf/etc.clientlibs/onecloud/clientlibs/clientlib-mwf-new/main-light.ACSHASHfe9d5283cc0a38f995b64bf0f39192eb.min.js:13154
+[    4906ms] [WARNING] [OCR][ProductPricingManager] creation error:  Error: [OCR][ProductPricingManager] Invalid pricing component element. Missing data-ocr-pricing-identifier or data-ocr-sku-request attribute.
+    at ProductPricingManager.findPricingRequestElement (https://www.microsoft.com/etc.clientlibs/onecloud/clientlibs/clientlib-product-pricing.ACSHASHf9c4f2ed4e61ec88e9a455f543919e32.min.js:2891:19)
+    at new ProductPricingRendering (https://www.microsoft.com/etc.clientlibs/onecloud/clientlibs/clientlib-product-pricing.ACSHASHf9c4f2ed4e61ec88e9a455f543919e32.min.js:2168:89)
+    at ProductPricingManager.createProductPriceRenderInstance (https://www.microsoft.com/etc.clientlibs/onecloud/clientlibs/clientlib-product-pricing.ACSHASHf9c4f2ed4e61ec88e9a455f543919e32.min.js:3123:13)
+    at ProductPricingManager.createProductPricingRequests (https://www.microsoft.com/etc.clientlibs/onecloud/clientlibs/clientlib-product-pricing.ACSHASHf9c4f2ed4e61ec88e9a455f543919e32.min.js:3044:30)
+    at ProductPricingManager.initializePricingManager (https://www.microsoft.com/etc.clientlibs/onecloud/clientlibs/clientlib-product-pricing.ACSHASHf9c4f2ed4e61ec88e9a455f543919e32.min.js:2710:14)
+    at new ProductPricingManager (https://www.microsoft.com/etc.clientlibs/onecloud/clientlibs/clientlib-product-pricing.ACSHASHf9c4f2ed4e61ec88e9a455f543919e32.min.js:2659:14)
+    at initializeProductPriceModule (https://www.microsoft.com/golf/etc.clientlibs/onecloud/clientlibs/clientlib-product-pricing.ACSHASHf9c4f2ed4e61ec88e9a455f543919e32.min.js:649:17)
+    at HTMLDocument.<anonymous> (https://www.microsoft.com/golf/etc.clientlibs/onecloud/clientlibs/clientlib-product-pricing.ACSHASHf9c4f2ed4e61ec88e9a455f543919e32.min.js:673:9) @ https://www.microsoft.com/etc.clientlibs/onecloud/clientlibs/clientlib-product-pricing.ACSHASHf9c4f2ed4e61ec88e9a455f543919e32.min.js:3045
+[    4906ms] [WARNING] [OCR][ProductPricingManager] creation error:  Error: [OCR][ProductPricingManager] Invalid pricing component element. Missing data-ocr-pricing-identifier or data-ocr-sku-request attribute.
+    at ProductPricingManager.findPricingRequestElement (https://www.microsoft.com/etc.clientlibs/onecloud/clientlibs/clientlib-product-pricing.ACSHASHf9c4f2ed4e61ec88e9a455f543919e32.min.js:2891:19)
+    at new ProductPricingRendering (https://www.microsoft.com/etc.clientlibs/onecloud/clientlibs/clientlib-product-pricing.ACSHASHf9c4f2ed4e61ec88e9a455f543919e32.min.js:2168:89)
+    at ProductPricingManager.createProductPriceRenderInstance (https://www.microsoft.com/etc.clientlibs/onecloud/clientlibs/clientlib-product-pricing.ACSHASHf9c4f2ed4e61ec88e9a455f543919e32.min.js:3123:13)
+    at ProductPricingManager.createProductPricingRequests (https://www.microsoft.com/etc.clientlibs/onecloud/clientlibs/clientlib-product-pricing.ACSHASHf9c4f2ed4e61ec88e9a455f543919e32.min.js:3044:30)
+    at ProductPricingManager.initializePricingManager (https://www.microsoft.com/etc.clientlibs/onecloud/clientlibs/clientlib-product-pricing.ACSHASHf9c4f2ed4e61ec88e9a455f543919e32.min.js:2710:14)
+    at new ProductPricingManager (https://www.microsoft.com/etc.clientlibs/onecloud/clientlibs/clientlib-product-pricing.ACSHASHf9c4f2ed4e61ec88e9a455f543919e32.min.js:2659:14)
+    at initializeProductPriceModule (https://www.microsoft.com/golf/etc.clientlibs/onecloud/clientlibs/clientlib-product-pricing.ACSHASHf9c4f2ed4e61ec88e9a455f543919e32.min.js:649:17)
+    at HTMLDocument.<anonymous> (https://www.microsoft.com/golf/etc.clientlibs/onecloud/clientlibs/clientlib-product-pricing.ACSHASHf9c4f2ed4e61ec88e9a455f543919e32.min.js:673:9) @ https://www.microsoft.com/etc.clientlibs/onecloud/clientlibs/clientlib-product-pricing.ACSHASHf9c4f2ed4e61ec88e9a455f543919e32.min.js:3045
+[    5138ms] [LOG] gpc opt-in @ https://www.microsoft.com/golf/etc.clientlibs/microsoft/clientlibs/cookie-compliance-manager.ACSHASHd471cafc5d23f4577f5cf2676dcc276a.min.js:4
+[    5138ms] [LOG] Clarity consent conditions not met @ https://www.microsoft.com/golf/etc.clientlibs/microsoft/clientlibs/cookie-compliance-manager.ACSHASHd471cafc5d23f4577f5cf2676dcc276a.min.js:4
+[    5158ms] [INFO] [WC Visibility Fix] None of the target tags were found in the DOM. @ https://www.microsoft.com/msonecloudapi/assets/msocbody.js:728
+[    5530ms] [LOG] KIF-9a6a4551-d7ca-492e-83b8-a679497175ba: Launcher Rule Fired @ :1
+[    5541ms] [LOG] new condition found @ https://assets.adobedtm.com/launch-ENc0cbffaf0f8248c3a934a56818d7737e.min.js:7
+[    5614ms] [LOG] KIF-472b86e4-85d2-424d-a035-610fe2345c81: Launcher Rule Fired @ :1
+[    5617ms] [LOG] GPC Loaded - globalPrivacyControl: undefined @ https://assets.adobedtm.com/launch-ENc0cbffaf0f8248c3a934a56818d7737e.min.js:8
+[    5617ms] [LOG] GPC_DataSharingOptIn: true @ https://assets.adobedtm.com/launch-ENc0cbffaf0f8248c3a934a56818d7737e.min.js:8
+[    5617ms] [LOG] MSCC cookie not found - blocking pixels @ https://assets.adobedtm.com/launch-ENc0cbffaf0f8248c3a934a56818d7737e.min.js:8
+[    5630ms] [LOG] KIF-c66597f3-7752-4a26-9b1e-69987139d5e3: Launcher Rule Fired @ :1
+[    5643ms] [LOG] KIF-d5d407cb-9e1e-454a-b1f6-7ae14cf3b9e4: Launcher Rule Fired @ :1
+[    5670ms] [LOG] KIF-1d1be977-a70b-46a7-b9fd-0cdc192dd6de: Launcher Rule Fired @ :1
+[    5670ms] [LOG] KIF M365 Demo 1DS starts @ :1
+[    6357ms] [INFO] BSSO Telemetry: {"result":"Error","error":"NoExtension","type":"ChromeSsoTelemetry","data":{},"traces":["BrowserSSO Initialized","Creating ChromeBrowserCore provider","Sending message for method CreateProviderAsync","Received message for method CreateProviderAsync","Error: ChromeBrowserCore error NoExtension: Extension is not installed."]} @ https://aadcdn.msftauth.net/shared/1.0/content/js/BssoInterrupt_Core_eE2DYJlsHKgq7xFfjkmMww2.js:17
+[    6890ms] [LOG] message received from parent page @ https://publisher.liveperson.net/iframe-le-tag/iframe-cs.html?lpsite=60270350&lpsection=office365-leadgen-es-co&buttons=hiddenchat:760
+[    8641ms] [LOG] Clarity consent granted @ https://www.microsoft.com/golf/etc.clientlibs/microsoft/clientlibs/cookie-compliance-manager.ACSHASHd471cafc5d23f4577f5cf2676dcc276a.min.js:4
+[    8641ms] [LOG] message received from parent page @ https://publisher.liveperson.net/iframe-le-tag/iframe-cs.html?lpsite=60270350&lpsection=office365-leadgen-es-co&buttons=hiddenchat:760
+[    8642ms] [LOG] message received from parent page @ https://publisher.liveperson.net/iframe-le-tag/iframe-cs.html?lpsite=60270350&lpsection=office365-leadgen-es-co&buttons=hiddenchat:760
+[    8643ms] [LOG] Clarity loaded @ https://www.microsoft.com/msonecloudapi/assets/msocbody.js:700
+[    8689ms] [LOG] M365 munchkin starts @ :1
+[    8689ms] [LOG] munchkin end @ :1
+[    8689ms] [LOG] Not a zh-cn page @ :1
+[    8689ms] [LOG] Pixels starts @ :1
+[    8690ms] [LOG] Pixels end - after old logic @ :1
+[    9901ms] [LOG] ext JS_in init @ https://lptag.liveperson.net/lptag/api/account/60270350/configuration/applications/taglets/.jsonp?v=2.0&df=undefined&s=office365-leadgen-es-co&b=undefined:0
+[    9903ms] [LOG] ext JS_in addexternalscript @ https://lptag.liveperson.net/lptag/api/account/60270350/configuration/applications/taglets/.jsonp?v=2.0&df=undefined&s=office365-leadgen-es-co&b=undefined:0
+[    9904ms] [LOG] ext JS_in valid check @ https://lptag.liveperson.net/lptag/api/account/60270350/configuration/applications/taglets/.jsonp?v=2.0&df=undefined&s=office365-leadgen-es-co&b=undefined:0
+[    9942ms] [LOG] ext JS_in_if function @ https://lptag.liveperson.net/lptag/api/account/60270350/configuration/applications/taglets/.jsonp?v=2.0&df=undefined&s=office365-leadgen-es-co&b=undefined:0
+[    9999ms] [LOG] ext JS_after add @ https://lptag.liveperson.net/lptag/api/account/60270350/configuration/applications/taglets/.jsonp?v=2.0&df=undefined&s=office365-leadgen-es-co&b=undefined:0

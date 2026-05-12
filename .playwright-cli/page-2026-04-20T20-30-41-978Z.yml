@@ -1,0 +1,94 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - generic [ref=e4]:
+    - banner [ref=e5]:
+      - generic [ref=e8]:
+        - generic [ref=e11]:
+          - button "App launcher" [ref=e13] [cursor=pointer]:
+            - img [ref=e15]
+          - img [ref=e17]
+          - tablist [ref=e29]:
+            - tab "Photos" [ref=e31] [cursor=pointer]
+            - tab "Files" [selected] [ref=e32] [cursor=pointer]
+        - search [ref=e35]:
+          - button "search icon" [ref=e36] [cursor=pointer]:
+            - img [ref=e37]
+          - searchbox "Search" [ref=e39]
+        - generic [ref=e40]:
+          - generic [ref=e41] [cursor=pointer]:
+            - button "Get more storage" [ref=e43]:
+              - img [ref=e45]
+            - button "Settings" [ref=e48]:
+              - img [ref=e50]
+          - button "J Juan Paulo Mc Allister" [ref=e54] [cursor=pointer]:
+            - generic [ref=e56]:
+              - generic [ref=e57]: J
+              - img "Juan Paulo Mc Allister" [ref=e58]
+    - generic [ref=e60]:
+      - navigation "Page navigation" [ref=e62]:
+        - button "Create or upload" [expanded] [ref=e67] [cursor=pointer]:
+          - img [ref=e69]
+          - generic [ref=e71]: Create or upload
+        - generic [ref=e72]:
+          - button "Juan Paulo Mc Allister, Navigation Pane" [expanded] [ref=e73] [cursor=pointer]:
+            - img [ref=e76]
+          - generic [ref=e78]:
+            - generic [ref=e79]:
+              - generic: Juan Paulo Mc Allister
+            - list "Juan Paulo Mc Allister" [ref=e80]:
+              - listitem [ref=e81] [cursor=pointer]:
+                - link "Home" [ref=e83]:
+                  - /url: https://onedrive.live.com/?view=1
+                  - generic [ref=e84]:
+                    - img [ref=e87]
+                    - generic [ref=e90]: Home
+              - listitem [ref=e91] [cursor=pointer]:
+                - link "My files" [ref=e93]:
+                  - /url: https://onedrive.live.com/?view=0
+                  - generic [ref=e94]:
+                    - img [ref=e97]
+                    - generic [ref=e100]: My files
+              - listitem [ref=e101] [cursor=pointer]:
+                - link "Shared" [ref=e103]:
+                  - /url: https://onedrive.live.com/?view=3
+                  - generic [ref=e104]:
+                    - img [ref=e107]
+                    - generic [ref=e110]: Shared
+              - listitem [ref=e111] [cursor=pointer]:
+                - link "Recycle bin" [ref=e113]:
+                  - /url: https://onedrive.live.com/?view=5
+                  - generic [ref=e114]:
+                    - img [ref=e117]
+                    - generic [ref=e120]: Recycle bin
+          - generic [ref=e121]:
+            - button "Browse files by " [expanded] [ref=e122] [cursor=pointer]:
+              - generic: Browse files by
+              - generic [ref=e123]: 
+            - list "Browse files by" [ref=e126]:
+              - listitem [ref=e127] [cursor=pointer]:
+                - link "People" [ref=e129]:
+                  - /url: https://onedrive.live.com/?view=33
+                  - generic [ref=e130]:
+                    - img [ref=e133]
+                    - generic [ref=e136]: People
+          - generic [ref=e138]:
+            - generic [ref=e139]:
+              - generic [ref=e141]: Get storage for all your files and photos.
+              - button " Buy storage" [ref=e142]:
+                - generic [ref=e143]: 
+                - generic [ref=e144]: Buy storage
+            - generic [ref=e145]: Storage
+            - generic [ref=e149]:
+              - 'link "Storage: 508.8 GB used of 1 TB (49%)" [ref=e150] [cursor=pointer]':
+                - /url: /?v=managestorage&sw=bypassConfig
+                - text: 508.8 GB
+              - generic [ref=e151]: used of 1 TB (49%)
+      - main [ref=e154]:
+        - menubar [ref=e156]:
+          - menuitem "Show Personal Vault items" [ref=e158] [cursor=pointer]:
+            - generic [ref=e159]:
+              - img [ref=e161]
+              - generic [ref=e163]: Show Personal Vault items
+        - heading "Recycle bin" [level=2] [ref=e165]
+        - tabpanel [ref=e166]

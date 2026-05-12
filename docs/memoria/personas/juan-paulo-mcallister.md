@@ -12,7 +12,7 @@ estado: vigente
 **Cargo:** CEO / Gerente General
 **Área:** Dirección General
 **Reporta a:** Junta directiva
-**Antigüedad:** [por definir]
+**Antigüedad:** 2019-11-18
 **Email:** [por definir]
 **Teléfono:** [por definir]
 

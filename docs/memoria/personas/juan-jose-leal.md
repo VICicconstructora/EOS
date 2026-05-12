@@ -12,7 +12,7 @@ estado: vigente
 **Cargo:** Gerente Financiero
 **Área:** Financiero (Contabilidad, Tesorería, P&G)
 **Reporta a:** Juan Paulo McAllister (CEO)
-**Antigüedad:** [por definir]
+**Antigüedad:** 2025-01-15
 **Email:** [por definir]
 **Teléfono:** [por definir]
 
@@ -37,10 +37,11 @@ estado: vigente
 
 ## Equipo directo
 
-| Nombre | Cargo |
-|--------|-------|
-| [Por definir] | Contador / Analista Financiero |
-| [Por definir] | Analista Tesorería |
+| Nombre | Cargo | Área |
+|--------|-------|------|
+| DIANA LUCIA PINZON RUIZ | DIRECTOR DE TESORERIA 1 | GERENCIA FINANCIERA |
+| LILIANA MARIA LOPEZ MOJICA | DIRECTOR DE CONTABILIDAD 1 | GERENCIA FINANCIERA |
+| GLORIA ENITH NIÑO GARZON | DIRECTOR FINANCIERO 1 | GERENCIA FINANCIERA |
 
 ## Coordinaciones clave con otras áreas
 

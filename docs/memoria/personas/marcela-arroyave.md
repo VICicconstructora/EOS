@@ -12,7 +12,7 @@ estado: vigente
 **Cargo:** Gerente de Control
 **Área:** Control (Compras, Costos, Posventas, Calidad)
 **Reporta a:** Juan Paulo McAllister (CEO)
-**Antigüedad:** [por definir]
+**Antigüedad:** 2025-07-14
 **Email:** [por definir]
 **Teléfono:** [por definir]
 
@@ -35,11 +35,13 @@ estado: vigente
 
 ## Equipo directo
 
-| Nombre | Cargo |
-|--------|-------|
-| [Por definir] | Analista Compras |
-| [Por definir] | Coordinador Posventas |
-| [Por definir] | Inspector de Calidad |
+| Nombre | Cargo | Área |
+|--------|-------|------|
+| OSCAR ARLEY ALARCON  | ANALISTA DE CALIDAD 1 | GERENCIA DE CONTROL |
+| ALVARO ENRIQUE BRAVO CORTES | DIRECTOR DE COMPRAS Y CONTRATACION 1 | GERENCIA DE CONTROL |
+| KERLY HOANNA CADENA GUEVARA | DIRECTOR DE CONTROL DE COSTOS 1 | GERENCIA DE CONTROL |
+| LAURA SOFÍA ANGARITA 
+GONZÁLEZ | DIRECTOR DE COMPRAS Y CONTRATACION 1 | GERENCIA DE CONTROL |
 
 ## Coordinaciones clave con otras áreas
 

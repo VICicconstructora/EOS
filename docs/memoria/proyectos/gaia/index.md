@@ -70,7 +70,7 @@ Condominio campestre en Cerritos, Pereira, estrato 5. Producto premium (casas un
 
 ## Datos Operativos (Datamart)
 
-_Fuente: Datamart.xlsx — actualizado 2026-05-09_
+_Fuente: Datamart.xlsx — actualizado 2026-05-10_
 
 **Director de Proyecto:** ALIDA RUIZ
 
@@ -97,14 +97,14 @@ _Fuente: Datamart.xlsx — actualizado 2026-05-09_
 
 ### Alarmas
 
-- 🟡 **Crédito POR VENCER:** E1: DAVIVIENDA, vence 2026-06-30 (52 días)
-- 🟡 **Crédito POR VENCER:** E2: DAVIVIENDA, vence 2026-06-30 (52 días)
-- 🔴 **Póliza TR VENCIDA:** E1: ALLIANZ, vence 2024-02-10 (-819 días)
-- 🔴 **Póliza RC VENCIDA:** E1: ALLIANZ, vence 2024-02-10 (-819 días)
-- 🔴 **Póliza TR VENCIDA:** E2: ALLIANZ, vence 2024-02-10 (-819 días)
-- 🔴 **Póliza RC VENCIDA:** E2: ALLIANZ, vence 2024-02-10 (-819 días)
-- 🔴 **Licencia Construcción VENCIDA:** E1: venció 2023-04-12 (-1123 días)
-- 🔴 **Licencia Construcción VENCIDA:** E2: venció 2023-04-12 (-1123 días)
+- 🟡 **Crédito POR VENCER:** E1: DAVIVIENDA, vence 2026-06-30 (51 días)
+- 🟡 **Crédito POR VENCER:** E2: DAVIVIENDA, vence 2026-06-30 (51 días)
+- 🔴 **Póliza TR VENCIDA:** E1: ALLIANZ, vence 2024-02-10 (-820 días)
+- 🔴 **Póliza RC VENCIDA:** E1: ALLIANZ, vence 2024-02-10 (-820 días)
+- 🔴 **Póliza TR VENCIDA:** E2: ALLIANZ, vence 2024-02-10 (-820 días)
+- 🔴 **Póliza RC VENCIDA:** E2: ALLIANZ, vence 2024-02-10 (-820 días)
+- 🔴 **Licencia Construcción VENCIDA:** E1: venció 2023-04-12 (-1124 días)
+- 🔴 **Licencia Construcción VENCIDA:** E2: venció 2023-04-12 (-1124 días)
 ## Changelog
 
 | Versión | Fecha | Cambio | Autor |

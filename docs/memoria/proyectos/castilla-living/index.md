@@ -71,7 +71,7 @@ Proyecto VIS que comparte lote con Castilla Imperial (No VIS) en Kennedy. Dos to
 
 ## Datos Operativos (Datamart)
 
-_Fuente: Datamart.xlsx — actualizado 2026-05-09_
+_Fuente: Datamart.xlsx — actualizado 2026-05-10_
 
 **Director de Proyecto:** ALIDA RUIZ
 
@@ -98,10 +98,10 @@ _Fuente: Datamart.xlsx — actualizado 2026-05-09_
 
 ### Alarmas
 
-- 🟡 **Póliza TR POR VENCER:** E1B: SURA, vence 2026-05-20 (11 días)
-- 🟡 **Póliza TR POR VENCER:** E2A: SURA, vence 2026-05-20 (11 días)
-- 🔴 **Licencia Construcción VENCIDA:** E1B: venció 2023-02-15 (-1179 días)
-- 🔴 **Licencia Construcción VENCIDA:** E2A: venció 2023-02-15 (-1179 días)
+- 🟡 **Póliza TR POR VENCER:** E1B: SURA, vence 2026-05-20 (10 días)
+- 🟡 **Póliza TR POR VENCER:** E2A: SURA, vence 2026-05-20 (10 días)
+- 🔴 **Licencia Construcción VENCIDA:** E1B: venció 2023-02-15 (-1180 días)
+- 🔴 **Licencia Construcción VENCIDA:** E2A: venció 2023-02-15 (-1180 días)
 ## Changelog
 
 | Versión | Fecha | Cambio | Autor |

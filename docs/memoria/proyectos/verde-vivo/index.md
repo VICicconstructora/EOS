@@ -59,7 +59,7 @@ Proyecto VIS con Once Constructora en Madrid Cundinamarca, mismo urbanismo que A
 
 ## Datos Operativos (Datamart)
 
-_Fuente: Datamart.xlsx — actualizado 2026-05-09_
+_Fuente: Datamart.xlsx — actualizado 2026-05-10_
 
 **Director de Proyecto:** DIEGO BENAVIDES
 
@@ -92,18 +92,18 @@ _Fuente: Datamart.xlsx — actualizado 2026-05-09_
 
 ### Alarmas
 
-- 🔴 **Crédito VENCIDA:** E1: BANCOLOMBIA, vence 2023-08-08 (-1005 días)
-- 🟡 **Crédito POR VENCER:** E2: BANCOLOMBIA, vence 2026-07-01 (53 días)
-- 🔴 **Póliza TR VENCIDA:** E1: SBS Seguros Colombia, vence 2022-01-01 (-1589 días)
-- 🔴 **Póliza RC VENCIDA:** E1: SBS Seguros Colombia, vence 2022-01-01 (-1589 días)
-- 🔴 **Póliza TR VENCIDA:** E2: SBS Seguros Colombia, vence 2022-04-01 (-1499 días)
-- 🔴 **Póliza RC VENCIDA:** E2: SBS Seguros Colombia, vence 2022-04-01 (-1499 días)
-- 🔴 **Póliza TR VENCIDA:** E3: SBS Seguros Colombia, vence 2026-03-01 (-69 días)
-- 🔴 **Póliza RC VENCIDA:** E3: SBS Seguros Colombia, vence 2026-03-01 (-69 días)
-- 🔴 **Licencia Construcción VENCIDA:** E1: venció 2022-05-11 (-1459 días)
-- 🔴 **Licencia Construcción VENCIDA:** E2: venció 2022-05-11 (-1459 días)
-- 🔴 **Licencia Construcción VENCIDA:** E3: venció 2022-05-11 (-1459 días)
-- 🔴 **Licencia Construcción VENCIDA:** E4: venció 2022-05-11 (-1459 días)
+- 🔴 **Crédito VENCIDA:** E1: BANCOLOMBIA, vence 2023-08-08 (-1006 días)
+- 🟡 **Crédito POR VENCER:** E2: BANCOLOMBIA, vence 2026-07-01 (52 días)
+- 🔴 **Póliza TR VENCIDA:** E1: SBS Seguros Colombia, vence 2022-01-01 (-1590 días)
+- 🔴 **Póliza RC VENCIDA:** E1: SBS Seguros Colombia, vence 2022-01-01 (-1590 días)
+- 🔴 **Póliza TR VENCIDA:** E2: SBS Seguros Colombia, vence 2022-04-01 (-1500 días)
+- 🔴 **Póliza RC VENCIDA:** E2: SBS Seguros Colombia, vence 2022-04-01 (-1500 días)
+- 🔴 **Póliza TR VENCIDA:** E3: SBS Seguros Colombia, vence 2026-03-01 (-70 días)
+- 🔴 **Póliza RC VENCIDA:** E3: SBS Seguros Colombia, vence 2026-03-01 (-70 días)
+- 🔴 **Licencia Construcción VENCIDA:** E1: venció 2022-05-11 (-1460 días)
+- 🔴 **Licencia Construcción VENCIDA:** E2: venció 2022-05-11 (-1460 días)
+- 🔴 **Licencia Construcción VENCIDA:** E3: venció 2022-05-11 (-1460 días)
+- 🔴 **Licencia Construcción VENCIDA:** E4: venció 2022-05-11 (-1460 días)
 ## Changelog
 
 | Versión | Fecha | Cambio | Autor |

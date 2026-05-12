@@ -65,7 +65,7 @@ IC actúa como constructor; DOM Real Estate (Dom Urbanum) lleva la gerencia, est
 
 ## Datos Operativos (Datamart)
 
-_Fuente: Datamart.xlsx — actualizado 2026-05-09_
+_Fuente: Datamart.xlsx — actualizado 2026-05-10_
 
 **Director de Proyecto:** DIEGO BENAVIDES
 
@@ -89,8 +89,8 @@ _Fuente: Datamart.xlsx — actualizado 2026-05-09_
 
 ### Alarmas
 
-- 🟡 **Póliza TR POR VENCER:** E1: Seguros Mundial, vence 2026-05-14 (5 días)
-- 🔴 **Licencia Construcción VENCIDA:** E1: venció 2025-09-26 (-225 días)
+- 🟡 **Póliza TR POR VENCER:** E1: Seguros Mundial, vence 2026-05-14 (4 días)
+- 🔴 **Licencia Construcción VENCIDA:** E1: venció 2025-09-26 (-226 días)
 ## Changelog
 
 | Versión | Fecha | Cambio | Autor |

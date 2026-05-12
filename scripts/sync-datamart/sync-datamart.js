@@ -631,4 +631,5 @@ const alarmRecords = alarmasGlobales.map(a => ({
   } else {
     console.log('[email] Omitido — configura SMTP_USER, SMTP_PASS y SMTP_TO para habilitar.');
   }
+
 })();

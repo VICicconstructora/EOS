@@ -12,7 +12,7 @@ estado: vigente
 **Cargo:** Gerente de Experiencia
 **Área:** Experiencia (Mercadeo, Ventas, Cartera, Trámites)
 **Reporta a:** Juan Paulo McAllister (CEO)
-**Antigüedad:** [por definir]
+**Antigüedad:** 2018-04-02
 **Email:** [por definir]
 **Teléfono:** [por definir]
 

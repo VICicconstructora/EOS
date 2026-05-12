@@ -79,7 +79,7 @@ La Etapa 3 fue reclasificada de `Estructuracion` a `Proyectos` en el catálogo P
 
 ## Datos Operativos (Datamart)
 
-_Fuente: Datamart.xlsx — actualizado 2026-05-09_
+_Fuente: Datamart.xlsx — actualizado 2026-05-10_
 
 **Director de Proyecto:** ALIDA RUIZ
 
@@ -109,9 +109,9 @@ _Fuente: Datamart.xlsx — actualizado 2026-05-09_
 
 ### Alarmas
 
-- 🔴 **Póliza TR VENCIDA:** E1: SURA, vence 2026-01-27 (-102 días)
-- 🟡 **Póliza TR POR VENCER:** E2: SURA, vence 2026-05-27 (18 días)
-- 🔴 **Licencia Construcción VENCIDA:** E1: venció 2024-06-10 (-698 días)
+- 🔴 **Póliza TR VENCIDA:** E1: SURA, vence 2026-01-27 (-103 días)
+- 🟡 **Póliza TR POR VENCER:** E2: SURA, vence 2026-05-27 (17 días)
+- 🔴 **Licencia Construcción VENCIDA:** E1: venció 2024-06-10 (-699 días)
 ## Changelog
 
 | Versión | Fecha | Cambio | Autor |

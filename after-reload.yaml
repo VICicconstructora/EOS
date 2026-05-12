@@ -1,0 +1,81 @@
+- main [ref=e138]:
+  - generic [ref=e141]:
+    - generic [ref=e143]:
+      - heading "Indicadores Estratégicos" [level=1] [ref=e144]
+      - paragraph [ref=e145]: Navegación en cascada de KPIs organizacionales
+    - generic [ref=e147]:
+      - generic [ref=e148]:
+        - heading "Dashboard Corporativo en Cascada" [level=1] [ref=e149]
+        - generic [ref=e150]:
+          - generic [ref=e151]:
+            - button "Real" [ref=e152]:
+              - img [ref=e153]
+              - text: Real
+            - button "Demo" [ref=e157]:
+              - img [ref=e158]
+              - text: Demo
+          - button "Configurar Reglas" [ref=e160]:
+            - img [ref=e161]
+            - generic [ref=e164]: Configurar Reglas
+      - generic [ref=e166]:
+        - generic [ref=e167]:
+          - generic [ref=e168] [cursor=pointer]:
+            - generic [ref=e169]:
+              - generic [ref=e170]: Ventas YTD
+              - generic [ref=e171]: Juan Paulo McAllister
+            - generic [ref=e172]:
+              - generic [ref=e173]: $45.904,9
+              - generic [ref=e174]: 64,4% cumplimiento
+            - img [ref=e177]
+          - generic [ref=e180]:
+            - generic [ref=e181]:
+              - strong [ref=e182]: Ventas YTD
+              - generic [ref=e183]: · Juan Paulo McAllister
+            - generic [ref=e184]:
+              - generic [ref=e185]:
+                - generic [ref=e186]: PPTO
+                - generic [ref=e187]: $71.234,4
+              - generic [ref=e188]:
+                - generic [ref=e189]: Real
+                - generic [ref=e190]: $45.904,9
+              - generic [ref=e191]:
+                - generic [ref=e192]: Cumplimiento
+                - generic [ref=e193]: 64,4%
+              - generic [ref=e194]:
+                - generic [ref=e195]: Unidades
+                - generic [ref=e196]: 152 / 199
+            - generic [ref=e197]: Tendencia 12 meses
+            - application [ref=e201]
+            - generic [ref=e223]:
+              - generic [ref=e224]: línea sólida = real
+              - generic [ref=e225]: línea punteada = PPTO
+        - generic [ref=e227] [cursor=pointer]:
+          - generic [ref=e228]:
+            - generic [ref=e229]: Escrituración YTD
+            - generic [ref=e230]: Juan Paulo McAllister
+          - generic [ref=e231]:
+            - generic [ref=e232]: $39.013,9
+            - generic [ref=e233]: 27,9% cumplimiento
+          - img [ref=e236]
+        - generic [ref=e239] [cursor=pointer]:
+          - generic [ref=e240]:
+            - generic [ref=e241]: Trámites Cumplidos / Programados
+            - generic [ref=e242]: Mónica Báez
+          - generic [ref=e244]: 37,6%
+          - img [ref=e247]
+        - generic [ref=e250] [cursor=pointer]:
+          - generic [ref=e251]:
+            - generic [ref=e252]: Cartera Pre-escritura
+            - generic [ref=e253]: Mónica Báez
+          - generic [ref=e254]:
+            - generic [ref=e255]: $9720,2
+            - generic [ref=e256]: 29,9% cumplimiento
+          - img [ref=e259]
+        - generic [ref=e262] [cursor=pointer]:
+          - generic [ref=e263]:
+            - generic [ref=e264]: Cartera Post-escritura
+            - generic [ref=e265]: Mónica Báez
+          - generic [ref=e266]:
+            - generic [ref=e267]: $4949,6
+            - generic [ref=e268]: 9% cumplimiento
+          - img [ref=e271]

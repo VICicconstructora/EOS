@@ -12,7 +12,7 @@ estado: vigente
 **Cargo:** Gerente Jurídica
 **Área:** Jurídico (Escrituración, Compliance, Litigios)
 **Reporta a:** Juan Paulo McAllister (CEO)
-**Antigüedad:** [por definir]
+**Antigüedad:** 2021-01-12
 **Email:** [por definir]
 **Teléfono:** [por definir]
 
@@ -36,10 +36,13 @@ estado: vigente
 
 ## Equipo directo
 
-| Nombre | Cargo |
-|--------|-------|
-| [Por definir] | Abogado Escrituración |
-| [Por definir] | Asistente Jurídico |
+| Nombre | Cargo | Área |
+|--------|-------|------|
+| BRYAN ANDRES MAHECHA MURCIA | ABOGADO SENIOR 1 | GERENCIA JURIDICA |
+| JOHN FREDDY ROJAS RODRIGUEZ | ANALISTA JURIDICO 2 | GERENCIA JURIDICA |
+| PAULA DANIELA BARONA DIAZ | ABOGADO SENIOR 1 | GERENCIA JURIDICA |
+| EDGAR EDUARDO MERCHAN GALINDO | COORDINADOR JURIDICO 1 | GERENCIA JURIDICA |
+| LIGIA ISABEL SANCHEZ TORRES | ANALISTA JURIDICO 1 | GERENCIA JURIDICA |
 
 ## Coordinaciones clave con otras áreas
 

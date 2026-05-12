@@ -1,0 +1,87 @@
+{
+  "directions": [
+    {
+      "id": "diseno",
+      "name": "Diseño",
+      "chapters": [
+        {
+          "id": "estructura",
+          "name": "Estructura",
+          "skills": [
+            {
+              "id": "muros1",
+              "name": "Ancho Minimo Muros",
+              "description": "Revisa todos los muros que identifiques para determinar su ancho minimo",
+              "instructions": [
+                "El ancho minimo de un muro debe ser superior a  20cm.",
+                "Incluye formas L o + de mampostería a cualquier altura."
+              ],
+              "usage_example": "Verifica a lo largo del apartamento y en plano en vista planta. Revisa cada espacio en su forma y alerta en caso de que el valor sea menor a 20cm.",
+              "active": true
+            },
+            {
+              "id": "e31feab1-e679-41cc-95c4-1b91a24df92e",
+              "name": "Espacio Minimo para papelera",
+              "description": "Revisar cual es el espacio minimo entre el sanitario y cualquiera de sus dos costados para poder colocar una papelera.",
+              "instructions": [
+                "No debe haber un espacio de menos de 30 cm a alguno de los dos lados del sanitario para poder poner la papelera. En caso de econtrar un espacio inferior dame la alerta y un snapshot de la ubicacion."
+              ],
+              "usage_example": "",
+              "active": true
+            }
+          ]
+        },
+        {
+          "id": "acabados",
+          "name": "Acabados",
+          "skills": []
+        },
+        {
+          "id": "circulaciones",
+          "name": "Circulaciones",
+          "skills": []
+        }
+      ]
+    },
+    {
+      "id": "coordinacion",
+      "name": "Coordinacion",
+      "chapters": []
+    },
+    {
+      "id": "construccion",
+      "name": "Construccion",
+      "chapters": []
+    },
+    {
+      "id": "ppto",
+      "name": "PPTO",
+      "chapters": []
+    },
+    {
+      "id": "compras",
+      "name": "Compras",
+      "chapters": []
+    },
+    {
+      "id": "control",
+      "name": "Control",
+      "chapters": []
+    },
+    {
+      "id": "comercial",
+      "name": "Comercial",
+      "chapters": []
+    },
+    {
+      "id": "tramites",
+      "name": "Tramites",
+      "chapters": []
+    },
+    {
+      "id": "bim",
+      "name": "BIM",
+      "chapters": []
+    }
+  ]
+}

@@ -1,0 +1,190 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]: 🏗️
+      - generic [ref=e7]:
+        - generic [ref=e8]: IC Constructora
+        - generic [ref=e9]: Sistema EOS
+    - navigation [ref=e10]:
+      - generic [ref=e11]: General
+      - link "Dashboard" [ref=e12] [cursor=pointer]:
+        - /url: /
+        - img [ref=e13]
+        - text: Dashboard
+      - link "Reuniones" [ref=e18] [cursor=pointer]:
+        - /url: /reuniones
+        - img [ref=e19]
+        - text: Reuniones
+      - generic [ref=e21]: Módulos EOS
+      - link "Visión" [ref=e22] [cursor=pointer]:
+        - /url: /vision
+        - img [ref=e23]
+        - text: Visión
+      - link "Personas" [ref=e27] [cursor=pointer]:
+        - /url: /personas
+        - img [ref=e28]
+        - text: Personas
+      - link "Datos" [ref=e34] [cursor=pointer]:
+        - /url: /datos
+        - img [ref=e35]
+        - text: Datos
+      - link "Asuntos" [ref=e38] [cursor=pointer]:
+        - /url: /asuntos
+        - img [ref=e39]
+        - text: Asuntos
+      - link "Procesos" [ref=e42] [cursor=pointer]:
+        - /url: /procesos
+        - img [ref=e43]
+        - text: Procesos
+      - link "Tracción" [ref=e47] [cursor=pointer]:
+        - /url: /traccion
+        - img [ref=e48]
+        - text: Tracción
+      - generic [ref=e54]: EOS Toolkit
+      - link "Implementación" [ref=e55] [cursor=pointer]:
+        - /url: /implementacion
+        - img [ref=e56]
+        - text: Implementación
+      - link "Biblioteca EOS" [ref=e58] [cursor=pointer]:
+        - /url: /biblioteca
+        - img [ref=e59]
+        - text: Biblioteca EOS
+      - generic [ref=e61]: IC Constructora
+      - link "RRHH" [ref=e62] [cursor=pointer]:
+        - /url: /rrhh
+        - img [ref=e63]
+        - text: RRHH
+      - link "Lotes" [ref=e67] [cursor=pointer]:
+        - /url: /lotes
+        - img [ref=e68]
+        - text: Lotes
+      - link "Jurídico" [ref=e71] [cursor=pointer]:
+        - /url: /juridico
+        - img [ref=e72]
+        - text: Jurídico
+      - link "KPIs" [ref=e76] [cursor=pointer]:
+        - /url: /kpis
+        - img [ref=e77]
+        - text: KPIs
+      - generic [ref=e80]: Herramientas
+      - link "Indicadores" [ref=e81] [cursor=pointer]:
+        - /url: http://localhost:8501
+        - img [ref=e82]
+        - text: Indicadores
+        - img [ref=e85]
+      - link "Análisis de Planos" [ref=e89] [cursor=pointer]:
+        - /url: http://localhost:5174
+        - img [ref=e90]
+        - text: Análisis de Planos
+        - img [ref=e95]
+    - generic [ref=e99]:
+      - generic [ref=e100]: 🎯 Modo Demo activo
+      - generic [ref=e101]:
+        - button "English" [ref=e102] [cursor=pointer]:
+          - img [ref=e103]
+          - text: English
+        - link "Configuración" [ref=e106] [cursor=pointer]:
+          - /url: /configuracion
+          - img [ref=e107]
+          - text: Configuración
+        - button "Cerrar sesión" [ref=e110] [cursor=pointer]:
+          - img [ref=e111]
+          - text: Cerrar sesión
+      - paragraph [ref=e115]: Admin IC
+  - generic [ref=e116]:
+    - banner [ref=e117]:
+      - generic [ref=e119]:
+        - strong [ref=e120]: "Misión:"
+        - generic [ref=e121]: Construir el futuro de la infraestructura con calidad y confianza.
+      - generic [ref=e122]:
+        - generic [ref=e124]:
+          - img [ref=e125]
+          - textbox "Buscar..." [ref=e128]
+        - button [ref=e129]:
+          - img [ref=e130]
+        - generic [ref=e133]:
+          - generic [ref=e134]:
+            - generic [ref=e135]: Admin IC
+            - generic [ref=e136]: IC Constructora
+          - generic [ref=e137]: A
+    - main [ref=e138]:
+      - generic [ref=e141]:
+        - generic [ref=e143]:
+          - heading "Indicadores Estratégicos" [level=1] [ref=e144]
+          - paragraph [ref=e145]: Navegación en cascada de KPIs organizacionales
+        - generic [ref=e147]:
+          - generic [ref=e148]:
+            - heading "Dashboard Corporativo en Cascada" [level=1] [ref=e149]
+            - generic [ref=e150]:
+              - generic [ref=e151]:
+                - button "Real" [ref=e152]:
+                  - img [ref=e153]
+                  - text: Real
+                - button "Demo" [ref=e157]:
+                  - img [ref=e158]
+                  - text: Demo
+              - button "Configurar Reglas" [ref=e160]:
+                - img [ref=e161]
+                - generic [ref=e164]: Configurar Reglas
+          - generic [ref=e166]:
+            - generic [ref=e167]:
+              - generic [ref=e168] [cursor=pointer]:
+                - generic [ref=e169]:
+                  - generic [ref=e170]: Ventas YTD
+                  - generic [ref=e171]: Juan Paulo McAllister
+                - generic [ref=e172]:
+                  - generic [ref=e173]: $45.904,9
+                  - generic [ref=e174]: 64,4% cumplimiento
+                - img [ref=e177]
+              - generic [ref=e180]:
+                - generic [ref=e181]:
+                  - strong [ref=e182]: Ventas YTD
+                  - generic [ref=e183]: · Juan Paulo McAllister
+                - generic [ref=e184]:
+                  - generic [ref=e185]:
+                    - generic [ref=e186]: PPTO
+                    - generic [ref=e187]: $71.234,4
+                  - generic [ref=e188]:
+                    - generic [ref=e189]: Real
+                    - generic [ref=e190]: $45.904,9
+                  - generic [ref=e191]:
+                    - generic [ref=e192]: Cumplimiento
+                    - generic [ref=e193]: 64,4%
+                  - generic [ref=e194]:
+                    - generic [ref=e195]: Unidades
+                    - generic [ref=e196]: 152 / 199
+                - generic [ref=e197]: Tendencia 12 meses
+                - application [ref=e201]
+                - generic [ref=e223]:
+                  - generic [ref=e224]: línea sólida = real
+                  - generic [ref=e225]: línea punteada = PPTO
+            - generic [ref=e227] [cursor=pointer]:
+              - generic [ref=e228]:
+                - generic [ref=e229]: Escrituración YTD
+                - generic [ref=e230]: Juan Paulo McAllister
+              - generic [ref=e231]:
+                - generic [ref=e232]: $39.013,9
+                - generic [ref=e233]: 27,9% cumplimiento
+              - img [ref=e236]
+            - generic [ref=e239] [cursor=pointer]:
+              - generic [ref=e240]:
+                - generic [ref=e241]: Trámites Cumplidos / Programados
+                - generic [ref=e242]: Mónica Báez
+              - generic [ref=e244]: 37,6%
+              - img [ref=e247]
+            - generic [ref=e250] [cursor=pointer]:
+              - generic [ref=e251]:
+                - generic [ref=e252]: Cartera Pre-escritura
+                - generic [ref=e253]: Mónica Báez
+              - generic [ref=e254]:
+                - generic [ref=e255]: $9720,2
+                - generic [ref=e256]: 29,9% cumplimiento
+              - img [ref=e259]
+            - generic [ref=e262] [cursor=pointer]:
+              - generic [ref=e263]:
+                - generic [ref=e264]: Cartera Post-escritura
+                - generic [ref=e265]: Mónica Báez
+              - generic [ref=e266]:
+                - generic [ref=e267]: $4949,6
+                - generic [ref=e268]: 9% cumplimiento
+              - img [ref=e271]

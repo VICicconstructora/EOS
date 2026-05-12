@@ -1,0 +1,1 @@
+Esta carpeta tiene modelos semanticos que obtiene de nuestro ERP toda la informacion comercial, tramites y de cartera. En ella esta el dia a dia sobre los avances del equipo comercial. Las tablas principales son las iniciadas con ADI que corresponden a nuestro ERP. Cada nombre de tabla es diciente y su conexion con las otras nos da la jerarquia.

@@ -65,7 +65,7 @@ IC actúa como constructor; Actual Inmobiliaria (colombo-chilena) lleva la geren
 
 ## Datos Operativos (Datamart)
 
-_Fuente: Datamart.xlsx — actualizado 2026-05-09_
+_Fuente: Datamart.xlsx — actualizado 2026-05-10_
 
 **Director de Proyecto:** DIEGO BENAVIDES
 
@@ -110,25 +110,25 @@ _Fuente: Datamart.xlsx — actualizado 2026-05-09_
 
 ### Alarmas
 
-- 🔴 **Crédito VENCIDA:** E1.1: DAVIVIENDA, vence 2025-03-31 (-404 días)
-- 🟡 **Crédito POR VENCER:** E1.2: DAVIVIENDA, vence 2026-06-18 (40 días)
-- 🟡 **Crédito POR VENCER:** E1.2: DAVIVIENDA, vence 2026-06-17 (39 días)
-- 🟡 **Crédito POR VENCER:** E1.2: DAVIVIENDA, vence 2026-06-17 (39 días)
-- 🔴 **Póliza TR VENCIDA:** E1.1: Suramericana, vence 2023-10-27 (-925 días)
-- 🔴 **Póliza TR VENCIDA:** E1.2: BERKLEY, vence 2025-09-19 (-232 días)
-- 🔴 **Póliza RC VENCIDA:** E1.2: BERKLEY, vence 2025-09-19 (-232 días)
-- 🔴 **Póliza TR VENCIDA:** E1.2: BERKLEY, vence 2025-09-19 (-232 días)
-- 🔴 **Póliza RC VENCIDA:** E1.2: BERKLEY, vence 2025-09-19 (-232 días)
-- 🔴 **Póliza TR VENCIDA:** E1.2: BERKLEY, vence 2025-12-02 (-158 días)
-- 🔴 **Póliza RC VENCIDA:** E1.2: BERKLEY, vence 2025-12-02 (-158 días)
-- 🔴 **Licencia Construcción VENCIDA:** E1.1: venció 2025-11-23 (-167 días)
-- 🔴 **Licencia Construcción VENCIDA:** E1.2: venció 2025-11-23 (-167 días)
-- 🔴 **Licencia Construcción VENCIDA:** E1.2: venció 2025-11-23 (-167 días)
-- 🔴 **Licencia Construcción VENCIDA:** E1.2: venció 2025-11-23 (-167 días)
-- 🔴 **Licencia Construcción VENCIDA:** E1.2: venció 2025-11-23 (-167 días)
-- 🔴 **Licencia Construcción VENCIDA:** E1.2: venció 2025-11-23 (-167 días)
-- 🔴 **Licencia Construcción VENCIDA:** E2.1: venció 2025-11-23 (-167 días)
-- 🔴 **Licencia Construcción VENCIDA:** E2.2: venció 2025-11-23 (-167 días)
+- 🔴 **Crédito VENCIDA:** E1.1: DAVIVIENDA, vence 2025-03-31 (-405 días)
+- 🟡 **Crédito POR VENCER:** E1.2: DAVIVIENDA, vence 2026-06-18 (39 días)
+- 🟡 **Crédito POR VENCER:** E1.2: DAVIVIENDA, vence 2026-06-17 (38 días)
+- 🟡 **Crédito POR VENCER:** E1.2: DAVIVIENDA, vence 2026-06-17 (38 días)
+- 🔴 **Póliza TR VENCIDA:** E1.1: Suramericana, vence 2023-10-27 (-926 días)
+- 🔴 **Póliza TR VENCIDA:** E1.2: BERKLEY, vence 2025-09-19 (-233 días)
+- 🔴 **Póliza RC VENCIDA:** E1.2: BERKLEY, vence 2025-09-19 (-233 días)
+- 🔴 **Póliza TR VENCIDA:** E1.2: BERKLEY, vence 2025-09-19 (-233 días)
+- 🔴 **Póliza RC VENCIDA:** E1.2: BERKLEY, vence 2025-09-19 (-233 días)
+- 🔴 **Póliza TR VENCIDA:** E1.2: BERKLEY, vence 2025-12-02 (-159 días)
+- 🔴 **Póliza RC VENCIDA:** E1.2: BERKLEY, vence 2025-12-02 (-159 días)
+- 🔴 **Licencia Construcción VENCIDA:** E1.1: venció 2025-11-23 (-168 días)
+- 🔴 **Licencia Construcción VENCIDA:** E1.2: venció 2025-11-23 (-168 días)
+- 🔴 **Licencia Construcción VENCIDA:** E1.2: venció 2025-11-23 (-168 días)
+- 🔴 **Licencia Construcción VENCIDA:** E1.2: venció 2025-11-23 (-168 días)
+- 🔴 **Licencia Construcción VENCIDA:** E1.2: venció 2025-11-23 (-168 días)
+- 🔴 **Licencia Construcción VENCIDA:** E1.2: venció 2025-11-23 (-168 días)
+- 🔴 **Licencia Construcción VENCIDA:** E2.1: venció 2025-11-23 (-168 días)
+- 🔴 **Licencia Construcción VENCIDA:** E2.2: venció 2025-11-23 (-168 días)
 ## Changelog
 
 | Versión | Fecha | Cambio | Autor |

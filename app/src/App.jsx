@@ -22,6 +22,7 @@ const RRHHPage           = lazy(() => import('./pages/RRHHPage'))
 const LotesPage          = lazy(() => import('./pages/LotesPage'))
 const JuridicoPage       = lazy(() => import('./pages/JuridicoPage'))
 const AdminUsuariosPage  = lazy(() => import('./pages/AdminUsuariosPage'))
+const EntrevistaPage     = lazy(() => import('./pages/EntrevistaPage'))
 
 function PageFallback() {
   return (
@@ -115,7 +116,17 @@ export default function App() {
 
   return (
     <ProtectedRoute>
-      <AppLayout />
+      <Routes>
+        <Route
+          path="/configuracion-inicial"
+          element={
+            <Suspense fallback={<PageFallback />}>
+              <EntrevistaPage />
+            </Suspense>
+          }
+        />
+        <Route path="*" element={<AppLayout />} />
+      </Routes>
     </ProtectedRoute>
   )
 }

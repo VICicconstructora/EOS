@@ -1,0 +1,93 @@
+{
+  "COMPRAS": {
+    "CYC MITIKA": [
+      "00. DOCUMENTOS Y OTROS",
+      "01. COMPRAS",
+      "02. CONTRATACION"
+    ],
+    "Imágenes": []
+  },
+  "CONTROL DE COSTOS": {
+    "Imágenes": [],
+    "CONTROL MITIKA": [
+      "01. Liberación de Presupuesto",
+      "02. Cuadros Comparativos",
+      "03. Ordenes de Cambio",
+      "04. Informes de Control de Costos",
+      "05. Conciliación Contable",
+      "06. Proceso de Contratación",
+      "07. Provisión",
+      "08. Información Socios",
+      "09. Descuentos",
+      "10. Proyecciones",
+      "11. Estado cierre proyectos",
+      "12.Flujo Compras"
+    ]
+  },
+  "COORDINACION TECNICA": {
+    "Imágenes": [],
+    "Documentos": [],
+    "COOR": []
+  },
+  "ESTRUCTURACION": {
+    "Documentos": [],
+    "ESTR": [
+      "1. FACTIBILIDAD COMPRA LOTE",
+      "2. FACTIBILIDAD SALIDA A VENTAS",
+      "3. FACTIBILIDAD INICIO OBRA"
+    ],
+    "Imágenes": [
+      "Paginas"
+    ]
+  },
+  "OBRA": {
+    "Documentos": [],
+    "MITIKA": [
+      "01-DOCUMENTACION",
+      "02-COSTO",
+      "03-TIEMPO",
+      "04-CALIDAD",
+      "05-FOTOS",
+      "06-POSVENTAS",
+      "07- ADMINISTRACION",
+      "08- LIQUIDACIONES",
+      "CONTROL FUNDIDAS",
+      "PAC"
+    ],
+    "Imágenes": []
+  },
+  "ORIGINACIÓN": {
+    "Originación Mitika": [
+      "Checklist",
+      "PROCESO PREF V11"
+    ],
+    "Imágenes": []
+  },
+  "PROYECTOS": {
+    "Documentos": [],
+    "ProyMit": [
+      "ADMINSITRACION PROVISIONAL",
+      "COMPARATIVOS",
+      "COMPRAS",
+      "CONTRATOS",
+      "CREDITO CONSTRUCTOR",
+      "CRONOGRAMAS",
+      "DISPONIBILIDADES",
+      "ESCRITURACION",
+      "FIDUCIARIA",
+      "FLUJOS Y PYG",
+      "INTERVENTORIA",
+      "LEGALES",
+      "OBRA",
+      "PERMISO DE ENAJENACION",
+      "PERMISOS Y LICENCIAS",
+      "POLIZAS",
+      "PRESENTACIONES"
+    ],
+    "Imágenes": []
+  },
+  "PUBLICIDAD": {
+    "Imágenes": [],
+    "Documentos": []
+  }
+}

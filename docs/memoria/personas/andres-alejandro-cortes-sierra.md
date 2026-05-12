@@ -1,0 +1,35 @@
+---
+tipo: persona
+version: 1.0
+creado: 2026-05-11
+estado: vigente
+---
+
+# ANDRES ALEJANDRO CORTES SIERRA
+
+**Cargo:** DIRECTOR DE CALIDAD Y PROCEDIMIENTOS  1
+**Área:** GERENCIA DE CONTROL
+**Reporta a:** GERENTE TECNICO 1
+**Antigüedad:** 2006-03-01
+**Celular:** No registrado
+
+## Notas de la Entrevista / Contexto
+
+[Pendiente de documentar tras las entrevistas]
+
+## Responsabilidades y Procesos
+
+[Pendiente de documentar]
+
+## Equipo directo
+
+| Nombre | Cargo | Área |
+|--------|-------|------|
+| ORLANDO ALVARADO CRUZ | RESIDENTE DE CALIDAD 1 | GERENCIA DE CONTROL |
+| MARÍA CAMILA PEÑUELA RINCÓN | RESIDENTE DE CALIDAD 1 | GERENCIA DE CONTROL |
+| IVAN CAMILO MUÑOZ CANO | RESIDENTE DE CALIDAD 1 | GERENCIA DE CONTROL |
+| LIYANG MARCELA RESTREPO OSORIO | RESIDENTE DE CALIDAD 1 | GERENCIA DE CONTROL |
+| YAHAIRA NINIBET DUARTE OTALORA | RESIDENTE DE CALIDAD 1 | GERENCIA DE CONTROL |
+| DAVID MAURICIO ESPAÑA LOPEZ | RESIDENTE DE CALIDAD 1 | GERENCIA DE CONTROL |
+| GEHIDERT LÓPEZ ROMERO | RESIDENTE DE CALIDAD 1 | GERENCIA DE CONTROL |
+

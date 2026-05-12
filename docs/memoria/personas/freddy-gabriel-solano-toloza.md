@@ -1,0 +1,34 @@
+---
+tipo: persona
+version: 1.0
+creado: 2026-05-11
+estado: vigente
+---
+
+# FREDDY GABRIEL SOLANO TOLOZA
+
+**Cargo:** DIRECTOR DE OBRA 1
+**Área:** GERENCIA DE CONSTRUCCION
+**Reporta a:** ANDRES ARANGO FUENTES
+**Antigüedad:** 2026-01-05
+**Celular:** No registrado
+
+## Notas de la Entrevista / Contexto
+
+[Pendiente de documentar tras las entrevistas]
+
+## Responsabilidades y Procesos
+
+[Pendiente de documentar]
+
+## Equipo directo
+
+| Nombre | Cargo | Área |
+|--------|-------|------|
+| ANDERSON JOSE SALAZAR MORALES | OFICIAL DE OBRA 6 | GERENCIA DE CONSTRUCCION |
+| LUIS GABRIEL DELGADO QUINCHE | ALMACENISTA 1 | GERENCIA DE CONSTRUCCION |
+| HERNAN DAVID DAZA URIBE | RESIDENTE 1 | GERENCIA DE CONSTRUCCION |
+| KAREN STEPHANIE SUAREZ VANEGAS | RESIDENTE ADMINISTRATIVO 1 | GERENCIA DE CONSTRUCCION |
+| CARLOS ANDRES PINTO QUIÑONES | MAESTRO 2 | GERENCIA DE CONSTRUCCION |
+| ALEXIS MANCILLA BANGUERA | OFICIAL EJERO 1 | GERENCIA DE CONSTRUCCION |
+

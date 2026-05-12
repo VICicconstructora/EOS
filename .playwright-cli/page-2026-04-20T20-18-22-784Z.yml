@@ -1,0 +1,260 @@
+- generic [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e7]:
+        - generic [ref=e10]:
+          - button "App launcher" [ref=e12] [cursor=pointer]:
+            - img [ref=e14]
+          - img [ref=e16]
+          - tablist [ref=e28]:
+            - tab "Photos" [ref=e30] [cursor=pointer]
+            - tab "Files" [selected] [ref=e31] [cursor=pointer]
+        - search [ref=e34]:
+          - button "search icon" [ref=e35] [cursor=pointer]:
+            - img [ref=e36]
+          - searchbox "Search" [ref=e38]
+        - generic [ref=e39]:
+          - generic [ref=e40] [cursor=pointer]:
+            - button "Get more storage" [ref=e137]:
+              - img [ref=e44]
+              - generic [ref=e139]: Get more storage
+            - button "Settings" [ref=e46]:
+              - img [ref=e48]
+          - button "J Juan Paulo Mc Allister" [ref=e52] [cursor=pointer]:
+            - generic [ref=e54]:
+              - generic [ref=e55]: J
+              - img "Juan Paulo Mc Allister" [ref=e56]
+    - generic [ref=e58]:
+      - navigation "Page navigation" [ref=e60]:
+        - button "Create or upload" [expanded] [ref=e65] [cursor=pointer]:
+          - img [ref=e67]
+          - generic [ref=e69]: Create or upload
+        - generic [ref=e70]:
+          - button "Juan Paulo Mc Allister, Navigation Pane" [expanded] [ref=e71] [cursor=pointer]:
+            - img [ref=e74]
+          - generic [ref=e76]:
+            - generic [ref=e77]:
+              - generic: Juan Paulo Mc Allister
+            - list "Juan Paulo Mc Allister" [ref=e78]:
+              - listitem [ref=e79] [cursor=pointer]:
+                - link "Home" [ref=e81]:
+                  - /url: https://onedrive.live.com/?view=1
+                  - generic [ref=e82]:
+                    - img [ref=e85]
+                    - generic [ref=e88]: Home
+              - listitem [ref=e89] [cursor=pointer]:
+                - link "My files" [ref=e91]:
+                  - /url: https://onedrive.live.com/?view=0
+                  - generic [ref=e92]:
+                    - img [ref=e95]
+                    - generic [ref=e98]: My files
+              - listitem [ref=e99] [cursor=pointer]:
+                - link "Shared" [ref=e101]:
+                  - /url: https://onedrive.live.com/?view=3
+                  - generic [ref=e102]:
+                    - img [ref=e105]
+                    - generic [ref=e108]: Shared
+              - listitem [ref=e109] [cursor=pointer]:
+                - link "Recycle bin" [ref=e111]:
+                  - /url: https://onedrive.live.com/?view=5
+                  - generic [ref=e112]:
+                    - img [ref=e115]
+                    - generic [ref=e118]: Recycle bin
+          - generic [ref=e119]:
+            - button "Browse files by " [expanded] [ref=e120] [cursor=pointer]:
+              - generic: Browse files by
+              - generic [ref=e121]: 
+            - list "Browse files by" [ref=e124]:
+              - listitem [ref=e125] [cursor=pointer]:
+                - link "People" [ref=e127]:
+                  - /url: https://onedrive.live.com/?view=33
+                  - generic [ref=e128]:
+                    - img [ref=e131]
+                    - generic [ref=e134]: People
+          - generic [ref=e141]:
+            - button " Get more storage" [ref=e142]:
+              - generic [ref=e143]: 
+              - generic [ref=e144]: Get more storage
+            - generic [ref=e145]: Storage
+            - generic [ref=e149]:
+              - 'link "Storage: 508.8 GB used of 1 TB (49%)" [ref=e150] [cursor=pointer]':
+                - /url: /?v=managestorage&sw=bypassConfig
+                - text: 508.8 GB
+              - generic [ref=e151]: used of 1 TB (49%)
+      - main [ref=e154]:
+        - menubar [ref=e542]:
+          - generic [ref=e543]:
+            - menuitem "Share" [ref=e544] [cursor=pointer]:
+              - generic [ref=e545]:
+                - generic [ref=e546]: 
+                - generic [ref=e547]: Share
+            - menuitem "Copy link" [ref=e548] [cursor=pointer]:
+              - generic [ref=e549]:
+                - generic [ref=e550]: 
+                - generic [ref=e551]: Copy link
+            - menuitem "Download" [ref=e552] [cursor=pointer]:
+              - generic [ref=e553]:
+                - generic [ref=e554]: 
+                - generic [ref=e555]: Download
+            - menuitem "Create album from folder" [ref=e936] [cursor=pointer]:
+              - generic [ref=e937]:
+                - generic [ref=e938]: 
+                - generic [ref=e939]: Create album from folder
+          - generic [ref=e560]:
+            - menuitem "Sort all items by" [ref=e561] [cursor=pointer]:
+              - generic [ref=e562]:
+                - generic [ref=e563]: 
+                - generic [ref=e564]: Sort
+                - generic [ref=e565]: 
+            - menuitem "Switch view options" [ref=e566] [cursor=pointer]:
+              - generic [ref=e567]:
+                - generic [ref=e568]: 
+                - generic [ref=e569]: 
+            - menuitem "Open the details pane" [ref=e570] [cursor=pointer]:
+              - generic [ref=e571]:
+                - generic [ref=e572]: 
+                - generic [ref=e573]: Details
+        - list [ref=e576]:
+          - listitem [ref=e577]:
+            - button "My files" [ref=e578] [cursor=pointer]
+            - text: 
+          - listitem [ref=e579]:
+            - button "Documentos" [ref=e940] [cursor=pointer]
+            - text: 
+          - listitem [ref=e941]:
+            - heading "Documentos" [level=1] [ref=e942]:
+              - generic [ref=e943]: Documentos
+        - tabpanel [ref=e179]:
+          - generic [ref=e182]:
+            - grid "Documentos" [ref=e582]:
+              - row "Select all rows Tipo Nombre Modificado File size Compartir" [ref=e184]:
+                - gridcell "Select all rows" [ref=e185]:
+                  - checkbox "Select all rows" [ref=e186] [cursor=pointer]
+                - columnheader "Tipo" [ref=e188]:
+                  - button "Tipo" [ref=e189]:
+                    - img [ref=e190]: 
+                - columnheader "Nombre" [ref=e191]:
+                  - button "Nombre" [ref=e192]:
+                    - generic [ref=e193]: Nombre
+                    - generic [ref=e194]: 
+                - columnheader "Modificado" [ref=e195]:
+                  - button "Modificado" [ref=e196]:
+                    - generic [ref=e197]: Modificado
+                    - generic [ref=e198]: 
+                - columnheader "File size" [ref=e199]:
+                  - button "File size" [ref=e200]:
+                    - generic [ref=e201]: File size
+                    - generic [ref=e202]: 
+                - columnheader "Compartir" [ref=e203]:
+                  - button "Compartir" [ref=e204]:
+                    - generic [ref=e205]: Compartir
+                    - generic [ref=e206]: 
+              - generic [ref=e944]:
+                - row "Select row Yellow folder Asistente Personal 3 de abril 17 items Private" [ref=e945]:
+                  - gridcell "Select row" [ref=e946]:
+                    - checkbox "Select row" [ref=e947] [cursor=pointer]
+                  - gridcell "Yellow folder" [ref=e949]:
+                    - img "Yellow folder" [ref=e951]:
+                      - img [ref=e952]
+                  - gridcell "Asistente Personal" [ref=e957]:
+                    - button "Asistente Personal" [ref=e958] [cursor=pointer]
+                    - generic:  
+                  - gridcell "3 de abril" [ref=e959]
+                  - gridcell "17 items" [ref=e960]
+                  - gridcell "Private" [ref=e961]:
+                    - button "Private" [ref=e962] [cursor=pointer]:
+                      - generic [ref=e963]: Private
+                - row "Select row Yellow folder GanAppdo More Actions Share 14 de enero 40 items Private" [ref=e964]:
+                  - gridcell "Select row" [ref=e965]:
+                    - checkbox "Select row" [ref=e966] [cursor=pointer]
+                  - gridcell "Yellow folder" [ref=e968]:
+                    - img "Yellow folder" [ref=e970]:
+                      - img [ref=e971]
+                  - gridcell "GanAppdo More Actions Share" [ref=e976]:
+                    - button "GanAppdo" [ref=e977] [cursor=pointer]
+                    - generic [ref=e978]:
+                      - button "More Actions" [ref=e979] [cursor=pointer]: 
+                      - button "Share" [ref=e980] [cursor=pointer]: 
+                  - gridcell "14 de enero" [ref=e981]
+                  - gridcell "40 items" [ref=e982]
+                  - gridcell "Private" [ref=e983]:
+                    - button "Private" [ref=e984] [cursor=pointer]:
+                      - generic [ref=e985]: Private
+                - row "Select row Yellow folder Indicadores 7 de abril 7 items Private" [ref=e986]:
+                  - gridcell "Select row" [ref=e987]:
+                    - checkbox "Select row" [ref=e988] [cursor=pointer]
+                  - gridcell "Yellow folder" [ref=e990]:
+                    - img "Yellow folder" [ref=e992]:
+                      - img [ref=e993]
+                  - gridcell "Indicadores" [ref=e998]:
+                    - button "Indicadores" [ref=e999] [cursor=pointer]
+                    - generic:  
+                  - gridcell "7 de abril" [ref=e1000]
+                  - gridcell "7 items" [ref=e1001]
+                  - gridcell "Private" [ref=e1002]:
+                    - button "Private" [ref=e1003] [cursor=pointer]:
+                      - generic [ref=e1004]: Private
+                - row "Select row Yellow folder Landu 11/3/2023 1 item Private" [ref=e1005]:
+                  - gridcell "Select row" [ref=e1006]:
+                    - checkbox "Select row" [ref=e1007] [cursor=pointer]
+                  - gridcell "Yellow folder" [ref=e1009]:
+                    - img "Yellow folder" [ref=e1011]:
+                      - img [ref=e1012]
+                  - gridcell "Landu" [ref=e1017]:
+                    - button "Landu" [ref=e1018] [cursor=pointer]
+                    - generic:  
+                  - gridcell "11/3/2023" [ref=e1019]
+                  - gridcell "1 item" [ref=e1020]
+                  - gridcell "Private" [ref=e1021]:
+                    - button "Private" [ref=e1022] [cursor=pointer]:
+                      - generic [ref=e1023]: Private
+                - row "Select row Yellow folder Nueva carpeta 5 days ago 0 items Private" [ref=e1024]:
+                  - gridcell "Select row" [ref=e1025]:
+                    - checkbox "Select row" [ref=e1026] [cursor=pointer]
+                  - gridcell "Yellow folder" [ref=e1028]:
+                    - img "Yellow folder" [ref=e1030]:
+                      - img [ref=e1031]
+                  - gridcell "Nueva carpeta" [ref=e1036]:
+                    - button "Nueva carpeta" [ref=e1037] [cursor=pointer]
+                    - generic:  
+                  - gridcell "5 days ago" [ref=e1038]
+                  - gridcell "0 items" [ref=e1039]
+                  - gridcell "Private" [ref=e1040]:
+                    - button "Private" [ref=e1041] [cursor=pointer]:
+                      - generic [ref=e1042]: Private
+                - row "Select row Yellow folder Total 17 de febrero 8 items Private" [ref=e1043]:
+                  - gridcell "Select row" [ref=e1044]:
+                    - checkbox "Select row" [ref=e1045] [cursor=pointer]
+                  - gridcell "Yellow folder" [ref=e1047]:
+                    - img "Yellow folder" [ref=e1049]:
+                      - img [ref=e1050]
+                  - gridcell "Total" [ref=e1055]:
+                    - button "Total" [ref=e1056] [cursor=pointer]
+                    - generic:  
+                  - gridcell "17 de febrero" [ref=e1057]
+                  - gridcell "8 items" [ref=e1058]
+                  - gridcell "Private" [ref=e1059]:
+                    - button "Private" [ref=e1060] [cursor=pointer]:
+                      - generic [ref=e1061]: Private
+                - row "Select row Yellow folder Traccion 2 de abril 14 items Private" [ref=e1062]:
+                  - gridcell "Select row" [ref=e1063]:
+                    - checkbox "Select row" [ref=e1064] [cursor=pointer]
+                  - gridcell "Yellow folder" [ref=e1066]:
+                    - img "Yellow folder" [ref=e1068]:
+                      - img [ref=e1069]
+                  - gridcell "Traccion" [ref=e1074]:
+                    - button "Traccion" [ref=e1075] [cursor=pointer]
+                    - generic:  
+                  - gridcell "2 de abril" [ref=e1076]
+                  - gridcell "14 items" [ref=e1077]
+                  - gridcell "Private" [ref=e1078]:
+                    - button "Private" [ref=e1079] [cursor=pointer]:
+                      - generic [ref=e1080]: Private
+            - grid [active] [ref=e534]
+            - status [ref=e535]
+      - generic "Ask Copilot about your files" [ref=e1081]:
+        - button "Copilot actions" [ref=e1082]
+  - generic:
+    - img

@@ -1,0 +1,1276 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - generic [ref=e8]:
+      - link "Saltar al contenido principal" [ref=e9] [cursor=pointer]:
+        - /url: javascript:void(0)
+      - banner [ref=e10]:
+        - generic [ref=e12]:
+          - text:  
+          - link "Microsoft" [ref=e13] [cursor=pointer]:
+            - /url: https://www.microsoft.com
+            - img [ref=e14]
+            - generic [ref=e15]: Microsoft
+          - text:  
+          - link "Microsoft 365" [ref=e17] [cursor=pointer]:
+            - /url: https://www.microsoft.com/es-co/microsoft-365
+            - generic [ref=e18]: Microsoft 365
+          - navigation "Menú contextual" [ref=e19]:
+            - list [ref=e20]:
+              - listitem [ref=e21]:
+                - link "OneDrive" [ref=e22] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/es-co/microsoft-365/onedrive/online-cloud-storage
+              - listitem [ref=e23]:
+                - link "Empresa" [ref=e24] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/es-co/microsoft-365/onedrive/onedrive-for-business
+              - listitem [ref=e25]:
+                - button "Planes y precios " [ref=e27] [cursor=pointer]
+              - listitem [ref=e28]:
+                - button "Características " [ref=e30] [cursor=pointer]
+              - listitem [ref=e31]:
+                - button "Recursos " [ref=e33] [cursor=pointer]
+              - listitem [ref=e34]:
+                - link "Descargar" [ref=e35] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/es-co/microsoft-365/onedrive/download
+              - text: 
+          - generic [ref=e36]:
+            - navigation "Todo el menú de Microsoft" [ref=e38]:
+              - list [ref=e39]:
+                - listitem [ref=e40]:
+                  - generic [ref=e41]:
+                    - button "Todo Microsoft " [ref=e42] [cursor=pointer]
+                    - text: 
+            - search [ref=e43]:
+              - button "Buscar en Microsoft 365" [ref=e44] [cursor=pointer]: 
+            - link "Inicia sesión en tu cuenta" [ref=e1099] [cursor=pointer]:
+              - /url: https://go.microsoft.com/fwlink/p/?LinkID=2119709
+              - generic [ref=e1100]: Inicia sesión en tu cuenta
+    - main [ref=e49]:
+      - generic [ref=e52]:
+        - generic:
+          - generic: 
+        - generic [ref=e64]:
+          - heading "Microsoft OneDrive" [level=1] [ref=e67]
+          - generic [ref=e68]: Mantén copias de seguridad automáticas de tus archivos, fotos y vídeos disponibles en todos tus dispositivos.
+          - generic [ref=e71]:
+            - 'link "Iniciar sesión: inicia sesión en OneDrive con tu cuenta de Microsoft u Office 365" [ref=e72] [cursor=pointer]':
+              - /url: https://go.microsoft.com/fwlink/p/?LinkID=2119709&clcid=0x240a&culture=es-co&country=co
+              - generic [ref=e73]: Iniciar sesión
+            - link "Crear un vínculo de cuenta gratuita para Microsoft en inglés (Estados Unidos)" [ref=e74] [cursor=pointer]:
+              - /url: https://go.microsoft.com/fwlink/p/?LinkID=2117132&clcid=0x240a&culture=es-co&country=co
+              - generic [ref=e75]: Crear una cuenta gratuita
+          - link "Ver planes y precios para comparar planes y precios de almacenamiento en la nube" [ref=e78] [cursor=pointer]:
+            - /url: https://www.microsoft.com/es-co/microsoft-365/onedrive/compare-onedrive-plans
+            - generic [ref=e80]: 
+            - generic [ref=e81]: Consultar planes y precios
+        - generic: 
+        - generic [ref=e82]:
+          - navigation "Vínculos rápidos en la página" [ref=e84]:
+            - generic [ref=e85]:
+              - text: 
+              - generic "Información general " [ref=e86]:
+                - generic [ref=e87]:
+                  - list [ref=e89]:
+                    - listitem [ref=e90]:
+                      - link "Información general" [ref=e91] [cursor=pointer]:
+                        - /url: "#Overview"
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic: Información general
+                    - listitem [ref=e93]:
+                      - link "Descargar la aplicación" [ref=e94] [cursor=pointer]:
+                        - /url: "#Download-the-app"
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic: Descargar la aplicación
+                    - listitem [ref=e96]:
+                      - link "Explorar OneDrive" [ref=e97] [cursor=pointer]:
+                        - /url: "#Explore-OneDrive"
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic: Explorar OneDrive
+                    - listitem [ref=e99]:
+                      - link "Precios" [ref=e100] [cursor=pointer]:
+                        - /url: "#Pricing"
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic: Planes y precios
+                    - listitem [ref=e102]:
+                      - link "Recursos" [ref=e103] [cursor=pointer]:
+                        - /url: "#Resources"
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic: Recursos
+                    - listitem [ref=e105]:
+                      - link "Aplicaciones de Microsoft 365" [ref=e106] [cursor=pointer]:
+                        - /url: "#Microsoft-365-Apps"
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic: Aplicaciones de Microsoft 365
+                    - listitem [ref=e108]:
+                      - link "Preguntas más frecuentes" [ref=e109] [cursor=pointer]:
+                        - /url: "#FAQ"
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic: Preguntas más frecuentes
+                    - listitem [ref=e111]:
+                      - link "Próximos pasos" [ref=e112] [cursor=pointer]:
+                        - /url: "#Next-steps"
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic: Pasos siguientes
+                  - generic:
+                    - text: 
+                    - button [ref=e1103] [cursor=pointer]: 
+            - generic [ref=e114]:
+              - link "Ver planes y precios y comparar planes y precios de almacenamiento en la nube" [ref=e115] [cursor=pointer]:
+                - /url: https://www.microsoft.com/es-co/microsoft-365/onedrive/compare-onedrive-plans
+                - generic [ref=e116]: Ver planes y precios
+              - 'link "Iniciar sesión: inicia sesión en OneDrive con tu cuenta de Microsoft u Office 365." [ref=e117] [cursor=pointer]':
+                - /url: https://go.microsoft.com/fwlink/p/?LinkID=2119709&clcid=0x240a&culture=es-co&country=co
+                - generic [ref=e118]: Iniciar sesión
+          - generic [ref=e119]:
+            - generic [ref=e121]:
+              - generic [ref=e127]:
+                - generic [ref=e128]: Información general
+                - heading "Guarda y comparte de forma segura lo que es importante" [level=2] [ref=e132]
+              - generic [ref=e136]:
+                - generic [ref=e138]:
+                  - tablist [ref=e141]:
+                    - tab "Copias de seguridad y protección" [selected] [ref=e142] [cursor=pointer]
+                    - tab "Acceder desde cualquier lugar" [ref=e143] [cursor=pointer]
+                    - tab "Redescubrir y compartir" [ref=e144] [cursor=pointer]
+                    - tab "Copilot en OneDrive" [ref=e145] [cursor=pointer]
+                  - text:  
+                - generic [ref=e148]:
+                  - tabpanel [ref=e149]:
+                    - list [ref=e154]:
+                      - listitem [ref=e155]:
+                        - generic [ref=e157]:
+                          - button " Para tu escritorio" [expanded] [ref=e159] [cursor=pointer]:
+                            - text: 
+                            - heading "Para tu escritorio" [level=3] [ref=e160]
+                          - generic [ref=e163]:
+                            - generic [ref=e164]: Realiza copias de seguridad de sus archivos, fotos, aplicaciones y configuraciones importantes para que estén disponibles pase lo que le pase a su dispositivo.
+                            - generic [ref=e166]:
+                              - link "Obtén más información sobre las copias de seguridad de las carpetas de PC en OneDrive" [ref=e168] [cursor=pointer]:
+                                - /url: https://www.microsoft.com/es-co/microsoft-365/onedrive/pc-cloud-backup
+                                - generic [ref=e169]: Más información
+                              - img "Una notificación de Microsoft OneDrive indicando que ahora se están almacenando carpetas importantes" [ref=e1104]
+                      - listitem [ref=e172]:
+                        - button " Para tu teléfono" [ref=e175] [cursor=pointer]:
+                          - text: 
+                          - heading "Para tu teléfono" [level=3] [ref=e176]
+                      - listitem [ref=e178]:
+                        - button " Para tu Xbox" [ref=e181] [cursor=pointer]:
+                          - text: 
+                          - heading "Para tu Xbox" [level=3] [ref=e182]
+                  - text:       
+                  - link "Volver a pestañas" [ref=e1105] [cursor=pointer]:
+                    - /url: "#tabs-pill-bar-ocb9d4_tab0-tab"
+                    - text: Volver a las pestañas
+            - generic [ref=e186]:
+              - generic [ref=e192]:
+                - generic [ref=e193]: Descargar la aplicación
+                - heading "OneDrive para todos tus dispositivos" [level=2] [ref=e197]
+              - generic [ref=e200]:
+                - generic [ref=e202]:
+                  - img "Un portátil sobre un escritorio blanco muestra una interfaz de almacenamiento en la nube." [ref=e1107]
+                  - generic [ref=e205]:
+                    - generic [ref=e207]:
+                      - heading "Para el escritorio" [level=3] [ref=e211]:
+                        - generic [ref=e212]: Para el escritorio
+                      - generic [ref=e213]: Haz copias de seguridad automáticas de las carpetas y archivos de tu ordenador con OneDrive.
+                    - link "Aprende a crear una copia de seguridad de OneDrive y a gestionar las copias de seguridad de las carpetas del PC" [ref=e217] [cursor=pointer]:
+                      - /url: https://go.microsoft.com/fwlink/?linkid=2280746&clcid=0x240a&culture=es-co&country=co
+                      - generic [ref=e219]: 
+                      - generic [ref=e220]: Más información
+                - generic [ref=e222]:
+                  - img "Ilustración en 3D de un icono de nube azul con un sobre y un símbolo de documento" [ref=e1109]
+                  - generic [ref=e225]:
+                    - generic [ref=e227]:
+                      - heading "Para iOS" [level=3] [ref=e231]:
+                        - generic [ref=e232]: Para iOS
+                      - generic [ref=e233]: Guarda automáticamente las fotos y vídeos de tu teléfono con OneDrive para iOS.
+                    - link "Aprende a guardar automáticamente fotos y vídeos con OneDrive en iOS." [ref=e237] [cursor=pointer]:
+                      - /url: https://go.microsoft.com/fwlink/?linkid=2258717&clcid=0x240a&culture=es-co&country=co
+                      - generic [ref=e239]: 
+                      - generic [ref=e240]: Más información
+                - generic [ref=e242]:
+                  - img "La pantalla de un smartphone muestra una aplicación de galería de fotos de la playa y el océano." [ref=e1111]
+                  - generic [ref=e245]:
+                    - generic [ref=e247]:
+                      - heading "Para Android™" [level=3] [ref=e251]:
+                        - generic [ref=e252]: Para Android™
+                      - generic [ref=e253]: Guarda automáticamente las fotos y vídeos de tu teléfono con OneDrive para Android™.
+                    - link "Aprende a guardar automáticamente fotos y vídeos en OneDrive para Android." [ref=e257] [cursor=pointer]:
+                      - /url: https://go.microsoft.com/fwlink/?linkid=2258564&clcid=0x240a&culture=es-co&country=co
+                      - generic [ref=e259]: 
+                      - generic [ref=e260]: Más información
+            - generic [ref=e264]:
+              - generic [ref=e270]:
+                - generic [ref=e271]: Explorar OneDrive
+                - heading "Tus archivos y fotos, seguros y accesibles" [level=2] [ref=e275]
+                - generic [ref=e276]: Guarda, comparte y accede de forma segura a tus archivos y fotos estés donde estés.
+              - generic [ref=e280]:
+                - img "Un smartphone con una aplicación de administración de archivos sobre una mesa, junto a un pasaporte y tarjetas de embarque" [ref=e1113]
+                - button "Vídeo de la aplicación móvil de OneDrive" [ref=e283] [cursor=pointer]:
+                  - generic [ref=e285]: 
+            - generic:
+              - generic: 
+            - generic:
+              - generic: 
+            - generic [ref=e289]:
+              - generic [ref=e295]:
+                - generic [ref=e296]: Planes & precios
+                - heading "OneDrive es mejor con Microsoft 365" [level=2] [ref=e300]
+              - generic [ref=e304]:
+                - generic [ref=e306]:
+                  - tablist [ref=e309]:
+                    - tab "Para usuarios individuales" [selected] [ref=e310] [cursor=pointer]
+                    - tab "Para MIPYMES" [ref=e311] [cursor=pointer]
+                  - text:  
+                - generic [ref=e314]:
+                  - tabpanel [ref=e315]:
+                    - generic [ref=e318]:
+                      - tablist [ref=e320]:
+                        - tab "Mensualmente" [selected] [ref=e321] [cursor=pointer]:
+                          - generic [ref=e323]: Mensualmente
+                        - tab "Anualmente" [ref=e324] [cursor=pointer]:
+                          - generic [ref=e326]: Anualmente
+                      - generic [ref=e329]:
+                        - tabpanel [ref=e330]:
+                          - generic [ref=e332]:
+                            - generic [ref=e333]:
+                              - generic [ref=e337]:
+                                - heading "Microsoft 365" [level=3] [ref=e339]
+                                - generic [ref=e341]: Gratuito
+                                - generic [ref=e343]:
+                                  - paragraph [ref=e344]
+                                  - paragraph [ref=e345]
+                                - generic [ref=e347]:
+                                  - link "Inicia sesión - Descubre nuestra oferta exclusiva" [ref=e348] [cursor=pointer]:
+                                    - /url: https://go.microsoft.com/fwlink/p/?LinkID=2117132&clcid=0x240a&culture=es-co&country=co
+                                    - generic [ref=e349]: Registrarse gratis
+                                  - 'link "Iniciar sesión en tu cuenta Microsoft: vínculo, inglés (Estados Unidos)" [ref=e350] [cursor=pointer]':
+                                    - /url: https://go.microsoft.com/fwlink/p/?LinkID=2119709&clcid=0x240a&culture=es-co&country=co
+                                    - generic [ref=e351]: Iniciar sesión
+                              - list [ref=e354]:
+                                - listitem [ref=e355]:
+                                  - generic [ref=e357]:
+                                    - generic [ref=e360]: 
+                                    - generic [ref=e363]: Para 1 persona
+                                - listitem [ref=e365]:
+                                  - generic [ref=e367]:
+                                    - generic [ref=e370]: 
+                                    - generic [ref=e373]: 5 GB de almacenamiento en la nube
+                                - listitem [ref=e375]:
+                                  - generic [ref=e377]:
+                                    - generic [ref=e380]: 
+                                    - generic [ref=e384]:
+                                      - text: 15 GB de almacenamiento de buzón
+                                      - generic [ref=e1114]:
+                                        - button "Más información" [ref=e1115] [cursor=pointer]:
+                                          - img [ref=e1117]
+                                        - text: 
+                                - listitem [ref=e385]:
+                                  - generic [ref=e387]:
+                                    - generic [ref=e390]: 
+                                    - generic [ref=e394]:
+                                      - text: Funciona en PC, Mac, iPhone, iPad y teléfonos y tabletas Android
+                                      - generic [ref=e1120]:
+                                        - button "Más información" [ref=e1121] [cursor=pointer]:
+                                          - img [ref=e1123]
+                                        - text: 
+                                - listitem [ref=e395]:
+                                  - generic [ref=e397]:
+                                    - generic [ref=e400]: 
+                                    - generic [ref=e403]: Copia de seguridad de archivos y fotos de OneDrive en todos tus dispositivos
+                                - listitem [ref=e405]:
+                                  - generic [ref=e407]:
+                                    - generic [ref=e410]: 
+                                    - generic [ref=e413]: Correo electrónico y calendario de Outlook.com
+                                - listitem [ref=e415]:
+                                  - generic [ref=e417]:
+                                    - generic [ref=e420]: 
+                                    - generic [ref=e423]: Versiones web y móvil de Word, Excel, PowerPoint, OneNote, OneDrive y muchas aplicaciones más
+                              - generic [ref=e425]:
+                                - list:
+                                  - listitem
+                            - generic [ref=e426]:
+                              - generic [ref=e430]:
+                                - heading "Microsoft 365 Básico" [level=3] [ref=e432]
+                                - generic [ref=e434]: $ 9.999,00
+                                - generic [ref=e435]: al mes
+                                - generic [ref=e437]:
+                                  - text: La suscripción se renueva automáticamente a menos que se cancele en la cuenta de Microsoft.
+                                  - link "Consulta los términos de Microsoft 365 Básico" [ref=e438] [cursor=pointer]:
+                                    - /url: https://go.microsoft.com/fwlink/?linkid=2265909
+                                    - text: Ver términos
+                                  - text: .
+                                - link "Compra ahora Microsoft 365 Básico" [ref=e441] [cursor=pointer]:
+                                  - /url: https://go.microsoft.com/fwlink/p/?LinkID=2117133&clcid=0x240a&culture=es-co&country=co
+                                  - generic [ref=e442]: Comprar ahora
+                              - list [ref=e445]:
+                                - listitem [ref=e446]:
+                                  - generic [ref=e448]:
+                                    - generic [ref=e451]: 
+                                    - generic [ref=e454]: Para 1 persona
+                                - listitem [ref=e456]:
+                                  - generic [ref=e458]:
+                                    - generic [ref=e461]: 
+                                    - generic [ref=e464]: Uso en varios dispositivos al mismo tiempo
+                                - listitem [ref=e466]:
+                                  - generic [ref=e468]:
+                                    - generic [ref=e471]: 
+                                    - generic [ref=e475]:
+                                      - text: Funciona en PC, Mac, iPhone, iPad y teléfonos y tabletas Android
+                                      - generic [ref=e1126]:
+                                        - button [ref=e1127] [cursor=pointer]:
+                                          - img [ref=e1129]
+                                        - text: 
+                                - listitem [ref=e476]:
+                                  - generic [ref=e478]:
+                                    - generic [ref=e481]: 
+                                    - generic [ref=e484]: 100 GB de almacenamiento en la nube
+                                - listitem [ref=e486]:
+                                  - generic [ref=e488]:
+                                    - generic [ref=e491]: 
+                                    - generic [ref=e494]: 100 GB de almacenamiento de buzón
+                                - listitem [ref=e496]:
+                                  - generic [ref=e498]:
+                                    - generic [ref=e501]: 
+                                    - generic [ref=e504]: Almacenamiento seguro y protección contra ransomware para archivos y fotos
+                                - listitem [ref=e506]:
+                                  - generic [ref=e508]:
+                                    - generic [ref=e511]: 
+                                    - generic [ref=e514]: Contactos, calendario y correo electrónico sin anuncios en un solo lugar
+                                - listitem [ref=e516]:
+                                  - generic [ref=e518]:
+                                    - generic [ref=e521]: 
+                                    - generic [ref=e524]: Funciones avanzadas de seguridad para el correo electrónico
+                                - listitem [ref=e526]:
+                                  - generic [ref=e528]:
+                                    - generic [ref=e531]: 
+                                    - generic [ref=e534]: Asistencia continua siempre que la necesites
+                              - generic [ref=e536]:
+                                - heading "Aplicaciones con valor de suscripción:" [level=6] [ref=e538]
+                                - list [ref=e539]:
+                                  - listitem [ref=e540]:
+                                    - generic [ref=e545]:
+                                      - button "Outlook" [ref=e546] [cursor=pointer]:
+                                        - img "Outlook" [ref=e550]
+                                      - text: 
+                                  - listitem [ref=e551]:
+                                    - generic [ref=e556]:
+                                      - button "OneDrive" [ref=e557] [cursor=pointer]:
+                                        - img "OneDrive" [ref=e561]
+                                      - text: 
+                            - generic [ref=e562]:
+                              - generic [ref=e566]:
+                                - heading "Microsoft 365 Personal" [level=3] [ref=e568]
+                                - generic [ref=e570]: $ 36.999,00
+                                - generic [ref=e571]: al mes
+                                - generic [ref=e573]:
+                                  - text: La suscripción se renueva automáticamente a menos que se cancele en la cuenta de Microsoft.
+                                  - link "Consulta los términos de Microsoft 365 Personal" [ref=e574] [cursor=pointer]:
+                                    - /url: https://go.microsoft.com/fwlink/?linkid=2265909
+                                    - text: Ver términos
+                                  - text: .
+                                - generic [ref=e576]:
+                                  - link "Compra ahora Microsoft 365 Personal." [ref=e577] [cursor=pointer]:
+                                    - /url: https://go.microsoft.com/fwlink/?linkid=2234339&clcid=0x240a&culture=es-co&country=co
+                                    - generic [ref=e578]: Comprar ahora
+                                  - link "Probar gratis Microsoft 365 Premium" [ref=e579] [cursor=pointer]:
+                                    - /url: https://www.microsoft.com/es-co/microsoft-365/try-prs
+                                    - generic [ref=e580]: Probar gratis
+                              - list [ref=e583]:
+                                - listitem [ref=e584]:
+                                  - generic [ref=e586]:
+                                    - generic [ref=e589]: 
+                                    - generic [ref=e592]: Para 1 persona
+                                - listitem [ref=e594]:
+                                  - generic [ref=e596]:
+                                    - generic [ref=e599]: 
+                                    - generic [ref=e602]: Usar en hasta cinco dispositivos simultáneamente
+                                - listitem [ref=e604]:
+                                  - generic [ref=e606]:
+                                    - generic [ref=e609]: 
+                                    - generic [ref=e613]:
+                                      - text: Funciona en PC, Mac, iPhone, iPad y teléfonos y tabletas Android
+                                      - generic [ref=e1132]:
+                                        - button "Más información" [ref=e1133] [cursor=pointer]:
+                                          - img [ref=e1135]
+                                        - text: 
+                                - listitem [ref=e614]:
+                                  - generic [ref=e616]:
+                                    - generic [ref=e619]: 
+                                    - generic [ref=e622]: 1 TB (1000 GB) de almacenamiento seguro en la nube
+                                - listitem [ref=e624]:
+                                  - generic [ref=e626]:
+                                    - generic [ref=e629]: 
+                                    - generic [ref=e633]:
+                                      - text: Aplicaciones de escritorio Word, Excel,
+                                      - generic [ref=e1138]:
+                                        - button "Más información" [ref=e1139] [cursor=pointer]:
+                                          - img [ref=e1141]
+                                        - text: 
+                                      - text: PowerPoint, Outlook y OneNote con Microsoft Copilot
+                                      - generic [ref=e1144]:
+                                        - button "Más información" [ref=e1145] [cursor=pointer]:
+                                          - img [ref=e1147]
+                                        - text: 
+                                - listitem [ref=e634]:
+                                  - generic [ref=e636]:
+                                    - generic [ref=e639]: 
+                                    - generic [ref=e643]:
+                                      - text: Uso más alto que la versión gratuita para funciones selectas de Copilot
+                                      - generic [ref=e1150]:
+                                        - button "Más información" [ref=e1151] [cursor=pointer]:
+                                          - img [ref=e1153]
+                                        - text: 
+                                - listitem [ref=e644]:
+                                  - generic [ref=e646]:
+                                    - generic [ref=e649]: 
+                                    - generic [ref=e653]:
+                                      - text: Uso de Copilot con archivos de trabajo en aplicaciones seleccionadas de forma segura.
+                                      - generic [ref=e1156]:
+                                        - button "Más información" [ref=e1157] [cursor=pointer]:
+                                          - img [ref=e1159]
+                                        - text: 
+                                - listitem [ref=e654]:
+                                  - generic [ref=e656]:
+                                    - generic [ref=e659]: 
+                                    - generic [ref=e663]:
+                                      - text: Mayor uso de la creación y edición de imágenes con IA en Microsoft Designer, Fotos y Copilot Chat
+                                      - generic [ref=e1162]:
+                                        - button "Más información" [ref=e1163] [cursor=pointer]:
+                                          - img [ref=e1165]
+                                        - text: 
+                                - listitem [ref=e664]:
+                                  - generic [ref=e666]:
+                                    - generic [ref=e669]: 
+                                    - generic [ref=e672]: Seguridad avanzada de Microsoft Defender para tus datos personales y dispositivos
+                                - listitem [ref=e674]:
+                                  - generic [ref=e676]:
+                                    - generic [ref=e679]: 
+                                    - generic [ref=e682]: Protección contra ransomware en OneDrive para tus fotos y archivos
+                                - listitem [ref=e684]:
+                                  - generic [ref=e686]:
+                                    - generic [ref=e689]: 
+                                    - generic [ref=e693]:
+                                      - text: Microsoft Teams con Copilot
+                                      - generic [ref=e1168]:
+                                        - button "Más información" [ref=e1169] [cursor=pointer]:
+                                          - img [ref=e1171]
+                                        - text: 
+                                      - text: para llamar, chatear y colaborar
+                                - listitem [ref=e694]:
+                                  - generic [ref=e696]:
+                                    - generic [ref=e699]: 
+                                    - generic [ref=e702]: Asistencia continua para obtener ayuda cuando la necesites
+                              - generic [ref=e704]:
+                                - heading "Aplicaciones con valor de suscripción:" [level=6] [ref=e706]
+                                - list [ref=e707]:
+                                  - listitem [ref=e708]:
+                                    - generic [ref=e713]:
+                                      - button "Microsoft Copilot" [ref=e714] [cursor=pointer]:
+                                        - img "Microsoft Copilot" [ref=e718]
+                                      - text: 
+                                  - listitem [ref=e719]:
+                                    - generic [ref=e724]:
+                                      - button "Word" [ref=e725] [cursor=pointer]:
+                                        - img "Word" [ref=e729]
+                                      - text: 
+                                  - listitem [ref=e730]:
+                                    - generic [ref=e735]:
+                                      - button "Excel" [ref=e736] [cursor=pointer]:
+                                        - img "Excel" [ref=e740]
+                                      - text: 
+                                  - listitem [ref=e741]:
+                                    - generic [ref=e746]:
+                                      - button "PowerPoint" [ref=e747] [cursor=pointer]:
+                                        - img "PowerPoint" [ref=e751]
+                                      - text: 
+                                  - listitem [ref=e752]:
+                                    - generic [ref=e757]:
+                                      - button "Outlook" [ref=e758] [cursor=pointer]:
+                                        - img "Outlook" [ref=e762]
+                                      - text: 
+                                  - listitem [ref=e763]:
+                                    - generic [ref=e768]:
+                                      - button "OneNote" [ref=e769] [cursor=pointer]:
+                                        - img "OneNote" [ref=e773]
+                                      - text: 
+                                  - listitem [ref=e774]:
+                                    - generic [ref=e779]:
+                                      - button "OneDrive" [ref=e780] [cursor=pointer]:
+                                        - img "OneDrive" [ref=e784]
+                                      - text: 
+                                  - listitem [ref=e785]:
+                                    - generic [ref=e790]:
+                                      - button "Microsoft Defender" [ref=e791] [cursor=pointer]:
+                                        - img "Microsoft Defender" [ref=e795]
+                                      - text: 
+                                  - listitem [ref=e796]:
+                                    - generic [ref=e801]:
+                                      - button "Microsoft Teams" [ref=e802] [cursor=pointer]:
+                                        - img "Microsoft Teams" [ref=e806]
+                                      - text: 
+                                  - listitem [ref=e807]:
+                                    - generic [ref=e812]:
+                                      - button "Designer" [ref=e813] [cursor=pointer]:
+                                        - img "Designer" [ref=e817]
+                                      - text: 
+                                  - listitem [ref=e818]:
+                                    - generic [ref=e823]:
+                                      - button "Clipchamp" [ref=e824] [cursor=pointer]:
+                                        - img "Clipchamp" [ref=e828]
+                                      - text: 
+                            - generic [ref=e829]:
+                              - generic [ref=e833]:
+                                - heading "Microsoft 365 Familia" [level=3] [ref=e835]
+                                - generic [ref=e837]: $ 45.999,00
+                                - generic [ref=e838]: al mes
+                                - generic [ref=e840]:
+                                  - text: La suscripción se renueva automáticamente a menos que se cancele en la cuenta de Microsoft.
+                                  - link "Consulta los términos de Microsoft 365 Familia" [ref=e841] [cursor=pointer]:
+                                    - /url: https://go.microsoft.com/fwlink/?linkid=2265909
+                                    - text: Ver términos
+                                  - text: .
+                                - generic [ref=e843]:
+                                  - link "Compra ahora Microsoft 365 Familia." [ref=e844] [cursor=pointer]:
+                                    - /url: https://go.microsoft.com/fwlink/?linkid=2234432&clcid=0x240a&culture=es-co&country=co
+                                    - generic [ref=e845]: Comprar ahora
+                                  - 'link "Prueba gratis: Microsoft 365 Familia" [ref=e846] [cursor=pointer]':
+                                    - /url: https://www.microsoft.com/es-co/microsoft-365/try
+                                    - generic [ref=e847]: Pruébalo gratis
+                              - list [ref=e850]:
+                                - listitem [ref=e851]:
+                                  - generic [ref=e853]:
+                                    - generic [ref=e856]: 
+                                    - generic [ref=e859]: Para 1 a 6 personas (características de IA solo para propietarios de suscripciones)
+                                - listitem [ref=e861]:
+                                  - generic [ref=e863]:
+                                    - generic [ref=e866]: 
+                                    - generic [ref=e869]: Cada persona puede usar hasta cinco dispositivos simultáneamente
+                                - listitem [ref=e871]:
+                                  - generic [ref=e873]:
+                                    - generic [ref=e876]: 
+                                    - generic [ref=e880]:
+                                      - text: Funciona en PC, Mac, iPhone, iPad y teléfonos y tabletas Android
+                                      - generic [ref=e1174]:
+                                        - button "Más información" [ref=e1175] [cursor=pointer]:
+                                          - img [ref=e1177]
+                                        - text: 
+                                - listitem [ref=e881]:
+                                  - generic [ref=e883]:
+                                    - generic [ref=e886]: 
+                                    - generic [ref=e889]: Hasta 6 TB de almacenamiento en la nube seguro (1 TB por usuario)
+                                - listitem [ref=e891]:
+                                  - generic [ref=e893]:
+                                    - generic [ref=e896]: 
+                                    - generic [ref=e900]:
+                                      - text: Aplicaciones de escritorio Word, Excel,
+                                      - generic [ref=e1180]:
+                                        - button "Más información" [ref=e1181] [cursor=pointer]:
+                                          - img [ref=e1183]
+                                        - text: 
+                                      - text: PowerPoint, Outlook y OneNote con Microsoft Copilot
+                                      - generic [ref=e1186]:
+                                        - button "Más información" [ref=e1187] [cursor=pointer]:
+                                          - img [ref=e1189]
+                                        - text: 
+                                - listitem [ref=e901]:
+                                  - generic [ref=e903]:
+                                    - generic [ref=e906]: 
+                                    - generic [ref=e910]:
+                                      - text: Uso más alto que la versión gratuita para funciones selectas de Copilot
+                                      - generic [ref=e1192]:
+                                        - button "Más información" [ref=e1193] [cursor=pointer]:
+                                          - img [ref=e1195]
+                                        - text: 
+                                - listitem [ref=e911]:
+                                  - generic [ref=e913]:
+                                    - generic [ref=e916]: 
+                                    - generic [ref=e920]:
+                                      - text: Uso de Copilot con archivos de trabajo en aplicaciones seleccionadas de forma segura.
+                                      - generic [ref=e1198]:
+                                        - button "Más información" [ref=e1199] [cursor=pointer]:
+                                          - img [ref=e1201]
+                                        - text: 
+                                - listitem [ref=e921]:
+                                  - generic [ref=e923]:
+                                    - generic [ref=e926]: 
+                                    - generic [ref=e930]:
+                                      - text: Mayor uso de la creación y edición de imágenes con IA en Microsoft Designer, Fotos y Copilot Chat
+                                      - generic [ref=e1204]:
+                                        - button "Más información" [ref=e1205] [cursor=pointer]:
+                                          - img [ref=e1207]
+                                        - text: 
+                                - listitem [ref=e931]:
+                                  - generic [ref=e933]:
+                                    - generic [ref=e936]: 
+                                    - generic [ref=e939]: Seguridad avanzada de Microsoft Defender para los datos personales y dispositivos de tu familia
+                                - listitem [ref=e941]:
+                                  - generic [ref=e943]:
+                                    - generic [ref=e946]: 
+                                    - generic [ref=e949]: Protección contra ransomware en OneDrive para las fotos y archivos de tu familia
+                                - listitem [ref=e951]:
+                                  - generic [ref=e953]:
+                                    - generic [ref=e956]: 
+                                    - generic [ref=e960]:
+                                      - text: Microsoft Teams con Copilot
+                                      - generic [ref=e1210]:
+                                        - button "Más información" [ref=e1211] [cursor=pointer]:
+                                          - img [ref=e1213]
+                                        - text: 
+                                      - text: para llamar, chatear y colaborar
+                                - listitem [ref=e961]:
+                                  - generic [ref=e963]:
+                                    - generic [ref=e966]: 
+                                    - generic [ref=e969]: Asistencia continua para ayudarte cuando tú y tu familia la necesitéis
+                              - generic [ref=e971]:
+                                - heading "Aplicaciones con valor de suscripción:" [level=6] [ref=e973]
+                                - list [ref=e974]:
+                                  - listitem [ref=e975]:
+                                    - generic [ref=e980]:
+                                      - button "Microsoft Copilot" [ref=e981] [cursor=pointer]:
+                                        - img "Microsoft Copilot" [ref=e985]
+                                      - text: 
+                                  - listitem [ref=e986]:
+                                    - generic [ref=e991]:
+                                      - button "Word" [ref=e992] [cursor=pointer]:
+                                        - img "Word" [ref=e996]
+                                      - text: 
+                                  - listitem [ref=e997]:
+                                    - generic [ref=e1002]:
+                                      - button "Excel" [ref=e1003] [cursor=pointer]:
+                                        - img "Excel" [ref=e1007]
+                                      - text: 
+                                  - listitem [ref=e1008]:
+                                    - generic [ref=e1013]:
+                                      - button "PowerPoint" [ref=e1014] [cursor=pointer]:
+                                        - img "PowerPoint" [ref=e1018]
+                                      - text: 
+                                  - listitem [ref=e1019]:
+                                    - generic [ref=e1024]:
+                                      - button "Outlook" [ref=e1025] [cursor=pointer]:
+                                        - img "Outlook" [ref=e1029]
+                                      - text: 
+                                  - listitem [ref=e1030]:
+                                    - generic [ref=e1035]:
+                                      - button "OneNote" [ref=e1036] [cursor=pointer]:
+                                        - img "OneNote" [ref=e1040]
+                                      - text: 
+                                  - listitem [ref=e1041]:
+                                    - generic [ref=e1046]:
+                                      - button "OneDrive" [ref=e1047] [cursor=pointer]:
+                                        - img "OneDrive" [ref=e1051]
+                                      - text: 
+                                  - listitem [ref=e1052]:
+                                    - generic [ref=e1057]:
+                                      - button "Microsoft Defender" [ref=e1058] [cursor=pointer]:
+                                        - img "Microsoft Defender" [ref=e1062]
+                                      - text: 
+                                  - listitem [ref=e1063]:
+                                    - generic [ref=e1068]:
+                                      - button "Microsoft Teams" [ref=e1069] [cursor=pointer]:
+                                        - img "Microsoft Teams" [ref=e1073]
+                                      - text: 
+                                  - listitem [ref=e1074]:
+                                    - generic [ref=e1079]:
+                                      - button "Designer" [ref=e1080] [cursor=pointer]:
+                                        - img "Designer" [ref=e1084]
+                                      - text: 
+                                  - listitem [ref=e1085]:
+                                    - generic [ref=e1090]:
+                                      - button "Clipchamp" [ref=e1091] [cursor=pointer]:
+                                        - img "Clipchamp" [ref=e1095]
+                                      - text: 
+                        - text:                                                                                 
+                        - link "Volver a las pestañas" [ref=e1216] [cursor=pointer]:
+                          - /url: "#monthly-yearly-plans_tab0-tab"
+                  - text:                                                                         
+                  - link "Volver a pestañas" [ref=e1217] [cursor=pointer]:
+                    - /url: "#home-business-plans_tab0-tab"
+            - generic [ref=e1219]:
+              - generic [ref=e1225]:
+                - heading "Obtener la aplicación móvil de OneDrive" [level=2] [ref=e1228]
+                - generic [ref=e1229]: Accede, edita o comparte tus fotos y archivos desde cualquier lugar con la aplicación móvil de OneDrive.
+                - generic [ref=e1231]:
+                  - 'link "Descargar para iOS: realiza copias de seguridad; protege y accede a tus fotos, vídeos y archivos." [ref=e1232] [cursor=pointer]':
+                    - /url: https://go.microsoft.com/fwlink/?linkid=2140611&clcid=0x240a&culture=es-co&country=co
+                    - generic [ref=e1233]: Descargar para iOS
+                  - 'link "Descargar para Android: guarda y comparte recuerdos y archivos de forma segura en todos los dispositivos." [ref=e1234] [cursor=pointer]':
+                    - /url: https://go.microsoft.com/fwlink/?linkid=2140415&clcid=0x240a&culture=es-co&country=co
+                    - generic [ref=e1235]: Descargar para Android™
+              - generic [ref=e1238]:
+                - generic:
+                  - img "Un código QR en blanco y negro sobre fondo blanco."
+            - generic [ref=e1239]:
+              - generic [ref=e1246]:
+                - generic [ref=e1247]: Recursos
+                - heading "Más información sobre OneDrive" [level=2] [ref=e1250]
+              - region "carrusel" [ref=e1255]:
+                - generic [ref=e1256]: Mostrando 1-2 de 5 diapositivas
+                - generic [ref=e1257]:
+                  - button "Diapositiva anterior" [disabled] [ref=e1258]:
+                    - generic [ref=e1259]: Diapositiva anterior
+                    - generic [ref=e1260]: 
+                  - button "Diapositiva siguiente" [ref=e1261] [cursor=pointer]:
+                    - generic [ref=e1262]: Diapositiva siguiente
+                    - generic [ref=e1263]: 
+                - generic [ref=e1265]:
+                  - group "1 de 5" [ref=e1266]:
+                    - generic [ref=e1272]:
+                      - generic [ref=e1275]:
+                        - generic [ref=e1277]: Centro de aprendizaje de Copilot
+                        - heading "Explora vídeos rápidos y fáciles de seguir que te ayudarán a empezar y a sacar más partido a Copilot en OneDrive, Word, Excel y otras aplicaciones." [level=3] [ref=e1280]:
+                          - generic [ref=e1281]: Explora vídeos rápidos y fáciles de seguir que te ayudarán a empezar y a sacar más partido a Copilot en OneDrive, Word, Excel y otras aplicaciones.
+                      - link "Más información" [ref=e1284] [cursor=pointer]:
+                        - /url: https://go.microsoft.com/fwlink/?linkid=2353930&clcid=0x240a&culture=es-co&country=co
+                        - generic [ref=e1286]: 
+                        - generic [ref=e1287]: Más información
+                  - group "2 de 5" [ref=e1288]:
+                    - generic [ref=e1289]:
+                      - generic [ref=e1291]:
+                        - generic:
+                          - img "Un portátil con una aplicación de administración de archivos sobre un escritorio con una silla azul, una taza amarilla y una lámpara verde azulado"
+                      - generic [ref=e1292]:
+                        - generic [ref=e1295]:
+                          - generic [ref=e1297]: Blog
+                          - heading "Nuevo aspecto de OneDrive para uso personal" [level=3] [ref=e1300]:
+                            - generic [ref=e1301]: Nuevo aspecto de OneDrive para uso personal
+                        - link "Más información sobre el nuevo aspecto y características de OneDrive para uso personal." [ref=e1304] [cursor=pointer]:
+                          - /url: https://go.microsoft.com/fwlink/?linkid=2280841&clcid=0x240a&culture=es-co&country=co
+                          - generic [ref=e1306]: 
+                          - generic [ref=e1307]: Más información
+                  - group [ref=e1308]:
+                    - generic [ref=e1312]:
+                      - generic [ref=e1315]:
+                        - generic [ref=e1317]: Artículo
+                        - heading [level=3] [ref=e1320]:
+                          - generic [ref=e1321]: Cosas interesantes que puedes hacer con una copia de seguridad en la nube
+                      - link [ref=e1324] [cursor=pointer]:
+                        - /url: https://go.microsoft.com/fwlink/?linkid=2280196&clcid=0x240a&culture=es-co&country=co
+                        - generic [ref=e1326]: 
+                        - generic [ref=e1327]: Más información
+                  - group [ref=e1328]:
+                    - generic [ref=e1332]:
+                      - generic [ref=e1335]:
+                        - generic [ref=e1337]: Artículo
+                        - heading [level=3] [ref=e1340]:
+                          - generic [ref=e1341]: 5 sencillos pasos para proteger tu almacenamiento en la nube
+                      - link [ref=e1344] [cursor=pointer]:
+                        - /url: https://go.microsoft.com/fwlink/?linkid=2280377&clcid=0x240a&culture=es-co&country=co
+                        - generic [ref=e1346]: 
+                        - generic [ref=e1347]: Más información
+                  - group [ref=e1348]:
+                    - generic [ref=e1352]:
+                      - generic [ref=e1355]:
+                        - generic [ref=e1357]: Artículo
+                        - heading [level=3] [ref=e1360]:
+                          - generic [ref=e1361]: Cómo los proyectos basados en la nube de OneDrive unen a los Walton
+                      - link [ref=e1364] [cursor=pointer]:
+                        - /url: https://go.microsoft.com/fwlink/?linkid=2250004&clcid=0x240a&culture=es-co&country=co
+                        - generic [ref=e1366]: 
+                        - generic [ref=e1367]: Más información
+                - link "Volver a los controles de navegación en carrusel" [ref=e1369] [cursor=pointer]:
+                  - /url: javascript:void(0);
+            - generic [ref=e1370]:
+              - generic [ref=e1376]:
+                - generic [ref=e1379]:
+                  - generic [ref=e1380]: Aplicaciones de Microsoft 365
+                  - heading "Más información sobre los productos de Microsoft 365" [level=2] [ref=e1383]
+                - link "Ver todos los productos, aplicaciones y servicios de Microsoft 365 para particulares y empresas, incluida la prueba gratuita" [ref=e1387] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/es-co/microsoft-365/products-apps-services
+                  - generic [ref=e1388]: Ver todo
+              - region "carrusel" [ref=e1393]:
+                - generic [ref=e1394]: Mostrando 1-2 de 8 diapositivas
+                - generic [ref=e1395]:
+                  - button "Diapositiva anterior" [disabled] [ref=e1396]:
+                    - generic [ref=e1397]: Diapositiva anterior
+                    - generic [ref=e1398]: 
+                  - button "Diapositiva siguiente" [ref=e1399] [cursor=pointer]:
+                    - generic [ref=e1400]: Diapositiva siguiente
+                    - generic [ref=e1401]: 
+                - generic [ref=e1403]:
+                  - group "1 de 8" [ref=e1404]:
+                    - generic [ref=e1406]:
+                      - generic [ref=e1412]:
+                        - generic [ref=e1413]: Word
+                        - heading "Mejora tu escritura y crea documentos perfectos en cualquier momento y en cualquier lugar." [level=3] [ref=e1416]:
+                          - generic [ref=e1417]: Mejora tu escritura y crea documentos perfectos en cualquier momento y en cualquier lugar.
+                      - link "Más información sobre el uso de Microsoft Word para el tratamiento de textos y la creación de documentos." [ref=e1420] [cursor=pointer]:
+                        - /url: https://www.microsoft.com/es-co/microsoft-365/word
+                        - generic [ref=e1422]: 
+                        - generic [ref=e1423]: Más información
+                  - group "2 de 8" [ref=e1424]:
+                    - generic [ref=e1426]:
+                      - generic [ref=e1432]:
+                        - generic [ref=e1433]: Excel
+                        - heading "Convierte los datos en conclusiones y simplifica los datos complejos en hojas de cálculo fáciles de leer." [level=3] [ref=e1436]:
+                          - generic [ref=e1437]: Convierte los datos en conclusiones y simplifica los datos complejos en hojas de cálculo fáciles de leer.
+                      - 'link "\"datos con las potentes herramientas de Excel. Aprende cómo Excel puede mejorar tus capacidades de análisis de datos. Etiqueta Aria CTA: \"obtén más información sobre cómo Excel puede mejorar tus aptitudes de análisis de datos\"." [ref=e1440] [cursor=pointer]':
+                        - /url: https://www.microsoft.com/es-co/microsoft-365/excel
+                        - generic [ref=e1442]: 
+                        - generic [ref=e1443]: Más información
+                  - group [ref=e1444]:
+                    - generic [ref=e1446]:
+                      - generic [ref=e1452]:
+                        - generic [ref=e1453]: PowerPoint
+                        - heading [level=3] [ref=e1456]:
+                          - generic [ref=e1457]: Usa características y herramientas de diseño inteligentes para crear presentaciones impactantes y bien diseñadas.
+                      - link [ref=e1460] [cursor=pointer]:
+                        - /url: https://www.microsoft.com/es-co/microsoft-365/powerpoint
+                        - generic [ref=e1462]: 
+                        - generic [ref=e1463]: Más información
+                  - group [ref=e1464]:
+                    - generic [ref=e1466]:
+                      - generic [ref=e1472]:
+                        - generic [ref=e1473]: Outlook
+                        - heading [level=3] [ref=e1476]:
+                          - generic [ref=e1477]: Administra tu correo electrónico, calendario, tareas y contactos en un solo lugar.
+                      - link [ref=e1480] [cursor=pointer]:
+                        - /url: https://www.microsoft.com/es-co/microsoft-365/outlook/email-and-calendar-software-microsoft-outlook
+                        - generic [ref=e1482]: 
+                        - generic [ref=e1483]: Más información
+                  - group [ref=e1484]:
+                    - generic [ref=e1486]:
+                      - generic [ref=e1492]:
+                        - generic [ref=e1493]: OneNote
+                        - heading [level=3] [ref=e1496]:
+                          - generic [ref=e1497]: Mantén tus pensamientos, contenido y listas a mano en un solo lugar.
+                      - link [ref=e1500] [cursor=pointer]:
+                        - /url: https://www.microsoft.com/es-co/microsoft-365/onenote/digital-note-taking-app
+                        - generic [ref=e1502]: 
+                        - generic [ref=e1503]: Más información
+                  - group [ref=e1504]:
+                    - generic [ref=e1506]:
+                      - generic [ref=e1512]:
+                        - generic [ref=e1513]: Defender
+                        - heading [level=3] [ref=e1516]:
+                          - generic [ref=e1517]: Disfruta de tu dispositivo personal y de la protección de datos con una aplicación fácil de usar.
+                      - link [ref=e1520] [cursor=pointer]:
+                        - /url: https://www.microsoft.com/es-co/microsoft-365/microsoft-defender-for-individuals
+                        - generic [ref=e1522]: 
+                        - generic [ref=e1523]: Más información
+                  - group [ref=e1524]:
+                    - generic [ref=e1526]:
+                      - generic [ref=e1532]:
+                        - generic [ref=e1533]: Designer
+                        - heading [level=3] [ref=e1536]:
+                          - generic [ref=e1537]: Crea diseños y edita fotos en segundos con el poder de la IA.
+                      - link [ref=e1540] [cursor=pointer]:
+                        - /url: https://www.microsoft.com/es-co/microsoft-365/microsoft-Designer
+                        - generic [ref=e1542]: 
+                        - generic [ref=e1543]: Más información
+                  - group [ref=e1544]:
+                    - generic [ref=e1546]:
+                      - generic [ref=e1552]:
+                        - generic [ref=e1553]: Clipchamp
+                        - heading [level=3] [ref=e1556]:
+                          - generic [ref=e1557]: Crea y edita bonitos vídeos de forma rápida y sencilla.
+                      - link [ref=e1560] [cursor=pointer]:
+                        - /url: https://www.microsoft.com/es-co/microsoft-365/clipchamp
+                        - generic [ref=e1562]: 
+                        - generic [ref=e1563]: Más información
+                - link "Volver a los controles de navegación en carrusel" [ref=e1565] [cursor=pointer]:
+                  - /url: javascript:void(0);
+            - generic [ref=e1570]:
+              - generic [ref=e1571]:
+                - heading "Preguntas más frecuentes" [level=2] [ref=e1573]
+                - group [ref=e1574]:
+                  - generic [ref=e1575]:
+                    - button "Expandir todo" [ref=e1576] [cursor=pointer]:
+                      - generic [ref=e1578]: Expandir todo
+                    - button "Contraer todo" [disabled] [pressed] [ref=e1579]:
+                      - generic [ref=e1581]: Contraer todo
+              - list [ref=e1582]:
+                - listitem [ref=e1583]:
+                  - button "01/ ¿Qué es OneDrive? " [ref=e1586] [cursor=pointer]:
+                    - generic [ref=e1588]: 01/
+                    - heading "¿Qué es OneDrive?" [level=3] [ref=e1592]:
+                      - generic [ref=e1593]: ¿Qué es OneDrive?
+                    - text: 
+                - listitem [ref=e1594]:
+                  - button "02/ ¿Cuánto espacio de almacenamiento obtengo con una cuenta gratuita? " [ref=e1597] [cursor=pointer]:
+                    - generic [ref=e1599]: 02/
+                    - heading "¿Cuánto espacio de almacenamiento obtengo con una cuenta gratuita?" [level=3] [ref=e1603]:
+                      - generic [ref=e1604]: ¿Cuánto espacio de almacenamiento obtengo con una cuenta gratuita?
+                    - text: 
+                - listitem [ref=e1605]:
+                  - button "03/ ¿Puedo comprar más espacio de almacenamiento? " [ref=e1608] [cursor=pointer]:
+                    - generic [ref=e1610]: 03/
+                    - heading "¿Puedo comprar más espacio de almacenamiento?" [level=3] [ref=e1614]:
+                      - generic [ref=e1615]: ¿Puedo comprar más espacio de almacenamiento?
+                    - text: 
+                - listitem [ref=e1616]:
+                  - button "04/ ¿Qué características de seguridad incluye OneDrive? " [ref=e1619] [cursor=pointer]:
+                    - generic [ref=e1621]: 04/
+                    - heading "¿Qué características de seguridad incluye OneDrive?" [level=3] [ref=e1625]:
+                      - generic [ref=e1626]: ¿Qué características de seguridad incluye OneDrive?
+                    - text: 
+                - listitem [ref=e1627]:
+                  - button "05/ ¿Qué es el Almacén personal? " [ref=e1630] [cursor=pointer]:
+                    - generic [ref=e1632]: 05/
+                    - heading "¿Qué es el Almacén personal?" [level=3] [ref=e1636]:
+                      - generic [ref=e1637]: ¿Qué es el Almacén personal?
+                    - text: 
+                - listitem [ref=e1638]:
+                  - button "06/ ¿De qué dispositivos puedo hacer una copia de seguridad en OneDrive? " [ref=e1641] [cursor=pointer]:
+                    - generic [ref=e1643]: 06/
+                    - heading "¿De qué dispositivos puedo hacer una copia de seguridad en OneDrive?" [level=3] [ref=e1647]:
+                      - generic [ref=e1648]: ¿De qué dispositivos puedo hacer una copia de seguridad en OneDrive?
+                    - text: 
+            - generic [ref=e1652]:
+              - heading "Pasos siguientes" [level=2] [ref=e1661]
+              - generic [ref=e1665]:
+                - generic [ref=e1671]:
+                  - img "Una mujer con chaqueta azul claro trabaja en un portátil en el exterior al atardecer con un paisaje urbano de fondo." [ref=e1675]
+                  - generic [ref=e1676]:
+                    - generic [ref=e1682]: Copilot
+                    - generic [ref=e1683]:
+                      - heading "Obtén Copilot en tu plan de Microsoft 365" [level=3] [ref=e1688]
+                      - generic [ref=e1691]:
+                        - text: Logra más que nunca con las características basadas en IA en Word, Excel, PowerPoint, Outlook y otras aplicaciones de Microsoft 365.
+                        - superscript [ref=e1692]:
+                          - link "Nota al pie 3" [ref=e1693] [cursor=pointer]:
+                            - /url: "#footnote-3"
+                            - text: "3"
+                    - link "Obtén más información sobre cómo Microsoft Copilot puede mejorar tu productividad en las aplicaciones de Microsoft 365." [ref=e1696] [cursor=pointer]:
+                      - /url: https://www.microsoft.com/es-co/microsoft-365-copilot
+                      - generic [ref=e1697]: Más información
+                - generic [ref=e1698]:
+                  - generic [ref=e1701]:
+                    - generic [ref=e1706]:
+                      - heading "Empezar a usar OneDrive gratis" [level=3] [ref=e1710]:
+                        - generic [ref=e1711]: Empezar a usar OneDrive gratis
+                      - generic [ref=e1712]: Tu cuenta Microsoft gratuita viene con 5 GB de almacenamiento para tu OneDrive (se puede comprar más almacenamiento).
+                    - link "Botón Crear una cuenta gratuita, el vínculo se abre en una ventana nueva." [ref=e1715] [cursor=pointer]:
+                      - /url: https://go.microsoft.com/fwlink/p/?LinkID=2117132&clcid=0x240a&culture=es-co&country=co
+                      - generic [ref=e1717]: 
+                      - generic [ref=e1718]: Crear una cuenta gratuita
+                  - generic [ref=e1721]:
+                    - generic [ref=e1726]:
+                      - heading "Prueba Microsoft 365 gratis" [level=3] [ref=e1730]:
+                        - generic [ref=e1731]: Prueba Microsoft 365 gratis
+                      - generic [ref=e1732]: Consigue más almacenamiento y protección avanzada de archivos y fotos con una suscripción a Microsoft 365.
+                    - 'link "Comienza tu prueba de un mes: haz clic aquí para comenzar tu prueba gratuita y explorar todas las características." [ref=e1735] [cursor=pointer]':
+                      - /url: https://go.microsoft.com/fwlink/p/?LinkID=403826&clcid=0x240a&culture=es-co&country=co
+                      - generic [ref=e1737]: 
+                      - generic [ref=e1738]: Comenzar tu prueba de 1 mes
+        - region [ref=e1744]:
+          - list [ref=e1745]:
+            - listitem [ref=e1746]:
+              - generic [ref=e1749]: La disponibilidad de las aplicaciones móviles varía según el país o región.
+            - listitem [ref=e1750]:
+              - generic [ref=e1753]:
+                - text: La disponibilidad de las aplicaciones varía según el idioma o dispositivo. Las características varían según la plataforma. Podrían aplicarse límites de edad mínima para el uso de características de IA.
+                - link "Detalles sobre Windows Server 2022 con funciones del producto, prestaciones y vínculo de descarga directa" [ref=e1754] [cursor=pointer]:
+                  - /url: https://go.microsoft.com/fwlink/?linkid=2280902
+                  - text: Detalles
+                - text: .
+            - listitem [ref=e1755]:
+              - generic [ref=e1757]:
+                - link "Volver a la nota al pie 1" [ref=e1758] [cursor=pointer]:
+                  - /url: "#footnote-1"
+                  - text: "[1]"
+                - generic [ref=e1759]:
+                  - text: Una vez que comience tu suscripción de pago, dispones de un plazo de 7 días para cancelar y recibir un reembolso prorrateado, pagando solo por lo que hayas usado. Puedes cancelar tu suscripción en cualquier momento en el Centro de administración de Microsoft 365.
+                  - link "Descubrir cómo cancelar la suscripción a Microsoft 365" [ref=e1760] [cursor=pointer]:
+                    - /url: https://go.microsoft.com/fwlink/?linkid=2300084
+                    - text: Descubre cómo cancelar la suscripción a Microsoft 365
+                  - text: . Cuando se cancele una suscripción, se eliminarán todos los datos asociados a ella.
+                  - link "Obtén más información sobre la retención, eliminación y destrucción de datos en Microsoft 365." [ref=e1761] [cursor=pointer]:
+                    - /url: https://go.microsoft.com/fwlink/?linkid=2299985
+            - listitem [ref=e1762]:
+              - generic [ref=e1764]:
+                - link "Volver a la nota al pie 2" [ref=e1765] [cursor=pointer]:
+                  - /url: "#footnote-2"
+                  - text: "[2]"
+                - generic [ref=e1766]:
+                  - text: Una vez finalizado el periodo de prueba gratuito de un mes, la suscripción se convertirá automáticamente en una suscripción de pago y se te cobrará la tarifa de suscripción aplicable en función del periodo de suscripción y el plan de facturación que elijas. Cancela la suscripción en cualquier momento durante la prueba gratuita para evitar futuros cargos. Se requiere tarjeta de crédito para registrarse. El almacenamiento para las pruebas será limitado. Microsoft se reserva el derecho de suspender el acceso a sus productos y servicios si no se recibe el pago una vez finalizado el mes de prueba gratuita.
+                  - link "Más información" [ref=e1767] [cursor=pointer]:
+                    - /url: https://go.microsoft.com/fwlink/?linkid=2213940
+                    - text: Obtén más información
+                  - text: .
+            - listitem [ref=e1768]:
+              - generic [ref=e1770]:
+                - link "Volver a la nota al pie 3" [ref=e1771] [cursor=pointer]:
+                  - /url: "#footnote-3"
+                  - text: "[3]"
+                - generic [ref=e1772]:
+                  - text: Las características de IA solo están disponibles para el propietario de la suscripción y no se pueden compartir; se aplican límites de uso.
+                  - link "Obtén más información sobre la disponibilidad de funciones de IA y los límites de uso." [ref=e1773] [cursor=pointer]:
+                    - /url: https://go.microsoft.com/fwlink/?linkid=2280151
+                    - text: Obtén más información
+                  - text: .
+        - region "Vínculos de seguimiento de Microsoft" [ref=e1794]:
+          - heading "Sigue a Microsoft 365." [level=2] [ref=e1795]
+          - list [ref=e1796]:
+            - listitem [ref=e1797]:
+              - link "Sigue a Microsoft 365 en LinkedIn." [ref=e1798] [cursor=pointer]:
+                - /url: https://go.microsoft.com/fwlink/?linkid=2144764
+                - img "Logotipo de LinkedIn" [ref=e1799]
+            - listitem [ref=e1800]:
+              - link "Sigue a Microsoft 365 en Twitter." [ref=e1801] [cursor=pointer]:
+                - /url: https://go.microsoft.com/fwlink/p/?LinkId=2000804
+                - img "Logotipo de Twitter" [ref=e1802]
+            - listitem [ref=e1803]:
+              - link "Sigue a Microsoft 365 en YouTube." [ref=e1804] [cursor=pointer]:
+                - /url: https://go.microsoft.com/fwlink/?linkid=2331970
+                - img "Logotipo de YouTube" [ref=e1805]
+            - listitem [ref=e1806]:
+              - link "Sigue a Microsoft 365 en Instagram." [ref=e1807] [cursor=pointer]:
+                - /url: https://go.microsoft.com/fwlink/?linkid=2066294
+                - img "Logotipo de Instagram" [ref=e1808]
+            - listitem [ref=e1809]:
+              - link "Seguir a Microsoft 365 en TikTok" [ref=e1810] [cursor=pointer]:
+                - /url: https://go.microsoft.com/fwlink/?linkid=2331663
+                - img "TikTok" [ref=e1811]
+    - generic [ref=e1812]:
+      - generic: 
+      - list [ref=e1813]:
+        - listitem [ref=e1814]:
+          - button "Chatea con el equipo de ventas" [ref=e1816] [cursor=pointer]: 
+          - text:  
+        - listitem [ref=e1817]:
+          - button "Ponte en contacto con ventas" [ref=e1819] [cursor=pointer]: 
+          - text:  
+        - listitem [ref=e1820]:
+          - button "Llama o agrega a Skype ahora" [ref=e1822] [cursor=pointer]: 
+          - text: 
+        - listitem [ref=e1823]:
+          - button "Contacto con el soporte técnico" [ref=e1825] [cursor=pointer]: 
+          - text:  
+    - contentinfo [ref=e1830]:
+      - navigation "Vínculos de recursos de pie de página" [ref=e1831]:
+        - generic:
+          - generic [ref=e1832]:
+            - heading "Novedades" [level=2] [ref=e1833]
+            - list [ref=e1834]:
+              - listitem [ref=e1835]:
+                - link "Copilot para organizaciones Novedades" [ref=e1836] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/es-co/microsoft-copilot/organizations?icid=DSM_Footer_CopilotOrganizations
+                  - text: Copilot para organizaciones
+              - listitem [ref=e1837]:
+                - link "Copilot para uso personal Novedades" [ref=e1838] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/es-co/microsoft-copilot/for-individuals?form=MY02PT&OCID=GE_web_Copilot_Free_868g3t5nj
+                  - text: Copilot para uso personal
+              - listitem [ref=e1839]:
+                - link "Microsoft 365 Novedades" [ref=e1840] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/es-co/microsoft-365
+                  - text: Microsoft 365
+              - listitem [ref=e1841]:
+                - link "Explora los productos de Microsoft Novedades" [ref=e1842] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/es-co/microsoft-products-and-apps
+                  - text: Explora los productos de Microsoft
+              - listitem [ref=e1843]:
+                - link "Aplicaciones de Windows 11 Novedades" [ref=e1844] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/es-co/windows/apps-for-windows?icid=DSM_Footer_WhatsNew_Windows11apps
+                  - text: Aplicaciones de Windows 11
+          - generic [ref=e1845]:
+            - heading "Microsoft Store" [level=2] [ref=e1846]
+            - list [ref=e1847]:
+              - listitem [ref=e1848]:
+                - link "Perfil de la cuenta Microsoft Store" [ref=e1849] [cursor=pointer]:
+                  - /url: https://account.microsoft.com/
+                  - text: Perfil de la cuenta
+              - listitem [ref=e1850]:
+                - link "Centro de descargas Microsoft Store" [ref=e1851] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/es-co/download
+                  - text: Centro de descargas
+              - listitem [ref=e1852]:
+                - link "Devoluciones Microsoft Store" [ref=e1853] [cursor=pointer]:
+                  - /url: https://go.microsoft.com/fwlink/p/?LinkID=824764&clcid=0x240A
+                  - text: Devoluciones
+              - listitem [ref=e1854]:
+                - link "Seguimiento de pedidos Microsoft Store" [ref=e1855] [cursor=pointer]:
+                  - /url: https://account.microsoft.com/orders
+                  - text: Seguimiento de pedidos
+          - generic [ref=e1856]:
+            - heading "Educación" [level=2] [ref=e1857]
+            - list [ref=e1858]:
+              - listitem [ref=e1859]:
+                - link "Microsoft Educación Educación" [ref=e1860] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/education
+                  - text: Microsoft Educación
+              - listitem [ref=e1861]:
+                - link "Dispositivos para el sector educativo Educación" [ref=e1862] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/education/devices/overview
+                  - text: Dispositivos para el sector educativo
+              - listitem [ref=e1863]:
+                - link "Microsoft Teams para Educación Educación" [ref=e1864] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/education/products/teams
+                  - text: Microsoft Teams para Educación
+              - listitem [ref=e1865]:
+                - link "Microsoft 365 Educación Educación" [ref=e1866] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/education/products/microsoft-365
+                  - text: Microsoft 365 Educación
+              - listitem [ref=e1867]:
+                - link "Office Educación Educación" [ref=e1868] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/education/products/office
+                  - text: Office Educación
+              - listitem [ref=e1869]:
+                - link "Entrenamiento y desarrollo para educadores Educación" [ref=e1870] [cursor=pointer]:
+                  - /url: https://education.microsoft.com/
+                  - text: Entrenamiento y desarrollo para educadores
+              - listitem [ref=e1871]:
+                - link "Ofertas para estudiantes y padres Educación" [ref=e1872] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/en-us/store/b/education
+                  - text: Ofertas para estudiantes y padres
+              - listitem [ref=e1873]:
+                - link "Azure para estudiantes Educación" [ref=e1874] [cursor=pointer]:
+                  - /url: https://azure.microsoft.com/free/students/
+                  - text: Azure para estudiantes
+        - generic:
+          - generic [ref=e1875]:
+            - heading "Empresa" [level=2] [ref=e1876]
+            - list [ref=e1877]:
+              - listitem [ref=e1878]:
+                - link "Microsoft AI Empresa" [ref=e1879] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/es-co/ai?icid=DSM_Footer_AI
+                  - text: Microsoft AI
+              - listitem [ref=e1880]:
+                - link "Seguridad de Microsoft Empresa" [ref=e1881] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/es-co/security
+                  - text: Seguridad de Microsoft
+              - listitem [ref=e1882]:
+                - link "Azure Empresa" [ref=e1883] [cursor=pointer]:
+                  - /url: https://azure.microsoft.com/
+                  - text: Azure
+              - listitem [ref=e1884]:
+                - link "Dynamics 365 Empresa" [ref=e1885] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/es-co/dynamics-365
+                  - text: Dynamics 365
+              - listitem [ref=e1886]:
+                - link "Microsoft 365 Empresa" [ref=e1887] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/es-co/microsoft-365/business
+                  - text: Microsoft 365
+              - listitem [ref=e1888]:
+                - link "Microsoft Advertising Empresa" [ref=e1889] [cursor=pointer]:
+                  - /url: https://about.ads.microsoft.com/es?icid=DSM_Footer_Business_MicrosoftAdvertising
+                  - text: Microsoft Advertising
+              - listitem [ref=e1890]:
+                - link "Microsoft 365 Copilot Empresa" [ref=e1891] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/es-co/microsoft-365-copilot?icid=DSM_Footer_Microsoft365Copilot
+                  - text: Microsoft 365 Copilot
+              - listitem [ref=e1892]:
+                - link "Microsoft Teams Empresa" [ref=e1893] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/es-co/microsoft-teams/group-chat-software
+                  - text: Microsoft Teams
+          - generic [ref=e1894]:
+            - heading "Desarrollador y TI" [level=2] [ref=e1895]
+            - list [ref=e1896]:
+              - listitem [ref=e1897]:
+                - link "Desarrollador de Microsoft Desarrollador y TI" [ref=e1898] [cursor=pointer]:
+                  - /url: https://developer.microsoft.com/es-es/?icid=DSM_Footer_Developer_Developer
+                  - text: Desarrollador de Microsoft
+              - listitem [ref=e1899]:
+                - link "Microsoft Learn Desarrollador y TI" [ref=e1900] [cursor=pointer]:
+                  - /url: https://learn.microsoft.com/
+                  - text: Microsoft Learn
+              - listitem [ref=e1901]:
+                - link "Admite aplicaciones del Marketplace de IA Desarrollador y TI" [ref=e1902] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/software-development-companies/offers-benefits/isv-success?icid=DSM_Footer_SupportAIMarketplace&ocid=cmm3atxvn98
+                  - text: Admite aplicaciones del Marketplace de IA
+              - listitem [ref=e1903]:
+                - link "Comunidad de Microsoft Tech Desarrollador y TI" [ref=e1904] [cursor=pointer]:
+                  - /url: https://techcommunity.microsoft.com/
+                  - text: Comunidad de Microsoft Tech
+              - listitem [ref=e1905]:
+                - link "Microsoft Marketplace Desarrollador y TI" [ref=e1906] [cursor=pointer]:
+                  - /url: https://marketplace.microsoft.com?icid=DSM_Footer_Marketplace&ocid=cmm3atxvn98
+                  - text: Microsoft Marketplace
+              - listitem [ref=e1907]:
+                - link "Microsoft Power Platform Desarrollador y TI" [ref=e1908] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/es-co/power-platform
+                  - text: Microsoft Power Platform
+              - listitem [ref=e1909]:
+                - link "Marketplace Rewards Desarrollador y TI" [ref=e1910] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/software-development-companies/offers-benefits/marketplace-rewards?icid=DSM_Footer_MarketplaceRewards&ocid=cmm3atxvn98
+                  - text: Marketplace Rewards
+              - listitem [ref=e1911]:
+                - link "Visual Studio Desarrollador y TI" [ref=e1912] [cursor=pointer]:
+                  - /url: https://visualstudio.microsoft.com/
+                  - text: Visual Studio
+          - generic [ref=e1913]:
+            - heading "Compañía" [level=2] [ref=e1914]
+            - list [ref=e1915]:
+              - listitem [ref=e1916]:
+                - link "Trabajos Compañía" [ref=e1917] [cursor=pointer]:
+                  - /url: https://careers.microsoft.com/
+                  - text: Trabajos
+              - listitem [ref=e1918]:
+                - link "Acerca de Microsoft Compañía" [ref=e1919] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/about
+                  - text: Acerca de Microsoft
+              - listitem [ref=e1920]:
+                - link "Privacidad en Microsoft Compañía" [ref=e1921] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/es-mx/privacy?icid=DSM_Footer_Company_Privacy
+                  - text: Privacidad en Microsoft
+              - listitem [ref=e1922]:
+                - link "Inversionistas Compañía" [ref=e1923] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/investor/default.aspx
+                  - text: Inversionistas
+              - listitem [ref=e1924]:
+                - link "Sustentabilidad Compañía" [ref=e1925] [cursor=pointer]:
+                  - /url: https://www.microsoft.com/sustainability/
+                  - text: Sustentabilidad
+      - generic [ref=e1926]:
+        - link "Selector de idiomas del contenido. Actualmente definido en Español (Colombia)" [ref=e1927] [cursor=pointer]:
+          - /url: https://www.microsoft.com/es-CO/microsoft-365/locale
+          - text:  Español (Colombia)
+        - link "Icono de exclusión de opciones de privacidad Tus opciones de privacidad" [ref=e1928] [cursor=pointer]:
+          - /url: https://aka.ms/yourcaliforniaprivacychoices
+          - img "Icono de exclusión de opciones de privacidad" [ref=e1929]
+          - generic [ref=e1934]: Tus opciones de privacidad
+        - link "Privacidad de la salud del consumidor" [ref=e1935] [cursor=pointer]:
+          - /url: https://go.microsoft.com/fwlink/?linkid=2259814
+          - generic [ref=e1936]: Privacidad de la salud del consumidor
+        - navigation "Vínculos corporativos de Microsoft":
+          - list [ref=e1937]:
+            - listitem [ref=e1938]:
+              - link "Ponte en contacto con Microsoft" [ref=e1939] [cursor=pointer]:
+                - /url: https://support.microsoft.com/contactus
+            - listitem [ref=e1940]:
+              - link "Privacidad" [ref=e1941] [cursor=pointer]:
+                - /url: https://go.microsoft.com/fwlink/?LinkId=521839
+            - listitem [ref=e1942]:
+              - link "Aviso legal" [ref=e1943] [cursor=pointer]:
+                - /url: https://go.microsoft.com/fwlink/?LinkID=206977
+            - listitem [ref=e1944]:
+              - link "Marcas Registradas" [ref=e1945] [cursor=pointer]:
+                - /url: https://go.microsoft.com/fwlink/?linkid=2196228
+            - listitem [ref=e1946]:
+              - link "Sobre nuestra publicidad" [ref=e1947] [cursor=pointer]:
+                - /url: https://choice.microsoft.com/
+            - listitem [ref=e1948]: © Microsoft 2026
+  - text:  
+  - generic: 
+  - button "Comentarios del sitio web" [ref=e1949] [cursor=pointer]

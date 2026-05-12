@@ -1,0 +1,255 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]: 🏗️
+      - generic [ref=e7]:
+        - generic [ref=e8]: IC Constructora
+        - generic [ref=e9]: Sistema EOS
+    - navigation [ref=e10]:
+      - generic [ref=e11]: General
+      - link "Dashboard" [ref=e12] [cursor=pointer]:
+        - /url: /
+        - img [ref=e13]
+        - text: Dashboard
+      - link "Reuniones" [ref=e18] [cursor=pointer]:
+        - /url: /reuniones
+        - img [ref=e19]
+        - text: Reuniones
+      - generic [ref=e21]: Módulos EOS
+      - link "Visión" [ref=e22] [cursor=pointer]:
+        - /url: /vision
+        - img [ref=e23]
+        - text: Visión
+      - link "Personas" [ref=e27] [cursor=pointer]:
+        - /url: /personas
+        - img [ref=e28]
+        - text: Personas
+      - link "Datos" [ref=e34] [cursor=pointer]:
+        - /url: /datos
+        - img [ref=e35]
+        - text: Datos
+      - link "Asuntos" [ref=e38] [cursor=pointer]:
+        - /url: /asuntos
+        - img [ref=e39]
+        - text: Asuntos
+      - link "Procesos" [ref=e42] [cursor=pointer]:
+        - /url: /procesos
+        - img [ref=e43]
+        - text: Procesos
+      - link "Tracción" [ref=e47] [cursor=pointer]:
+        - /url: /traccion
+        - img [ref=e48]
+        - text: Tracción
+      - generic [ref=e54]: EOS Toolkit
+      - link "Implementación" [ref=e55] [cursor=pointer]:
+        - /url: /implementacion
+        - img [ref=e56]
+        - text: Implementación
+      - link "Biblioteca EOS" [ref=e58] [cursor=pointer]:
+        - /url: /biblioteca
+        - img [ref=e59]
+        - text: Biblioteca EOS
+      - generic [ref=e61]: IC Constructora
+      - link "RRHH" [ref=e62] [cursor=pointer]:
+        - /url: /rrhh
+        - img [ref=e63]
+        - text: RRHH
+      - link "Lotes" [ref=e67] [cursor=pointer]:
+        - /url: /lotes
+        - img [ref=e68]
+        - text: Lotes
+      - link "Jurídico" [ref=e71] [cursor=pointer]:
+        - /url: /juridico
+        - img [ref=e72]
+        - text: Jurídico
+      - link "KPIs" [ref=e76] [cursor=pointer]:
+        - /url: /kpis
+        - img [ref=e77]
+        - text: KPIs
+      - generic [ref=e80]: Herramientas
+      - link "Indicadores" [ref=e81] [cursor=pointer]:
+        - /url: http://localhost:8501
+        - img [ref=e82]
+        - text: Indicadores
+        - img [ref=e85]
+      - link "Análisis de Planos" [ref=e89] [cursor=pointer]:
+        - /url: http://localhost:5174
+        - img [ref=e90]
+        - text: Análisis de Planos
+        - img [ref=e95]
+    - generic [ref=e99]:
+      - generic [ref=e100]: 🎯 Modo Demo activo
+      - generic [ref=e101]:
+        - button "English" [ref=e102] [cursor=pointer]:
+          - img [ref=e103]
+          - text: English
+        - link "Configuración" [ref=e106] [cursor=pointer]:
+          - /url: /configuracion
+          - img [ref=e107]
+          - text: Configuración
+        - button "Cerrar sesión" [ref=e110] [cursor=pointer]:
+          - img [ref=e111]
+          - text: Cerrar sesión
+      - paragraph [ref=e115]: Admin IC
+  - generic [ref=e116]:
+    - banner [ref=e117]:
+      - generic [ref=e119]:
+        - strong [ref=e120]: "Misión:"
+        - generic [ref=e121]: Construir el futuro de la infraestructura con calidad y confianza.
+      - generic [ref=e122]:
+        - generic [ref=e124]:
+          - img [ref=e125]
+          - textbox "Buscar..." [ref=e128]
+        - button [ref=e129]:
+          - img [ref=e130]
+        - generic [ref=e133]:
+          - generic [ref=e134]:
+            - generic [ref=e135]: Admin IC
+            - generic [ref=e136]: IC Constructora
+          - generic [ref=e137]: A
+    - main [ref=e138]:
+      - generic [ref=e141]:
+        - generic [ref=e143]:
+          - heading "Indicadores Estratégicos" [level=1] [ref=e144]
+          - paragraph [ref=e145]: Navegación en cascada de KPIs organizacionales
+        - generic [ref=e147]:
+          - generic [ref=e148]:
+            - heading "Dashboard Corporativo en Cascada" [level=1] [ref=e149]
+            - generic [ref=e150]:
+              - generic [ref=e151]:
+                - button "Real" [ref=e152]:
+                  - img [ref=e153]
+                  - text: Real
+                - button "Demo" [ref=e157]:
+                  - img [ref=e158]
+                  - text: Demo
+              - button "Configurar Reglas" [ref=e160]:
+                - img [ref=e161]
+                - generic [ref=e164]: Configurar Reglas
+          - generic [ref=e165]:
+            - generic [ref=e166]:
+              - generic [ref=e167]:
+                - generic [ref=e168] [cursor=pointer]:
+                  - generic [ref=e169]:
+                    - generic [ref=e170]: Ventas YTD
+                    - generic [ref=e171]: Juan Paulo McAllister
+                  - generic [ref=e172]: $45.904,9
+                  - img [ref=e217]
+                - generic [ref=e220]:
+                  - generic [ref=e221]:
+                    - strong [ref=e222]: Ventas YTD
+                    - text: "- Tendencia"
+                  - application [ref=e226]
+                  - generic [ref=e245]:
+                    - generic [ref=e246]: "Meta: $71.234,4"
+                    - generic [ref=e247]: "Real: $45.904,9"
+              - generic [ref=e178] [cursor=pointer]:
+                - generic [ref=e179]:
+                  - generic [ref=e180]: Escrituración YTD
+                  - generic [ref=e181]: Juan Paulo McAllister
+                - generic [ref=e182]: $39.013,9
+                - img [ref=e185]
+              - generic [ref=e188] [cursor=pointer]:
+                - generic [ref=e189]:
+                  - generic [ref=e190]: Trámites Cumplidos / Programados
+                  - generic [ref=e191]: Mónica Báez
+                - generic [ref=e192]: 37,6%
+                - img [ref=e195]
+              - generic [ref=e198] [cursor=pointer]:
+                - generic [ref=e199]:
+                  - generic [ref=e200]: Cartera Pre-escritura
+                  - generic [ref=e201]: Mónica Báez
+                - generic [ref=e202]: $9720,2
+                - img [ref=e205]
+              - generic [ref=e208] [cursor=pointer]:
+                - generic [ref=e209]:
+                  - generic [ref=e210]: Cartera Post-escritura
+                  - generic [ref=e211]: Mónica Báez
+                - generic [ref=e212]: $4949,6
+                - img [ref=e215]
+            - generic [ref=e250]:
+              - generic [ref=e252] [cursor=pointer]:
+                - generic [ref=e253]:
+                  - generic [ref=e254]: Azul Celeste E2
+                  - generic [ref=e255]: FlujoHistorico
+                - generic [ref=e256]: $-196
+              - generic [ref=e259] [cursor=pointer]:
+                - generic [ref=e260]:
+                  - generic [ref=e261]: Azul Turquesa E2
+                  - generic [ref=e262]: FlujoHistorico
+                - generic [ref=e263]: $710,7
+              - generic [ref=e266] [cursor=pointer]:
+                - generic [ref=e267]:
+                  - generic [ref=e268]: Castilla Imperial 2B
+                  - generic [ref=e269]: CRM
+                - generic [ref=e270]: $3590,4
+              - generic [ref=e273] [cursor=pointer]:
+                - generic [ref=e274]:
+                  - generic [ref=e275]: Castilla Living
+                  - generic [ref=e276]: CRM
+                - generic [ref=e277]: $15.339
+              - generic [ref=e280] [cursor=pointer]:
+                - generic [ref=e281]:
+                  - generic [ref=e282]: Gaia
+                  - generic [ref=e283]: CRM
+                - generic [ref=e284]: $1170
+              - generic [ref=e287] [cursor=pointer]:
+                - generic [ref=e288]:
+                  - generic [ref=e289]: La Hacienda E1
+                  - generic [ref=e290]: CRM
+                - generic [ref=e291]: $2120
+              - generic [ref=e294] [cursor=pointer]:
+                - generic [ref=e295]:
+                  - generic [ref=e296]: Mitika E2
+                  - generic [ref=e297]: FlujoHistorico
+                - generic [ref=e298]: $11.977,2
+              - generic [ref=e301] [cursor=pointer]:
+                - generic [ref=e302]:
+                  - generic [ref=e303]: Praia E1
+                  - generic [ref=e304]: CRM
+                - generic [ref=e305]: $0
+              - generic [ref=e308] [cursor=pointer]:
+                - generic [ref=e309]:
+                  - generic [ref=e310]: Praia E2
+                  - generic [ref=e311]: CRM
+                - generic [ref=e312]: $1240,7
+              - generic [ref=e315] [cursor=pointer]:
+                - generic [ref=e316]:
+                  - generic [ref=e317]: Praia E3
+                  - generic [ref=e318]: CRM
+                - generic [ref=e319]: $1936,8
+              - generic [ref=e322] [cursor=pointer]:
+                - generic [ref=e323]:
+                  - generic [ref=e324]: Primera Este E 1-2
+                  - generic [ref=e325]: CRM
+                - generic [ref=e326]: $2532,3
+              - generic [ref=e329] [cursor=pointer]:
+                - generic [ref=e330]:
+                  - generic [ref=e331]: Primera Este E3
+                  - generic [ref=e332]: CRM
+                - generic [ref=e333]: $1675,8
+              - generic [ref=e336] [cursor=pointer]:
+                - generic [ref=e337]:
+                  - generic [ref=e338]: Reserva De Oporto E 1-2
+                  - generic [ref=e339]: CRM
+                - generic [ref=e340]: $574
+              - generic [ref=e343] [cursor=pointer]:
+                - generic [ref=e344]:
+                  - generic [ref=e345]: Reserva De Oporto E3
+                  - generic [ref=e346]: CRM
+                - generic [ref=e347]: $3234
+              - generic [ref=e350] [cursor=pointer]:
+                - generic [ref=e351]:
+                  - generic [ref=e352]: Verde Vivo E2
+                  - generic [ref=e353]: FlujoHistorico
+                - generic [ref=e354]: $0
+              - generic [ref=e357] [cursor=pointer]:
+                - generic [ref=e358]:
+                  - generic [ref=e359]: Verde Vivo E3
+                  - generic [ref=e360]: FlujoHistorico
+                - generic [ref=e361]: $0
+              - generic [ref=e364] [cursor=pointer]:
+                - generic [ref=e365]:
+                  - generic [ref=e366]: Well
+                  - generic [ref=e367]: FlujoHistorico
+                - generic [ref=e368]: $0

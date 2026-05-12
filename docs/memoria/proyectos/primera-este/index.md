@@ -74,7 +74,7 @@ Proyecto No VIS en Chapinero Alto, Bogotá. Producto premium con 3 torres (Centr
 
 ## Datos Operativos (Datamart)
 
-_Fuente: Datamart.xlsx — actualizado 2026-05-09_
+_Fuente: Datamart.xlsx — actualizado 2026-05-10_
 
 **Director de Proyecto:** JHON MANOSALVA
 
@@ -104,12 +104,12 @@ _Fuente: Datamart.xlsx — actualizado 2026-05-09_
 
 ### Alarmas
 
-- 🔴 **Póliza TR VENCIDA:** ECENTRO: SURA, vence 2025-02-28 (-435 días)
-- 🔴 **Póliza RC VENCIDA:** ECENTRO: SURA, vence 2026-02-28 (-70 días)
-- 🔴 **Póliza TR VENCIDA:** ESUR: SURA, vence 2025-02-28 (-435 días)
-- 🔴 **Póliza RC VENCIDA:** ESUR: SURA, vence 2026-02-28 (-70 días)
-- 🔴 **Licencia Construcción VENCIDA:** ECENTRO: venció 2024-04-04 (-765 días)
-- 🔴 **Licencia Construcción VENCIDA:** ESUR: venció 2024-04-04 (-765 días)
+- 🔴 **Póliza TR VENCIDA:** ECENTRO: SURA, vence 2025-02-28 (-436 días)
+- 🔴 **Póliza RC VENCIDA:** ECENTRO: SURA, vence 2026-02-28 (-71 días)
+- 🔴 **Póliza TR VENCIDA:** ESUR: SURA, vence 2025-02-28 (-436 días)
+- 🔴 **Póliza RC VENCIDA:** ESUR: SURA, vence 2026-02-28 (-71 días)
+- 🔴 **Licencia Construcción VENCIDA:** ECENTRO: venció 2024-04-04 (-766 días)
+- 🔴 **Licencia Construcción VENCIDA:** ESUR: venció 2024-04-04 (-766 días)
 ## Changelog
 
 | Versión | Fecha | Cambio | Autor |

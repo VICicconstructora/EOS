@@ -84,7 +84,7 @@ Proyecto propio más grande de IC: 840 apartamentos, 9 torres, 4 etapas en Evari
 
 ## Datos Operativos (Datamart)
 
-_Fuente: Datamart.xlsx — actualizado 2026-05-09_
+_Fuente: Datamart.xlsx — actualizado 2026-05-10_
 
 **Director de Proyecto:** JHON MANOSALVA
 
@@ -117,20 +117,20 @@ _Fuente: Datamart.xlsx — actualizado 2026-05-09_
 
 ### Alarmas
 
-- 🔴 **Crédito VENCIDA:** E1: DAVIVIENDA, vence 2026-05-08 (-1 días)
-- 🔴 **Crédito VENCIDA:** E2: DAVIVIENDA, vence 2026-05-08 (-1 días)
-- 🔴 **Póliza TR VENCIDA:** E1: SURA, vence 2022-12-21 (-1235 días)
-- 🔴 **Póliza RC VENCIDA:** E1: SURA, vence 2022-03-20 (-1511 días)
-- 🔴 **Póliza TR VENCIDA:** E2: SURA, vence 2022-12-21 (-1235 días)
-- 🔴 **Póliza RC VENCIDA:** E2: SURA, vence 2022-03-20 (-1511 días)
-- 🔴 **Póliza TR VENCIDA:** E3: SURA, vence 2024-11-15 (-540 días)
-- 🔴 **Póliza RC VENCIDA:** E3: SURA, vence 2024-11-15 (-540 días)
-- 🔴 **Póliza TR VENCIDA:** E4: SURA, vence 2024-11-15 (-540 días)
-- 🔴 **Póliza RC VENCIDA:** E4: SURA, vence 2024-11-15 (-540 días)
-- 🔴 **Licencia Construcción VENCIDA:** E1: venció 2022-09-07 (-1340 días)
-- 🔴 **Licencia Construcción VENCIDA:** E2: venció 2022-09-07 (-1340 días)
-- 🔴 **Licencia Construcción VENCIDA:** E3: venció 2022-09-07 (-1340 días)
-- 🔴 **Licencia Construcción VENCIDA:** E4: venció 2022-09-07 (-1340 días)
+- 🔴 **Crédito VENCIDA:** E1: DAVIVIENDA, vence 2026-05-08 (-2 días)
+- 🔴 **Crédito VENCIDA:** E2: DAVIVIENDA, vence 2026-05-08 (-2 días)
+- 🔴 **Póliza TR VENCIDA:** E1: SURA, vence 2022-12-21 (-1236 días)
+- 🔴 **Póliza RC VENCIDA:** E1: SURA, vence 2022-03-20 (-1512 días)
+- 🔴 **Póliza TR VENCIDA:** E2: SURA, vence 2022-12-21 (-1236 días)
+- 🔴 **Póliza RC VENCIDA:** E2: SURA, vence 2022-03-20 (-1512 días)
+- 🔴 **Póliza TR VENCIDA:** E3: SURA, vence 2024-11-15 (-541 días)
+- 🔴 **Póliza RC VENCIDA:** E3: SURA, vence 2024-11-15 (-541 días)
+- 🔴 **Póliza TR VENCIDA:** E4: SURA, vence 2024-11-15 (-541 días)
+- 🔴 **Póliza RC VENCIDA:** E4: SURA, vence 2024-11-15 (-541 días)
+- 🔴 **Licencia Construcción VENCIDA:** E1: venció 2022-09-07 (-1341 días)
+- 🔴 **Licencia Construcción VENCIDA:** E2: venció 2022-09-07 (-1341 días)
+- 🔴 **Licencia Construcción VENCIDA:** E3: venció 2022-09-07 (-1341 días)
+- 🔴 **Licencia Construcción VENCIDA:** E4: venció 2022-09-07 (-1341 días)
 ## Changelog
 
 | Versión | Fecha | Cambio | Autor |

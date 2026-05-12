@@ -1,0 +1,14 @@
+{
+  "name": "sync-context",
+  "version": "1.0.0",
+  "description": "Sincroniza docs/memoria/*.md con la tabla documents de Supabase (categoría context/)",
+  "main": "sync-context.js",
+  "type": "module",
+  "scripts": {
+    "start": "node sync-context.js",
+    "dry": "node sync-context.js --dry-run"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0"
+  }
+}

@@ -1,0 +1,607 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 424
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 1133.5084377801704,
+            "y": 395.19122390489724
+          },
+          "nodeIndex": "_McCalendar",
+          "nodeLineageTag": "a2fa5a47-bb32-4a0c-8e2c-1863e69b02d0",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2775.7149304191089,
+            "y": 1082.2536678507063
+          },
+          "nodeIndex": "_McMedidas",
+          "nodeLineageTag": "459918a3-bea2-463b-8281-bd5bdfe3194e",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 861.73447891422927,
+            "y": 760.85462858994174
+          },
+          "nodeIndex": "ADI_DTM Acuerdos_PagoMcX",
+          "nodeLineageTag": "8fa41ee8-ed6f-49eb-aa62-5cea2d1bd11e",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 333,
+            "y": 39.81262835149937
+          },
+          "nodeIndex": "ADI_DTM Comprador",
+          "nodeLineageTag": "f5da7a39-968a-4bc2-89b6-4aa1efa03d69",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 597.8582461690803,
+            "y": 1069.656601023421
+          },
+          "nodeIndex": "ADI_DTM ConceptosPP",
+          "nodeLineageTag": "9fee956f-2d64-46ea-868a-c4fd2e43cca7",
+          "size": {
+            "height": 272,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 0,
+            "y": 1215.9956480934773
+          },
+          "nodeIndex": "ADI_DTM DesistimientosVentas",
+          "nodeLineageTag": "38f8319d-7939-484d-bdaa-4dda30cbbbe8",
+          "size": {
+            "height": 215,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 596.74688719703386,
+            "y": 42.042024650492522
+          },
+          "nodeIndex": "ADI_DTM Inventarios",
+          "nodeLineageTag": "252aabdd-89b6-4f56-a7c5-2df092323370",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 0,
+            "y": 884.12305678762777
+          },
+          "nodeIndex": "ADI_DTM ListaDePrecios",
+          "nodeLineageTag": "3ddeb63c-7799-436e-a641-dd3c8e031ec5",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 0,
+            "y": 545.22340413220945
+          },
+          "nodeIndex": "ADI_DTM ListaDePrecios_Detalle",
+          "nodeLineageTag": "cc7b9ba2-a68a-4363-950a-2bee67372cab",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1124.84754729292,
+            "y": 43
+          },
+          "nodeIndex": "ADI_DTM MacroProyectosMc",
+          "nodeLineageTag": "17a3f040-a664-49d3-8798-c737a71720fb",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 858.13148363894061,
+            "y": 41.773519568371739
+          },
+          "nodeIndex": "ADI_DTM Proyectos",
+          "nodeLineageTag": "9cf42364-0f26-435c-8151-75303b13ecd0",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1133.4219091725145,
+            "y": 763.60173182519884
+          },
+          "nodeIndex": "ADI_DTM Relacion_Pagos",
+          "nodeLineageTag": "f36fe962-1d9d-4f9a-bea0-9479fec6fabd",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 319.66419580060415,
+            "y": 736.23974755075187
+          },
+          "nodeIndex": "ADI_DTM TiposVenta",
+          "nodeLineageTag": "f417da24-90a1-4d6f-b209-22e8e1143ed5",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 589.167983176291,
+            "y": 406.26543155730337
+          },
+          "nodeIndex": "ADI_DTM TramitesMc",
+          "nodeLineageTag": "0eda52e1-c794-42ec-8115-83f3c4802c17",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 316.03067344992996,
+            "y": 969.65386683351107
+          },
+          "nodeIndex": "ADI_DTM VariablesTextoVentas",
+          "nodeLineageTag": "df932dfb-8398-4e07-b5e4-849abec12ba4",
+          "size": {
+            "height": 272,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 855.51058394748816,
+            "y": 401.61198675359651
+          },
+          "nodeIndex": "ADI_DTM VentaMc",
+          "nodeLineageTag": "724c920e-0d0f-4b7c-a9fe-57baf9e8d961",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3059.7149304191089,
+            "y": 1168.2536678507063
+          },
+          "nodeIndex": "Edad Cartera",
+          "nodeLineageTag": "98dd60a2-f9e2-4cad-a596-d7fed0920680",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3343.7149304191089,
+            "y": 1082.2536678507063
+          },
+          "nodeIndex": "Mc1_Arbol",
+          "nodeLineageTag": "67ce5cba-ea27-469d-b9e7-f54b2d34fea1",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1384.2900364214702,
+            "y": 44.940952499635614
+          },
+          "nodeIndex": "Mc1_ConexionFlujosdeCaja",
+          "nodeLineageTag": "b1b5de95-3acc-4553-9333-fde69a98f5fa",
+          "size": {
+            "height": 298,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 322.44531362516045,
+            "y": 386.91003573119769
+          },
+          "nodeIndex": "Mc1_DATAMART",
+          "nodeLineageTag": "87df0942-01a8-48e6-804a-d6ed5ebac531",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3627.7149304191089,
+            "y": 1082.2536678507063
+          },
+          "nodeIndex": "Mc1_FCVariablesProyeccion",
+          "nodeLineageTag": "1093033c-00c8-48d3-abb2-1ad6b8b29eb0",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1402.7615670594691,
+            "y": 563.27649502180884
+          },
+          "nodeIndex": "Mc1_FlujosdeCaja",
+          "nodeLineageTag": "9b38fe6d-da64-4271-8662-f8404c6c2770",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1397.9994732396203,
+            "y": 393.11961421203682
+          },
+          "nodeIndex": "Mc1_Presupuesto",
+          "nodeLineageTag": "815b077f-dd98-4891-9819-08c7468c710e",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3911.7149304191089,
+            "y": 1082.2536678507063
+          },
+          "nodeIndex": "Mc2_DATAMART_Proyeccion",
+          "nodeLineageTag": "3c15947e-f448-4b9b-bb8c-796208440029",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1404.4654223513894,
+            "y": 889.44060349564074
+          },
+          "nodeIndex": "Mc2_RevitMasaGeneral",
+          "nodeLineageTag": "770565a6-981b-4e4e-bafe-bd85131296da",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1403.9267244377334,
+            "y": 1198.5073357014126
+          },
+          "nodeIndex": "Mc2_TablaICOCED",
+          "nodeLineageTag": "95139911-e66d-4601-898a-4ebba3c586f6",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 599.7149304191089,
+            "y": 752.8784901685633
+          },
+          "nodeIndex": "Mc2_TablaLicencias",
+          "nodeLineageTag": "0a8b65e7-2858-43ae-b746-88697843399b",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 4195.7149304191089,
+            "y": 1144.2536678507063
+          },
+          "nodeIndex": "Mc2_TablaSMMLV",
+          "nodeLineageTag": "904b81eb-c849-40a5-8dd7-ddcea728afca",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 864.981402219883,
+            "y": 1073.9447131850184
+          },
+          "nodeIndex": "Mc4_DATAMART_Proyeccion_Caja",
+          "nodeLineageTag": "8403069c-6ff3-46c3-9453-597b7b44dd0e",
+          "size": {
+            "height": 224,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1133.8024101335741,
+            "y": 1077.3225716572626
+          },
+          "nodeIndex": "Mc4_DATAMART_Proyeccion_Datos",
+          "nodeLineageTag": "79a563f4-d4da-4ecd-9f11-9675a0f101b0",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 4479.7149304191089,
+            "y": 1168.2536678507063
+          },
+          "nodeIndex": "McGGAcumularTiempo",
+          "nodeLineageTag": "90e71343-d6f6-4221-8c65-4670b40ba85b",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 4763.7149304191089,
+            "y": 1168.2536678507063
+          },
+          "nodeIndex": "McGGCaCartera",
+          "nodeLineageTag": "d17ad29e-4f57-4be0-a36b-395482088225",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 5047.7149304191089,
+            "y": 1168.2536678507063
+          },
+          "nodeIndex": "McGGCaEstadoCliente",
+          "nodeLineageTag": "d062d2f4-f5fa-45e5-8d4c-db442745627b",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 5331.7149304191089,
+            "y": 1168.2536678507063
+          },
+          "nodeIndex": "McGGCalculoTramites",
+          "nodeLineageTag": "c743d014-eff4-400b-a9e6-0cd0102a0636",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 5615.7149304191089,
+            "y": 1168.2536678507063
+          },
+          "nodeIndex": "McGGTipoVenta",
+          "nodeLineageTag": "6d877b96-c467-4b9c-8223-77346e09706f",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 5899.7149304191089,
+            "y": 1168.2536678507063
+          },
+          "nodeIndex": "McGGTrIEMiCasaYaEstado",
+          "nodeLineageTag": "a111ab9d-7cfc-4a58-8ade-05db84c5012a",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 6183.7149304191089,
+            "y": 1168.2536678507063
+          },
+          "nodeIndex": "McGGTrIESubsidioEstado",
+          "nodeLineageTag": "a6b503a1-2dea-4199-8af9-739e65c93c60",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 6467.7149304191089,
+            "y": 1168.2536678507063
+          },
+          "nodeIndex": "McTablaTramiteCumplidoNo",
+          "nodeLineageTag": "cd78f02e-d1b2-4acc-bee4-339f1f6bb7fd",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 6751.7149304191089,
+            "y": 1168.2536678507063
+          },
+          "nodeIndex": "McTablaTramiteCumplidoSi",
+          "nodeLineageTag": "a8f0f2b4-de7b-4320-99b3-a3743d047cc3",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 7035.7149304191089,
+            "y": 1180.2536678507063
+          },
+          "nodeIndex": "McToggleApplyFilter",
+          "nodeLineageTag": "3ff97e2c-adee-4d3c-8e4b-13496ab1721e",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 0,
+            "y": 218.41677213935372
+          },
+          "nodeIndex": "McTrCADatosParaFiltro",
+          "nodeLineageTag": "abf4e572-d3f1-4025-8459-064d7cd7537f",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 7319.7149304191089,
+            "y": 1168.2536678507063
+          },
+          "nodeIndex": "Z_McEstadoCliente",
+          "nodeLineageTag": "8d887a78-1756-45e1-9e6f-d5076de9f950",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 7603.7149304191089,
+            "y": 1180.2536678507063
+          },
+          "nodeIndex": "Z_McToggleAcumulador",
+          "nodeLineageTag": "164d5200-7b02-4be8-a0cb-10d073885c60",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2,
+            "y": 35.9385283040333
+          },
+          "nodeIndex": "Z_McTramitesImportantes",
+          "nodeLineageTag": "55bb71cf-b394-4d30-a335-f995facedfd3",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 7887.7149304191089,
+            "y": 1180.2536678507063
+          },
+          "nodeIndex": "Z_McUltimaActualizacion",
+          "nodeLineageTag": "ff5703d0-ab7d-4dbf-b0b1-79e69cf78a9b",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "Todas las tablas",
+      "zoomValue": 100,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "Todas las tablas",
+  "defaultDiagram": "Todas las tablas"
+}

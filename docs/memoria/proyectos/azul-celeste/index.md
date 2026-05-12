@@ -69,7 +69,7 @@ Proyecto con Once Constructora en Madrid Cundinamarca, Ciudadela La Prosperidad.
 
 ## Datos Operativos (Datamart)
 
-_Fuente: Datamart.xlsx — actualizado 2026-05-09_
+_Fuente: Datamart.xlsx — actualizado 2026-05-10_
 
 **Director de Proyecto:** DIEGO BENAVIDES
 
@@ -102,18 +102,18 @@ _Fuente: Datamart.xlsx — actualizado 2026-05-09_
 
 ### Alarmas
 
-- 🔴 **Crédito VENCIDA:** E1: DAVIVIENDA, vence 2021-12-16 (-1605 días)
-- 🟡 **Crédito POR VENCER:** E2: DAVIVIENDA, vence 2026-06-30 (52 días)
-- 🔴 **Crédito VENCIDA:** E3: DAVIVIENDA, vence 2026-02-01 (-97 días)
-- 🔴 **Póliza TR VENCIDA:** E1: SBS Seguros Colombia, vence 2022-01-06 (-1584 días)
-- 🔴 **Póliza TR VENCIDA:** E2: SBS Seguros Colombia, vence 2024-02-22 (-807 días)
-- 🔴 **Póliza RC VENCIDA:** E2: SBS Seguros Colombia, vence 2024-02-28 (-801 días)
-- 🔴 **Póliza TR VENCIDA:** E3: Suramericana, vence 2025-04-29 (-375 días)
-- 🔴 **Póliza RC VENCIDA:** E3: Suramericana, vence 2025-04-29 (-375 días)
-- 🔴 **Licencia Construcción VENCIDA:** E1: venció 2022-02-20 (-1539 días)
-- 🔴 **Licencia Construcción VENCIDA:** E2: venció 2022-02-20 (-1539 días)
-- 🔴 **Licencia Construcción VENCIDA:** E3: venció 2022-02-20 (-1539 días)
-- 🔴 **Licencia Construcción VENCIDA:** E4: venció 2022-02-20 (-1539 días)
+- 🔴 **Crédito VENCIDA:** E1: DAVIVIENDA, vence 2021-12-16 (-1606 días)
+- 🟡 **Crédito POR VENCER:** E2: DAVIVIENDA, vence 2026-06-30 (51 días)
+- 🔴 **Crédito VENCIDA:** E3: DAVIVIENDA, vence 2026-02-01 (-98 días)
+- 🔴 **Póliza TR VENCIDA:** E1: SBS Seguros Colombia, vence 2022-01-06 (-1585 días)
+- 🔴 **Póliza TR VENCIDA:** E2: SBS Seguros Colombia, vence 2024-02-22 (-808 días)
+- 🔴 **Póliza RC VENCIDA:** E2: SBS Seguros Colombia, vence 2024-02-28 (-802 días)
+- 🔴 **Póliza TR VENCIDA:** E3: Suramericana, vence 2025-04-29 (-376 días)
+- 🔴 **Póliza RC VENCIDA:** E3: Suramericana, vence 2025-04-29 (-376 días)
+- 🔴 **Licencia Construcción VENCIDA:** E1: venció 2022-02-20 (-1540 días)
+- 🔴 **Licencia Construcción VENCIDA:** E2: venció 2022-02-20 (-1540 días)
+- 🔴 **Licencia Construcción VENCIDA:** E3: venció 2022-02-20 (-1540 días)
+- 🔴 **Licencia Construcción VENCIDA:** E4: venció 2022-02-20 (-1540 días)
 ## Changelog
 
 | Versión | Fecha | Cambio | Autor |

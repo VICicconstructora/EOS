@@ -61,7 +61,7 @@ Proyecto con Once Constructora en Madrid Cundinamarca, Ciudadela La Prosperidad 
 
 ## Datos Operativos (Datamart)
 
-_Fuente: Datamart.xlsx — actualizado 2026-05-09_
+_Fuente: Datamart.xlsx — actualizado 2026-05-10_
 
 **Director de Proyecto:** DIEGO BENAVIDES
 
@@ -94,13 +94,13 @@ _Fuente: Datamart.xlsx — actualizado 2026-05-09_
 
 ### Alarmas
 
-- 🔴 **Crédito VENCIDA:** E1: DAVIVIENDA, vence 2021-06-17 (-1787 días)
-- 🔴 **Póliza TR VENCIDA:** E2: SBS Seguros Colombia, vence 2024-03-05 (-795 días)
-- 🔴 **Póliza RC VENCIDA:** E2: SBS Seguros Colombia, vence 2024-03-05 (-795 días)
-- 🔴 **Licencia Construcción VENCIDA:** E1: venció 2021-02-02 (-1922 días)
-- 🔴 **Licencia Construcción VENCIDA:** E2: venció 2021-02-02 (-1922 días)
-- 🔴 **Licencia Construcción VENCIDA:** E3: venció 2021-02-02 (-1922 días)
-- 🔴 **Licencia Construcción VENCIDA:** E4: venció 2021-02-02 (-1922 días)
+- 🔴 **Crédito VENCIDA:** E1: DAVIVIENDA, vence 2021-06-17 (-1788 días)
+- 🔴 **Póliza TR VENCIDA:** E2: SBS Seguros Colombia, vence 2024-03-05 (-796 días)
+- 🔴 **Póliza RC VENCIDA:** E2: SBS Seguros Colombia, vence 2024-03-05 (-796 días)
+- 🔴 **Licencia Construcción VENCIDA:** E1: venció 2021-02-02 (-1923 días)
+- 🔴 **Licencia Construcción VENCIDA:** E2: venció 2021-02-02 (-1923 días)
+- 🔴 **Licencia Construcción VENCIDA:** E3: venció 2021-02-02 (-1923 días)
+- 🔴 **Licencia Construcción VENCIDA:** E4: venció 2021-02-02 (-1923 días)
 ## Changelog
 
 | Versión | Fecha | Cambio | Autor |

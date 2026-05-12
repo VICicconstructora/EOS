@@ -1,0 +1,240 @@
+{
+  "CARTERA": {
+    "CART PRIMERA ESTE": [
+      "Cartera Vencida",
+      "Cesiones",
+      "Histórico de Recaudo",
+      "Reporte Subrogaciones a fiducia",
+      "Reportes de Escrituracion",
+      "SEGUIMIENTOS"
+    ],
+    "Imágenes": [],
+    "Documentos": []
+  },
+  "COMERCIAL": {
+    "Documentos": [],
+    "COME-PRIMERA ESTE": [
+      "Documentacion Clientes Primera Este",
+      "Inf. Cartera",
+      "Informe Clientes Primera Este",
+      "Informe Tickets",
+      "Inventarios",
+      "Inventarios 2021",
+      "Lista de Precios",
+      "Presentación Proyecto",
+      "Registro Fotográfico Sala P.E",
+      "Seguimiento Comercial"
+    ],
+    "Imágenes": []
+  },
+  "COMPRAS": {
+    "Imágenes": [],
+    "CYC PRIMERA ESTE": [
+      "00. DOCUMENTOS Y OTROS",
+      "01. COMPRAS",
+      "02. CONTRATACION",
+      "03. CONTRATOS JURIDICOS FIRMADOS",
+      "04",
+      "05 REQUERIMIENTO SIN ALCANCE"
+    ]
+  },
+  "CONTROL DE COSTOS": {
+    "CONTROL PRIMERA ESTE": [
+      "01. Liberación de presupuesto",
+      "02. Cuadros Comparativos",
+      "03. Ordenes de Cambio",
+      "04. Informes de Control de Costos",
+      "05. Conciliación Contable",
+      "06. Proceso de Contratación",
+      "07. Provisión",
+      "08. Información Socios",
+      "09. Descuentos",
+      "10. Proyecciones",
+      "11. Estado cierre proyectos",
+      "12. Revision de adcionales",
+      "13. Por Asegurar",
+      "14. Flujo Compras"
+    ],
+    "Imágenes": []
+  },
+  "COORDINACION": {
+    "Imágenes": [
+      "Paginas"
+    ],
+    "Documentos": [],
+    "PRIMERA ESTE": [
+      "02. TOPOGRAFÍA",
+      "03. SUELOS",
+      "04. URBANISMO EXTERNO",
+      "05. ARQUITECTURA",
+      "06. ESTRUCTURA",
+      "07. SUMINISTRO",
+      "08. SANITARIAS",
+      "09. RCI",
+      "10. GAS",
+      "11. ELECTRICO",
+      "12. TELECOMUNICACIONES",
+      "13. ILUMINACION",
+      "15. SEGURIDAD Y CONTROL",
+      "16. PAISAJISMO",
+      "17. ACUSTICO",
+      "18. ELEMENTOS NO ESTRUCTURALES",
+      "21. REVISOR ESTRUCTURAL",
+      "22. CERTIFICACION AMBIENTAL",
+      "23. BIOCLIMATICO",
+      "24. SEGURIDAD HUMANA",
+      "25. TAFICO VERTICAL",
+      "COMPRAS",
+      "CONSTRUCCION",
+      "COORDINACION",
+      "PRESUPUESTO",
+      "URBANISMO"
+    ]
+  },
+  "DISEÑO Y COORDINACION": {
+    "Documentos": [],
+    "Imágenes": [
+      "Paginas"
+    ],
+    "DISE": [
+      "1. LICENCIA",
+      "2.REQUISITOS",
+      "3. LEGALES",
+      "4. DISEÑO ARQ",
+      "5. PRESENTACIONES",
+      "6. FICHA TECNICA",
+      "7. SALIDA A VENTAS"
+    ]
+  },
+  "ESTRUCTURACION": {
+    "Imágenes": [
+      "Paginas"
+    ],
+    "Documentos": [],
+    "ESTR - PRIMERA ESTE": [
+      "1. FACTIBILIDAD COMPRA LOTE",
+      "2. FACTIBILIDAD SALIDA A VENTAS",
+      "3. FACTIBILIDAD INICIO DE OBRA"
+    ]
+  },
+  "OBRA": {
+    "Documentos": [
+      "01-DOCUMENTACION"
+    ],
+    "Imágenes": [],
+    "PRIMERA ESTE": [
+      "01-DOCUMENTACION",
+      "02-COSTO",
+      "03-TIEMPO",
+      "04-CALIDAD",
+      "05-FOTOS",
+      "06-POSVENTAS",
+      "09-CONTROL PEDIDOS INSUMOS CRITICOS",
+      "10-CANTIDADES",
+      "11 ESTIMACIONES",
+      "12 REQUISICIONES",
+      "13-AUDITORIA",
+      "14-ACTAS DE ENTREGA",
+      "Grabaciones",
+      "Microsoft Teams Chat Files",
+      "PROYECTOS - Actas de Liquidación"
+    ]
+  },
+  "ORIGINACION": {
+    "Imágenes": [
+      "Paginas"
+    ],
+    "Documentos": [],
+    "Validación": []
+  },
+  "PRESUPUESTO": {
+    "Imágenes": [],
+    "Documentos": []
+  },
+  "PROYECTOS": {
+    "Documentos": [],
+    "Imágenes": [
+      "Paginas"
+    ],
+    "PROY PRIMERA ESTE": [
+      "01.CORRESPONDENCIA",
+      "1. VALLE EZQUIO",
+      "2. ADMINISTRACION PROVISIONAL",
+      "ADMINSITRACION PROVISIONAL",
+      "COMERCIAL",
+      "COMPARATIVOS",
+      "COMPRAS",
+      "CONTABILIDAD",
+      "CONTRATOS",
+      "CORRESPONDENCIA",
+      "CREDITO CONSTRUCTOR",
+      "CRONOGRAMAS",
+      "DISPONIBILIDADES",
+      "ENTIDADES",
+      "ESCRITURACION",
+      "FICHA TECNICA",
+      "FIDUCIARIA",
+      "FLUJOS Y PYG",
+      "GERENCIA",
+      "hACIENDA JAMUNDI",
+      "IMPUESTOS",
+      "INTERVENTORIA",
+      "LEGALES",
+      "MERCADEO",
+      "Nueva carpeta",
+      "OBRA",
+      "PERMISOS Y LICENCIAS",
+      "POLIZAS",
+      "PRESENTACIONES",
+      "PROGRAMACION SINCO",
+      "SERVICIO AL CLIENTE",
+      "TECNICO",
+      "URBANISMO",
+      "VARIOS"
+    ]
+  },
+  "PUBLICIDAD": {
+    "Imágenes": [],
+    "PUBL": [
+      "360",
+      "Apoyo Piezas Comercial",
+      "Ayudaventas",
+      "Brochure",
+      "Comunicados",
+      "Cumpleaños",
+      "Logo",
+      "Maqueta Virtual",
+      "Presentación",
+      "Renders",
+      "Tipologías",
+      "Urbanismo",
+      "Videos"
+    ],
+    "Documentos": []
+  },
+  "SERVICIO AL CLIENTE": {
+    "SERV": [
+      "Encuesta Posventas",
+      "Peticiones",
+      "Posventas",
+      "PQR's Clientes Primera Este",
+      "Quejas"
+    ],
+    "Imágenes": [],
+    "Documentos": []
+  },
+  "TRAMITES": {
+    "Documentos": [],
+    "Imágenes": [],
+    "TRAM PRIMERA ESTE": [
+      "CLIENTES",
+      "DOCUMENTOS PROMESAS",
+      "EJECUCIÓN VS ESCRITURACIÓN",
+      "FORMATOS",
+      "INFORME DE ESCRITURACION",
+      "PROMESAS DE COMPRAVENTA",
+      "TITULACIÓN",
+      "TRAZABILIDAD ESCRITURACIÓN"
+    ]
+  }
+}

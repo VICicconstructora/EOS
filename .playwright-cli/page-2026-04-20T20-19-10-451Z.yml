@@ -1,0 +1,86 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e3] [cursor=pointer]:
+    - /url: "#main"
+  - generic [ref=e5]:
+    - banner [ref=e6]:
+      - generic [ref=e9]:
+        - generic [ref=e12]:
+          - button "App launcher" [ref=e14] [cursor=pointer]:
+            - img [ref=e16]
+          - img [ref=e18]
+          - tablist [ref=e30]:
+            - tab "Photos" [ref=e32] [cursor=pointer]
+            - tab "Files" [selected] [ref=e33] [cursor=pointer]
+        - search [ref=e36]:
+          - button "search icon" [ref=e37] [cursor=pointer]:
+            - img [ref=e38]
+          - searchbox "Search" [ref=e40]
+        - generic [ref=e41]:
+          - generic [ref=e42] [cursor=pointer]:
+            - button "Get more storage" [ref=e44]:
+              - img [ref=e46]
+            - button "Settings" [ref=e49]:
+              - img [ref=e51]
+          - button "J Juan Paulo Mc Allister" [ref=e55] [cursor=pointer]:
+            - generic [ref=e57]:
+              - generic [ref=e58]: J
+              - img "Juan Paulo Mc Allister" [ref=e59]
+    - generic [ref=e61]:
+      - navigation "Page navigation" [ref=e63]:
+        - button "Create or upload" [expanded] [ref=e68] [cursor=pointer]:
+          - img [ref=e70]
+          - generic [ref=e72]: Create or upload
+        - generic [ref=e73]:
+          - button "Juan Paulo Mc Allister, Navigation Pane" [expanded] [ref=e74] [cursor=pointer]:
+            - img [ref=e77]
+          - generic [ref=e79]:
+            - generic [ref=e80]:
+              - generic: Juan Paulo Mc Allister
+            - list "Juan Paulo Mc Allister" [ref=e81]:
+              - listitem [ref=e82] [cursor=pointer]:
+                - link "Home" [ref=e84]:
+                  - /url: https://onedrive.live.com/?view=1
+                  - generic [ref=e85]:
+                    - img [ref=e88]
+                    - generic [ref=e91]: Home
+              - listitem [ref=e92] [cursor=pointer]:
+                - link "My files" [ref=e94]:
+                  - /url: https://onedrive.live.com/?view=0
+                  - generic [ref=e95]:
+                    - img [ref=e98]
+                    - generic [ref=e101]: My files
+              - listitem [ref=e102] [cursor=pointer]:
+                - link "Shared" [ref=e104]:
+                  - /url: https://onedrive.live.com/?view=3
+                  - generic [ref=e105]:
+                    - img [ref=e108]
+                    - generic [ref=e111]: Shared
+              - listitem [ref=e112] [cursor=pointer]:
+                - link "Recycle bin" [ref=e114]:
+                  - /url: https://onedrive.live.com/?view=5
+                  - generic [ref=e115]:
+                    - img [ref=e118]
+                    - generic [ref=e121]: Recycle bin
+          - generic [ref=e122]:
+            - button "Browse files by " [expanded] [ref=e123] [cursor=pointer]:
+              - generic: Browse files by
+              - generic [ref=e124]: 
+            - list "Browse files by" [ref=e127]:
+              - listitem [ref=e128] [cursor=pointer]:
+                - link "People" [ref=e130]:
+                  - /url: https://onedrive.live.com/?view=33
+                  - generic [ref=e131]:
+                    - img [ref=e134]
+                    - generic [ref=e137]: People
+          - generic [ref=e139]:
+            - button " Get more storage" [ref=e140]:
+              - generic [ref=e141]: 
+              - generic [ref=e142]: Get more storage
+            - generic [ref=e143]: Storage
+            - generic [ref=e147]:
+              - 'link "Storage: 508.8 GB used of 1 TB (49%)" [ref=e148] [cursor=pointer]':
+                - /url: /?v=managestorage&sw=bypassConfig
+                - text: 508.8 GB
+              - generic [ref=e149]: used of 1 TB (49%)
+      - generic "Ask Copilot about your files" [ref=e152]:
+        - button "Copilot actions" [ref=e153]

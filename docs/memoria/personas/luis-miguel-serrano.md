@@ -12,7 +12,7 @@ estado: vigente
 **Cargo:** Gerente de TI
 **Área:** TI (Infraestructura, Integraciones ERP, Supabase IC)
 **Reporta a:** Juan Paulo McAllister (CEO)
-**Antigüedad:** [por definir]
+**Antigüedad:** 2022-04-04
 **Email:** [por definir]
 **Teléfono:** [por definir]
 
@@ -37,9 +37,11 @@ Mantener operativo el stack tecnológico de IC Constructora y apoyar la implemen
 
 ## Equipo directo
 
-| Nombre | Cargo |
-|--------|-------|
-| [Por definir] | Analista TI / Soporte |
+| Nombre | Cargo | Área |
+|--------|-------|------|
+| MARY TORRES SANCHEZ | ASISTENTE TI 1 | PRESIDENCIA |
+| JOHN FREDY LOZANO VARGAS | ANALISTA DE DATOS 1 | PRESIDENCIA |
+| RUBIEL ALBEIRO MURCIA GOMEZ | COORDINADOR TI 1 | PRESIDENCIA |
 
 ## Coordinaciones clave con otras áreas
 

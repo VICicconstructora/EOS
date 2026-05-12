@@ -88,7 +88,7 @@ Proyecto No VIS en Kennedy, estrato 3. Comparte lote con Castilla Living (VIS, m
 
 ## Datos Operativos (Datamart)
 
-_Fuente: Datamart.xlsx — actualizado 2026-05-09_
+_Fuente: Datamart.xlsx — actualizado 2026-05-10_
 
 **Director de Proyecto:** ALIDA RUIZ
 
@@ -118,11 +118,11 @@ _Fuente: Datamart.xlsx — actualizado 2026-05-09_
 
 ### Alarmas
 
-- 🔴 **Crédito VENCIDA:** E2B: DAVIVIENDA, vence 2026-04-29 (-10 días)
-- 🔴 **Póliza TR VENCIDA:** E2B: SBS Seguros Colombia, vence 2023-08-01 (-1012 días)
-- 🔴 **Licencia Construcción VENCIDA:** E2A: venció 2022-06-26 (-1413 días)
-- 🔴 **Licencia Construcción VENCIDA:** E2B: venció 2022-06-26 (-1413 días)
-- 🔴 **Licencia Construcción VENCIDA:** EPARQUEADEROS: venció 2018-05-03 (-2928 días)
+- 🔴 **Crédito VENCIDA:** E2B: DAVIVIENDA, vence 2026-04-29 (-11 días)
+- 🔴 **Póliza TR VENCIDA:** E2B: SBS Seguros Colombia, vence 2023-08-01 (-1013 días)
+- 🔴 **Licencia Construcción VENCIDA:** E2A: venció 2022-06-26 (-1414 días)
+- 🔴 **Licencia Construcción VENCIDA:** E2B: venció 2022-06-26 (-1414 días)
+- 🔴 **Licencia Construcción VENCIDA:** EPARQUEADEROS: venció 2018-05-03 (-2929 días)
 ## Changelog
 
 | Versión | Fecha | Cambio | Autor |

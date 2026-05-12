@@ -85,7 +85,7 @@ Con 545 ventas sobre ~547 unidades, el proyecto está esencialmente en etapa de 
 
 ## Datos Operativos (Datamart)
 
-_Fuente: Datamart.xlsx — actualizado 2026-05-09_
+_Fuente: Datamart.xlsx — actualizado 2026-05-10_
 
 **Director de Proyecto:** JHON MANOSALVA
 
@@ -121,20 +121,20 @@ _Fuente: Datamart.xlsx — actualizado 2026-05-09_
 
 ### Alarmas
 
-- 🔴 **Crédito VENCIDA:** E1: DAVIVIENDA, vence 2025-03-01 (-434 días)
-- 🔴 **Crédito VENCIDA:** E2: DAVIVIENDA, vence 2025-03-01 (-434 días)
-- 🔴 **Crédito VENCIDA:** E3: DAVIVIENDA, vence 2025-03-01 (-434 días)
-- 🔴 **Póliza TR VENCIDA:** E1: SURA, vence 2024-04-30 (-739 días)
-- 🔴 **Póliza RC VENCIDA:** E1: SURA, vence 2023-04-30 (-1105 días)
-- 🔴 **Póliza TR VENCIDA:** E2: SURA, vence 2024-04-30 (-739 días)
-- 🔴 **Póliza RC VENCIDA:** E2: SURA, vence 2023-04-30 (-1105 días)
-- 🔴 **Póliza TR VENCIDA:** E3: SURA, vence 2024-04-30 (-739 días)
-- 🔴 **Póliza RC VENCIDA:** E3: SURA, vence 2023-04-30 (-1105 días)
-- 🔴 **Licencia Construcción VENCIDA:** E1: venció 2019-11-09 (-2373 días)
-- 🔴 **Licencia Construcción VENCIDA:** E2: venció 2023-06-07 (-1067 días)
-- 🔴 **Licencia Construcción VENCIDA:** E3: venció 2023-06-07 (-1067 días)
-- 🔴 **Licencia Construcción VENCIDA:** ECOMERCIO: venció 2023-06-07 (-1067 días)
-- 🔴 **Licencia Construcción VENCIDA:** EEMPRESARIAL: venció 2023-06-07 (-1067 días)
+- 🔴 **Crédito VENCIDA:** E1: DAVIVIENDA, vence 2025-03-01 (-435 días)
+- 🔴 **Crédito VENCIDA:** E2: DAVIVIENDA, vence 2025-03-01 (-435 días)
+- 🔴 **Crédito VENCIDA:** E3: DAVIVIENDA, vence 2025-03-01 (-435 días)
+- 🔴 **Póliza TR VENCIDA:** E1: SURA, vence 2024-04-30 (-740 días)
+- 🔴 **Póliza RC VENCIDA:** E1: SURA, vence 2023-04-30 (-1106 días)
+- 🔴 **Póliza TR VENCIDA:** E2: SURA, vence 2024-04-30 (-740 días)
+- 🔴 **Póliza RC VENCIDA:** E2: SURA, vence 2023-04-30 (-1106 días)
+- 🔴 **Póliza TR VENCIDA:** E3: SURA, vence 2024-04-30 (-740 días)
+- 🔴 **Póliza RC VENCIDA:** E3: SURA, vence 2023-04-30 (-1106 días)
+- 🔴 **Licencia Construcción VENCIDA:** E1: venció 2019-11-09 (-2374 días)
+- 🔴 **Licencia Construcción VENCIDA:** E2: venció 2023-06-07 (-1068 días)
+- 🔴 **Licencia Construcción VENCIDA:** E3: venció 2023-06-07 (-1068 días)
+- 🔴 **Licencia Construcción VENCIDA:** ECOMERCIO: venció 2023-06-07 (-1068 días)
+- 🔴 **Licencia Construcción VENCIDA:** EEMPRESARIAL: venció 2023-06-07 (-1068 días)
 ## Changelog
 
 | Versión | Fecha | Cambio | Autor |

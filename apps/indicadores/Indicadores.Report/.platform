@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "Indicadores"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "954971ea-9be3-46fb-a6c2-13d1302e320a"
+  }
+}
