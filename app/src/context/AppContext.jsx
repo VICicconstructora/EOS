@@ -77,6 +77,7 @@ export function AppProvider({ children }) {
     if (supabase) {
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
         async (_event, session) => {
+          setLoading(true)
           setUser(session?.user ?? null)
           setProviderToken(session?.provider_token ?? null)
           if (session?.user) {
@@ -84,6 +85,7 @@ export function AppProvider({ children }) {
           } else {
             setProfile(null)
           }
+          setLoading(false)
         }
       )
       return () => subscription.unsubscribe()
