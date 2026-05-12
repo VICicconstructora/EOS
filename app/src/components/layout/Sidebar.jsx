@@ -7,9 +7,10 @@ import {
   LayoutDashboard, Eye, Users, BarChart3, AlertTriangle,
   Settings2, Rocket, CalendarDays, Settings, LogOut, Globe,
   Map, BookOpen, UserCheck, Building, Scale, TrendingUp, ScanLine, ExternalLink,
-  Gauge, ChevronUp, ChevronDown, BellRing, CheckSquare,
+  Gauge, ChevronUp, ChevronDown, BellRing, CheckSquare, UserCog
 } from 'lucide-react'
 import { useAlarms } from '../../lib/useAlarms'
+import { isAdmin } from '../../lib/permissions'
 
 const EOS_MODULES = [
   { key: 'vision',   path: '/vision',   icon: Eye,           color: 'var(--eos-vision)' },
@@ -22,7 +23,8 @@ const EOS_MODULES = [
 
 export default function Sidebar({ isOpen, onClose }) {
   const { t, i18n } = useTranslation()
-  const { logout, displayName, isDemoMode } = useApp()
+  const { logout, displayName, isDemoMode, profile } = useApp()
+  const showAdmin = isDemoMode || isAdmin(profile)
   const location = useLocation()
   const [footerOpen, setFooterOpen] = useState(false)
   const { countCritical } = useAlarms()
@@ -187,6 +189,24 @@ export default function Sidebar({ isOpen, onClose }) {
           <Gauge size={18} className="nav-item-icon" style={{ color: '#10b981' }} />
           KPIs
         </NavLink>
+
+        {/* Administración */}
+        {showAdmin && (
+          <>
+            <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', padding: 'var(--space-3) var(--space-4) var(--space-1)', marginTop: 'var(--space-2)' }}>
+              Administración
+            </div>
+
+            <NavLink
+              to="/admin/usuarios"
+              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+              onClick={handleNavClick}
+            >
+              <UserCog size={18} className="nav-item-icon" style={{ color: 'var(--brand-primary)' }} />
+              Usuarios
+            </NavLink>
+          </>
+        )}
 
         {/* Herramientas externas */}
         <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', padding: 'var(--space-3) var(--space-4) var(--space-1)', marginTop: 'var(--space-2)' }}>
