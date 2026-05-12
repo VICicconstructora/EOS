@@ -1,35 +1,33 @@
 // src/pages/LoginPage.jsx
 import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { useApp } from '../context/AppContext'
-import { Mail, Lock, Building2 } from 'lucide-react'
+
+// SVG inline del logo Microsoft (4 cuadritos rojo/verde/azul/amarillo)
+function MicrosoftLogo({ size = 20 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 23 23" xmlns="http://www.w3.org/2000/svg">
+      <rect x="1"  y="1"  width="10" height="10" fill="#F25022" />
+      <rect x="12" y="1"  width="10" height="10" fill="#7FBA00" />
+      <rect x="1"  y="12" width="10" height="10" fill="#00A4EF" />
+      <rect x="12" y="12" width="10" height="10" fill="#FFB900" />
+    </svg>
+  )
+}
 
 export default function LoginPage() {
-  const { t } = useTranslation()
-  const { login, isDemoMode } = useApp()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const { signInWithMicrosoft, isDemoMode } = useApp()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  async function handleSubmit(e) {
-    e.preventDefault()
+  async function handleClick() {
     setLoading(true)
     setError('')
-    
-    if (isDemoMode) {
-      if (email === 'admin@icconstructora.com' && password === 'admin') {
-        window.location.reload()
-      } else {
-        setError(t('auth.loginError'))
-      }
+    const { error: err } = await signInWithMicrosoft()
+    if (err) {
+      setError(err.message || 'No fue posible iniciar sesión.')
       setLoading(false)
-      return
     }
-
-    const { error: loginError } = await login(email, password)
-    if (loginError) setError(t('auth.loginError'))
-    setLoading(false)
+    // En éxito el navegador redirige a Entra y vuelve; no apagamos loading.
   }
 
   return (
@@ -37,63 +35,71 @@ export default function LoginPage() {
       minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
       background: 'var(--bg-base)', padding: 'var(--space-4)',
     }}>
-      <div className="card-glass" style={{ width: '100%', maxWidth: 400, padding: 'var(--space-10)' }}>
+      <div className="card-glass" style={{ width: '100%', maxWidth: 420, padding: 'var(--space-10)' }}>
         <div style={{ textAlign: 'center', marginBottom: 'var(--space-8)' }}>
-          <div className="sidebar-logo-icon" style={{ margin: '0 auto var(--space-4)', width: 64, height: 64, fontSize: '2rem' }}>🏗️</div>
-          <h1 style={{ fontSize: '1.5rem', marginBottom: 8 }}>IC Constructora</h1>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>{t('auth.loginDesc')}</p>
+          <div className="sidebar-logo-icon" style={{ margin: '0 auto var(--space-4)', width: 64, height: 64, fontSize: '2rem' }}>
+            🏗️
+          </div>
+          <h1 style={{ fontSize: '1.5rem', marginBottom: 8 }}>Tracción</h1>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+            Sistema EOS de IC Constructora
+          </p>
         </div>
 
+        {isDemoMode && (
+          <div style={{
+            background: 'rgba(245, 158, 11, 0.1)',
+            border: '1px solid var(--status-warning, #f59e0b)',
+            borderRadius: 'var(--radius-md)',
+            padding: 'var(--space-3)',
+            marginBottom: 'var(--space-6)',
+            color: 'var(--status-warning, #f59e0b)',
+            fontSize: '0.85rem',
+          }}>
+            Modo demo activo — datos no persistentes.
+          </div>
+        )}
+
         {error && (
-          <div style={{ 
-            background: 'rgba(239, 68, 68, 0.1)', border: '1px solid var(--status-error)', 
-            borderRadius: 'var(--radius-md)', padding: 'var(--space-3)', marginBottom: 'var(--space-6)',
-            color: 'var(--status-error)', fontSize: '0.85rem'
+          <div style={{
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid var(--status-error)',
+            borderRadius: 'var(--radius-md)',
+            padding: 'var(--space-3)',
+            marginBottom: 'var(--space-6)',
+            color: 'var(--status-error)',
+            fontSize: '0.85rem',
           }}>
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
-          <div className="input-group">
-            <label className="input-label">{t('auth.email')}</label>
-            <div style={{ position: 'relative' }}>
-              <Mail size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', opacity: 0.4 }} />
-              <input 
-                type="email" required className="input" placeholder="email@example.com" value={email}
-                onChange={e => setEmail(e.target.value)} style={{ paddingLeft: 42 }}
-              />
-            </div>
-          </div>
+        <button
+          type="button"
+          onClick={handleClick}
+          disabled={loading}
+          className="btn"
+          style={{
+            width: '100%',
+            height: 52,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 12,
+            background: '#fff',
+            color: '#5e5e5e',
+            border: '1px solid #8c8c8c',
+            fontWeight: 600,
+            fontSize: '0.95rem',
+          }}
+        >
+          <MicrosoftLogo size={20} />
+          {loading ? 'Conectando con Microsoft...' : 'Iniciar sesión con Microsoft'}
+        </button>
 
-          <div className="input-group" style={{ marginBottom: 'var(--space-2)' }}>
-            <label className="input-label">{t('auth.password')}</label>
-            <div style={{ position: 'relative' }}>
-              <Lock size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', opacity: 0.4 }} />
-              <input 
-                type="password" required className="input" placeholder="••••••••" value={password}
-                onChange={e => setPassword(e.target.value)} style={{ paddingLeft: 42 }}
-              />
-            </div>
-          </div>
-
-          <div style={{ textAlign: 'right', marginBottom: 'var(--space-8)' }}>
-            <button type="button" className="btn btn-ghost btn-sm" style={{ padding: 0 }}>{t('auth.forgotPassword')}</button>
-          </div>
-
-          <button type="submit" className="btn btn-primary" style={{ width: '100%', height: 48 }} disabled={loading}>
-            {loading ? t('common.loading') : t('auth.login')}
-          </button>
-        </form>
-
-        {isDemoMode && (
-          <div style={{ marginTop: 'var(--space-8)', textAlign: 'center' }}>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              <strong>Demo Credentials:</strong><br />
-              admin@icconstructora.com / admin
-            </p>
-          </div>
-        )}
+        <p style={{ marginTop: 'var(--space-6)', textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+          Solo cuentas <strong>@icconstructora.com</strong>
+        </p>
       </div>
     </div>
   )
