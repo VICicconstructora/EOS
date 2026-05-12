@@ -1,19 +1,23 @@
 // src/context/AppContext.jsx
-// Global app state: auth, company data, VTO, user preferences
+// Global app state: auth, profile, VTO, demo mode, language.
 import { createContext, useContext, useState, useEffect } from 'react'
-import { 
-  Eye, Users, BarChart3, AlertTriangle, Settings2, Rocket, 
-  ChevronRight, Calendar, Target, CheckCircle
-} from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { isAdmin } from '../lib/permissions'
 
 const AppContext = createContext(null)
 
-// Demo data for when Supabase is not configured yet
 const DEMO_USER = {
   id: 'demo-user',
   email: 'admin@icconstructora.com',
-  user_metadata: { full_name: 'Admin IC', role: 'admin' }
+}
+
+const DEMO_PROFILE = {
+  id: 'demo-user',
+  email: 'admin@icconstructora.com',
+  full_name: 'Admin IC',
+  role: 'admin',
+  status: 'active',
+  area: 'Dirección',
 }
 
 const DEMO_VTO = {
@@ -29,17 +33,18 @@ const DEMO_VTO = {
 }
 
 export function AppProvider({ children }) {
-  const [user, setUser]           = useState(null)
-  const [loading, setLoading]     = useState(true)
-  const [vto, setVto]             = useState(null)
-  const [isDemoMode, setIsDemoMode] = useState(false)
-  const [lang, setLang]           = useState('es')
+  const [user, setUser]                   = useState(null)
+  const [profile, setProfile]             = useState(null)
+  const [providerToken, setProviderToken] = useState(null)
+  const [loading, setLoading]             = useState(true)
+  const [vto, setVto]                     = useState(null)
+  const [isDemoMode, setIsDemoMode]       = useState(false)
+  const [lang, setLang]                   = useState('es')
 
   const isSupabaseConfigured = !!(
     import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY
   )
 
-  // Auth
   useEffect(() => {
     async function initAuth() {
       try {
@@ -49,12 +54,18 @@ export function AppProvider({ children }) {
 
         const { data: { session }, error } = await supabase.auth.getSession()
         if (error) throw error
-        
+
         setUser(session?.user ?? null)
+        setProviderToken(session?.provider_token ?? null)
+
+        if (session?.user) {
+          await loadProfile(session.user.id)
+        }
       } catch (err) {
         console.warn('EOS App: Starting in Demo Mode due to:', err.message)
         setIsDemoMode(true)
         setUser(DEMO_USER)
+        setProfile(DEMO_PROFILE)
         setVto(DEMO_VTO)
       } finally {
         setLoading(false)
@@ -64,19 +75,41 @@ export function AppProvider({ children }) {
     initAuth()
 
     if (supabase) {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-        setUser(session?.user ?? null)
-      })
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (_event, session) => {
+          setUser(session?.user ?? null)
+          setProviderToken(session?.provider_token ?? null)
+          if (session?.user) {
+            await loadProfile(session.user.id)
+          } else {
+            setProfile(null)
+          }
+        }
+      )
       return () => subscription.unsubscribe()
     }
   }, [isSupabaseConfigured])
 
-  // Load VTO when user is set
+  async function loadProfile(userId) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single()
+    if (error) {
+      console.error('Error loading profile:', error)
+      setProfile(null)
+      return
+    }
+    setProfile(data)
+  }
+
+  // Load VTO when user becomes active
   useEffect(() => {
-    if (user && isSupabaseConfigured) {
+    if (user && profile?.status === 'active' && isSupabaseConfigured) {
       loadVTO()
     }
-  }, [user])
+  }, [user, profile?.status])
 
   async function loadVTO() {
     if (!isSupabaseConfigured) return
@@ -100,31 +133,43 @@ export function AppProvider({ children }) {
     return { success: !error, error }
   }
 
-  async function login(email, password) {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    return { data, error }
+  async function signInWithMicrosoft() {
+    if (!supabase) return { error: new Error('Supabase not configured') }
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'azure',
+      options: {
+        scopes: 'openid profile email User.Read User.Read.All offline_access',
+        redirectTo: window.location.origin,
+      },
+    })
+    return { error }
   }
 
   async function logout() {
-    if (!isDemoMode) await supabase.auth.signOut()
+    if (!isDemoMode && supabase) await supabase.auth.signOut()
     setUser(null)
+    setProfile(null)
+    setProviderToken(null)
   }
 
   const value = {
     user,
+    profile,
+    providerToken,
     loading,
     vto,
     setVto,
     saveVTO,
-    login,
+    signInWithMicrosoft,
     logout,
     isDemoMode,
     lang,
     setLang,
     isSupabaseConfigured,
     // Derived
-    isAdmin: user?.user_metadata?.role === 'admin' || isDemoMode,
-    displayName: user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuario',
+    isAdmin: isAdmin(profile) || isDemoMode,
+    displayName: profile?.full_name || user?.email?.split('@')[0] || 'Usuario',
+    refreshProfile: () => user && loadProfile(user.id),
   }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
