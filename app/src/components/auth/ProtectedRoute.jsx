@@ -40,14 +40,29 @@ export default function ProtectedRoute({ children, requireAdmin = false }) {
 
   if (!user) return <LoginPage />
 
-  // Demo Mode bypasses todo (DEMO_PROFILE ya tiene status='active' role='admin')
   if (!isDemoMode) {
     if (!profile)                       return <PendingApprovalPage />
     if (profile.status === 'pending')   return <PendingApprovalPage />
     if (profile.status === 'suspended') return <SuspendedPage />
   }
 
-  if (!onboardingChecked) return null
+  if (!onboardingChecked) return (
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      minHeight: '100vh', background: 'var(--bg-base)',
+    }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{
+          width: 48, height: 48, borderRadius: '50%',
+          border: '3px solid var(--border-medium)',
+          borderTopColor: 'var(--brand-primary)',
+          animation: 'spin 0.8s linear infinite',
+          margin: '0 auto 16px',
+        }} />
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Cargando...</p>
+      </div>
+    </div>
+  )
 
   const isOnboardingRoute = location.pathname === '/configuracion-inicial'
 

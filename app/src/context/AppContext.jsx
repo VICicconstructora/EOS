@@ -37,6 +37,7 @@ export function AppProvider({ children }) {
   const [profile, setProfile]             = useState(null)
   const [providerToken, setProviderToken] = useState(null)
   const [loading, setLoading]             = useState(true)
+  const [authError, setAuthError]         = useState(null)
   const [vto, setVto]                     = useState(null)
   const [isDemoMode, setIsDemoMode]       = useState(false)
   const [lang, setLang]                   = useState('es')
@@ -78,14 +79,20 @@ export function AppProvider({ children }) {
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
         async (_event, session) => {
           setLoading(true)
-          setUser(session?.user ?? null)
-          setProviderToken(session?.provider_token ?? null)
-          if (session?.user) {
-            await loadProfile(session.user.id)
-          } else {
-            setProfile(null)
+          try {
+            setUser(session?.user ?? null)
+            setProviderToken(session?.provider_token ?? null)
+            if (session?.user) {
+              await loadProfile(session.user.id)
+            } else {
+              setProfile(null)
+            }
+          } catch (err) {
+            console.error('onAuthStateChange error:', err)
+            setAuthError(err.message || 'Error desconocido al autenticar')
+          } finally {
+            setLoading(false)
           }
-          setLoading(false)
         }
       )
       return () => subscription.unsubscribe()
@@ -159,6 +166,7 @@ export function AppProvider({ children }) {
     profile,
     providerToken,
     loading,
+    authError,
     vto,
     setVto,
     saveVTO,

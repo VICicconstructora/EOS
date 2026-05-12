@@ -1,5 +1,5 @@
 // src/App.jsx — App shell: auth guard, layout, routes
-import { useState, lazy, Suspense } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useApp } from './context/AppContext'
 import ProtectedRoute from './components/auth/ProtectedRoute'
@@ -91,16 +91,22 @@ function AppLayout() {
   )
 }
 
-export default function App() {
-  const { loading } = useApp()
+function LoadingScreen() {
+  const { authError } = useApp()
+  const [slow, setSlow] = useState(false)
 
-  if (loading) {
-    return (
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        minHeight: '100vh', background: 'var(--bg-base)',
-      }}>
-        <div style={{ textAlign: 'center' }}>
+  useEffect(() => {
+    const t = setTimeout(() => setSlow(true), 8000)
+    return () => clearTimeout(t)
+  }, [])
+
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      minHeight: '100vh', background: 'var(--bg-base)',
+    }}>
+      <div style={{ textAlign: 'center', maxWidth: 360, padding: '0 24px' }}>
+        {!authError && (
           <div style={{
             width: 48, height: 48, borderRadius: '50%',
             border: '3px solid var(--border-medium)',
@@ -108,11 +114,47 @@ export default function App() {
             animation: 'spin 0.8s linear infinite',
             margin: '0 auto 16px',
           }} />
+        )}
+
+        {authError ? (
+          <>
+            <p style={{ color: 'var(--text-danger, #e53e3e)', fontSize: '0.95rem', marginBottom: 8 }}>
+              Error al autenticar
+            </p>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginBottom: 20, wordBreak: 'break-word' }}>
+              {authError}
+            </p>
+          </>
+        ) : slow ? (
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: 16 }}>
+            Esto está tardando más de lo esperado.<br />
+            Puede haber un problema de conexión con el servidor.
+          </p>
+        ) : (
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Cargando...</p>
-        </div>
+        )}
+
+        {(authError || slow) && (
+          <button
+            onClick={() => window.location.reload()}
+            style={{
+              padding: '8px 20px', borderRadius: 6, cursor: 'pointer',
+              background: 'var(--brand-primary, #6366f1)', color: '#fff',
+              border: 'none', fontSize: '0.9rem',
+            }}
+          >
+            Reintentar
+          </button>
+        )}
       </div>
-    )
-  }
+    </div>
+  )
+}
+
+export default function App() {
+  const { loading } = useApp()
+
+  if (loading) return <LoadingScreen />
 
   return (
     <ProtectedRoute>
