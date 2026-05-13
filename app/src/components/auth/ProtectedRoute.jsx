@@ -24,6 +24,12 @@ export default function ProtectedRoute({ children, requireAdmin = false }) {
       return
     }
 
+    if (localStorage.getItem('onboarding_skip_' + user.id) === '1') {
+      setOnboardingDone(true)
+      setOnboardingChecked(true)
+      return
+    }
+
     loadDocuments({ userId: user.id })
       .then(docs => {
         const slug = 'user_profile/' + user.id

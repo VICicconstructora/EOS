@@ -2,6 +2,10 @@ import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import OnboardingInterview from '../components/onboarding/OnboardingInterview'
 
+export function skipOnboarding(userId) {
+  localStorage.setItem('onboarding_skip_' + userId, '1')
+}
+
 export default function EntrevistaPage() {
   const navigate = useNavigate()
   const { user, profile, isDemoMode } = useApp()
@@ -21,13 +25,31 @@ export default function EntrevistaPage() {
     userId      = user?.id || ''
   }
 
+  function handleSkip() {
+    skipOnboarding(userId)
+    navigate('/')
+  }
+
   return (
-    <OnboardingInterview
-      displayName={displayName}
-      jobTitle={jobTitle}
-      area={area}
-      userId={userId}
-      onComplete={() => navigate('/')}
-    />
+    <div style={{ position: 'relative' }}>
+      <button
+        onClick={handleSkip}
+        style={{
+          position: 'fixed', top: 16, right: 16, zIndex: 999,
+          background: 'none', border: '1px solid var(--border-medium)',
+          borderRadius: 6, padding: '6px 16px', cursor: 'pointer',
+          color: 'var(--text-muted)', fontSize: '0.82rem',
+        }}
+      >
+        Saltar entrevista
+      </button>
+      <OnboardingInterview
+        displayName={displayName}
+        jobTitle={jobTitle}
+        area={area}
+        userId={userId}
+        onComplete={() => navigate('/')}
+      />
+    </div>
   )
 }
