@@ -92,7 +92,7 @@ function AppLayout() {
 }
 
 function LoadingScreen() {
-  const { authError } = useApp()
+  const { authError, enterDemoMode } = useApp()
   const [slow, setSlow] = useState(false)
 
   useEffect(() => {
@@ -135,16 +135,27 @@ function LoadingScreen() {
         )}
 
         {(authError || slow) && (
-          <button
-            onClick={() => window.location.reload()}
-            style={{
-              padding: '8px 20px', borderRadius: 6, cursor: 'pointer',
-              background: 'var(--brand-primary, #6366f1)', color: '#fff',
-              border: 'none', fontSize: '0.9rem',
-            }}
-          >
-            Reintentar
-          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}>
+            <button
+              onClick={() => window.location.reload()}
+              style={{
+                padding: '8px 20px', borderRadius: 6, cursor: 'pointer',
+                background: 'var(--brand-primary, #6366f1)', color: '#fff',
+                border: 'none', fontSize: '0.9rem',
+              }}
+            >
+              Reintentar
+            </button>
+            <button
+              onClick={enterDemoMode}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                color: 'var(--text-muted)', fontSize: '0.82rem', textDecoration: 'underline',
+              }}
+            >
+              Entrar en modo demo
+            </button>
+          </div>
         )}
       </div>
     </div>

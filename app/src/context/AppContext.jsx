@@ -46,7 +46,21 @@ export function AppProvider({ children }) {
     import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY
   )
 
+  function enterDemoMode() {
+    setIsDemoMode(true)
+    setUser(DEMO_USER)
+    setProfile(DEMO_PROFILE)
+    setVto(DEMO_VTO)
+    setLoading(false)
+  }
+
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('demo') === '1') {
+      enterDemoMode()
+      return
+    }
+
     async function initAuth() {
       try {
         if (!isSupabaseConfigured || !supabase) {
@@ -173,6 +187,7 @@ export function AppProvider({ children }) {
     signInWithMicrosoft,
     logout,
     isDemoMode,
+    enterDemoMode,
     lang,
     setLang,
     isSupabaseConfigured,

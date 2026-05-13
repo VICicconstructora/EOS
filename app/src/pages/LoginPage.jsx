@@ -15,7 +15,7 @@ function MicrosoftLogo({ size = 20 }) {
 }
 
 export default function LoginPage() {
-  const { signInWithMicrosoft, isDemoMode } = useApp()
+  const { signInWithMicrosoft, isDemoMode, enterDemoMode } = useApp()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -100,6 +100,19 @@ export default function LoginPage() {
         <p style={{ marginTop: 'var(--space-6)', textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
           Solo cuentas <strong>@icconstructora.com</strong>
         </p>
+
+        <div style={{ marginTop: 'var(--space-6)', borderTop: '1px solid var(--border-soft)', paddingTop: 'var(--space-6)', textAlign: 'center' }}>
+          <button
+            type="button"
+            onClick={enterDemoMode}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: 'var(--text-muted)', fontSize: '0.82rem', textDecoration: 'underline',
+            }}
+          >
+            Entrar en modo demo (sin cuenta)
+          </button>
+        </div>
       </div>
     </div>
   )
