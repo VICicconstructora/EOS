@@ -1,9 +1,9 @@
 ---
 tipo: proyecto
-version: 1.1
+version: 1.2
 creado: 2026-05-09
-ultima_actualizacion: 2026-05-09
-actualizado_por: JPM
+ultima_actualizacion: 2026-05-13
+actualizado_por: Claude
 estado: construccion
 ---
 
@@ -35,6 +35,7 @@ En el PPTO, E3 consolida los IDs ERP 115 y 339 ("RESERVA DE OPORTO ETAPA 3 + ETA
 | Rol | Persona / Empresa |
 |-----|------------------|
 | Director de Proyecto | [por definir] |
+| Director de Sala de Ventas | Juan Carlos Gil Arias |
 | Gerente Construcción | [Andrés Arango](../../personas/andres-arango.md) |
 | Gerente Comercial | [Mónica Báez](../../personas/monica-baez.md) |
 | Gerente Jurídico | [Nataly Vinchira](../../personas/nataly-vinchira.md) |
@@ -137,3 +138,4 @@ _Fuente: Datamart.xlsx — actualizado 2026-05-10_
 |---------|-------|--------|-------|
 | 1.0 | 2026-05-09 | Creación inicial | JPM |
 | 1.1 | 2026-05-09 | Datos reales: Cali Evaristo García, estrato 3, VIS, 840 apts, 9 torres, 4 tipologías, precio $220M, EDGE, fechas entrega | JPM |
+| 1.2 | 2026-05-13 | Director de Sala: Juan Carlos Gil Arias | Claude |

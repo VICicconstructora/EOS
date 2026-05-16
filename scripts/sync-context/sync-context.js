@@ -113,6 +113,28 @@ function buildManifest() {
     }
   }
 
+  // ADPRO — modelos semánticos del ERP de construcción (presupuesto, control de proyecto)
+  const adproDir = join(REPO_ROOT, 'ADPRO')
+  if (existsSync(adproDir)) {
+    const files = readdirSync(adproDir)
+      .filter(f => f.endsWith('.md'))
+      .sort()
+
+    for (const file of files) {
+      const name = slugFromFilename(file).toLowerCase()
+      const fullPath = join(adproDir, file)
+      const content = readFileSync(fullPath, 'utf8')
+      entries.push({
+        _fullPath: fullPath,
+        file:      `ADPRO/${file}`,
+        slug:      `context/adpro/${name}`,
+        title:     titleFromContent(content, `ADPRO: ${file}`),
+        category:  'adpro',
+        tags:      ['adpro', 'presupuesto', 'construccion', 'erp', ...name.split('_').filter(t => t.length > 2)],
+      })
+    }
+  }
+
   return entries
 }
 
@@ -129,7 +151,7 @@ async function main() {
   let ok = 0, skipped = 0, errors = 0
 
   for (const entry of MANIFEST) {
-    const filePath = join(MEMORIA, entry.file)
+    const filePath = entry._fullPath || join(MEMORIA, entry.file)
 
     if (!existsSync(filePath)) {
       console.warn(`  ⚠  FALTA  ${entry.file}`)

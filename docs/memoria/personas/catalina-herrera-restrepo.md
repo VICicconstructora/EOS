@@ -13,6 +13,10 @@ estado: vigente
 **Antigüedad:** 2025-04-10
 **Celular:** No registrado
 
+## Proyecto asignado
+
+**Praia Natura CBR** — Jefe de Sala de Ventas del proyecto.
+
 ## Notas de la Entrevista / Contexto
 
 [Pendiente de documentar tras las entrevistas]

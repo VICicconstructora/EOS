@@ -17,6 +17,10 @@ estado: vigente
 
 [Pendiente de documentar tras las entrevistas]
 
+## Proyecto asignado
+
+**La Hacienda Jamundí CBR — Asesora Comercial (asesor senior, sin jefe de sala registrado).** Centro de trabajo: `GE DV LA HACIENDA`.
+
 ## Responsabilidades y Procesos
 
 [Pendiente de documentar]

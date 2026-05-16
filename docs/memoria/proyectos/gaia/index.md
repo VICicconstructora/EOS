@@ -1,9 +1,9 @@
 ---
 tipo: proyecto
-version: 1.1
+version: 1.2
 creado: 2026-05-09
-ultima_actualizacion: 2026-05-09
-actualizado_por: JPM
+ultima_actualizacion: 2026-05-13
+actualizado_por: Claude
 estado: construccion
 ---
 
@@ -34,6 +34,7 @@ estado: construccion
 | Director de Proyecto | [por definir] |
 | Gerente Construcción | [Andrés Arango](../../personas/andres-arango.md) |
 | Gerente Comercial | [Mónica Báez](../../personas/monica-baez.md) |
+| Comercializador | Claudia Jaramillo (broker externa — empresa aliada, no empleada IC) |
 | Gerente Jurídico | [Nataly Vinchira](../../personas/nataly-vinchira.md) |
 | Diseñador Arquitectónico | [por definir] |
 | Diseñador Estructural | [por definir] |
@@ -45,14 +46,14 @@ estado: construccion
 
 | Campo | Valor |
 |-------|-------|
-| Total unidades | [confirmar] |
+| Total unidades | **27 casas** (E1 + E2) |
 | Tipos de unidad | Casa unifamiliar (condominio campestre) |
 | Área privada desde (m²) | [confirmar — producto premium] |
 | Precio desde | [confirmar — No VIS estrato 5] |
 
 ## KPIs actuales (snapshot — mayo 2026)
 
-- Ventas acumuladas: **24** (proyecto con menor volumen de ventas — posiblemente etapa temprana o producto premium)
+- Ventas acumuladas: **24 de 27** (3 unidades disponibles)
 - Escrituraciones YTD: [por definir]
 - Avance físico: [por definir]%
 
@@ -66,7 +67,7 @@ estado: construccion
 
 ## Notas de contexto
 
-Condominio campestre en Cerritos, Pereira, estrato 5. Producto premium (casas unifamiliares) que explica la baja velocidad de ventas (24 unidades). La naturaleza del producto (menor # de unidades, ticket alto, comprador más exigente) hace que las métricas no sean comparables directamente con proyectos de apartamentos masivos.
+Condominio campestre en Cerritos, Pereira, estrato 5. 27 casas unifamiliares en 2 etapas, comercializadas por Claudia Jaramillo (broker externa). Con 24/27 ventas, está prácticamente vendido. IC actúa como constructor; la comercialización es externa. Las métricas no son comparables con proyectos de apartamentos masivos (ticket alto, comprador exigente, volumen pequeño).
 
 ## Datos Operativos (Datamart)
 
@@ -111,3 +112,4 @@ _Fuente: Datamart.xlsx — actualizado 2026-05-10_
 |---------|-------|--------|-------|
 | 1.0 | 2026-05-09 | Creación inicial | JPM |
 | 1.1 | 2026-05-09 | Datos reales: ciudad Pereira Cerritos, estrato 5, tipo de producto campestre, área lote | JPM |
+| 1.2 | 2026-05-13 | Comercializador: Claudia Jaramillo (broker externa). Total unidades: 27. Ventas: 24/27. Nota IC como constructor. | Claude |

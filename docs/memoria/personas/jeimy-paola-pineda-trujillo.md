@@ -17,6 +17,10 @@ estado: vigente
 
 [Pendiente de documentar tras las entrevistas]
 
+## Proyecto asignado
+
+**Primera Este CBR** — actúa como directora de sala de ventas del proyecto, aunque su cargo formal es Asesora Comercial 1.
+
 ## Responsabilidades y Procesos
 
 [Pendiente de documentar]

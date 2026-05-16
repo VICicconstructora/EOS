@@ -17,6 +17,10 @@ estado: vigente
 
 [Pendiente de documentar tras las entrevistas]
 
+## Proyecto asignado
+
+**Reserva de Oporto CBR — Asesora Comercial.** Centro de trabajo: `GE DV RESERVA DE OPORTO`.
+
 ## Responsabilidades y Procesos
 
 [Pendiente de documentar]

@@ -17,6 +17,10 @@ estado: vigente
 
 [Pendiente de documentar tras las entrevistas]
 
+## Proyecto asignado
+
+**Castilla Imperial CBR y Castilla Living CBR — Asesora Comercial bajo Carlos Ernesto Maldonado.** Centro de trabajo: `GE DV CASTILLA`.
+
 ## Responsabilidades y Procesos
 
 [Pendiente de documentar]

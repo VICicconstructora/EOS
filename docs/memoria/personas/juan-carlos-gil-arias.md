@@ -17,10 +17,14 @@ estado: vigente
 
 [Pendiente de documentar tras las entrevistas]
 
+## Proyecto asignado
+
+**Reserva de Oporto CBR** — actúa como director de sala de ventas del proyecto, aunque su cargo formal es Asesor Comercial 2.
+
 ## Responsabilidades y Procesos
 
 [Pendiente de documentar]
 
 ## Equipo directo
 
-No tiene personal a cargo.
+No tiene personal a cargo registrado.

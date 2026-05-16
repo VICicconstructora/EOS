@@ -7,11 +7,15 @@ estado: vigente
 
 # JUAN DAVID VERGARA ROMERO
 
-**Cargo:** GERENTE DE EXPERIENCIA 1
+**Cargo:** ASESOR COMERCIAL
 **Área:** GERENCIA DE EXPERIENCIA
-**Reporta a:** JUAN PAULO MAC ALLISTER ORTIZ
+**Reporta a:** JEIMY PAOLA PINEDA TRUJILLO (Primera Este)
 **Antigüedad:** 2026-04-20
 **Celular:** No registrado
+
+## Proyecto asignado
+
+**Primera Este CBR** — según Organigrama Excel IC 2026: ASESOR COMERCIAL en `GE DV PRIMERA ESTE`. Bajo Jeimy Paola Pineda Trujillo.
 
 ## Notas de la Entrevista / Contexto
 

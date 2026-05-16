@@ -17,6 +17,10 @@ estado: vigente
 
 [Pendiente de documentar tras las entrevistas]
 
+## Proyecto asignado
+
+**La Hacienda Jamundí CBR — Asesora Comercial.** Centro de trabajo: `GE DV LA HACIENDA`.
+
 ## Responsabilidades y Procesos
 
 [Pendiente de documentar]

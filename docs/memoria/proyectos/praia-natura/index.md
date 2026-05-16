@@ -1,9 +1,9 @@
 ---
 tipo: proyecto
-version: 1.1
+version: 1.2
 creado: 2026-05-09
-ultima_actualizacion: 2026-05-09
-actualizado_por: JPM
+ultima_actualizacion: 2026-05-13
+actualizado_por: Claude
 estado: construccion
 ---
 
@@ -35,6 +35,7 @@ La Etapa 3 fue reclasificada de `Estructuracion` a `Proyectos` en el catálogo P
 | Rol | Persona / Empresa |
 |-----|------------------|
 | Director de Proyecto | [por definir] |
+| Director de Sala de Ventas | Catalina Herrera Restrepo |
 | Gerente Construcción | [Andrés Arango](../../personas/andres-arango.md) |
 | Gerente Comercial | [Mónica Báez](../../personas/monica-baez.md) |
 | Gerente Jurídico | [Nataly Vinchira](../../personas/nataly-vinchira.md) |
@@ -118,3 +119,4 @@ _Fuente: Datamart.xlsx — actualizado 2026-05-10_
 |---------|-------|--------|-------|
 | 1.0 | 2026-05-09 | Creación inicial | JPM |
 | 1.1 | 2026-05-09 | Datos reales: ciudad Santa Marta, sector Pozos Colorados, áreas 47-132m², precio $331.8M, amenidades hoteleras | JPM |
+| 1.2 | 2026-05-13 | Director de Sala: Catalina Herrera Restrepo | Claude |

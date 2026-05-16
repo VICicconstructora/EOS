@@ -1,8 +1,8 @@
 ---
 tipo: empresa
-version: 1.0
+version: 1.1
 creado: 2026-05-09
-ultima_actualizacion: 2026-05-09
+ultima_actualizacion: 2026-05-13
 actualizado_por: JPM
 estado: vigente
 ---
@@ -40,6 +40,81 @@ CEO — Juan Paulo McAllister
 ```
 
 ## Estructura de Direcciones y Coordinaciones por Gerencia
+
+### MONICA ANDREA BAEZ GONZALEZ (GERENTE DE EXPERIENCIA 1)
+
+Cubre: Mercadeo, Ventas, Cartera, Trámites.
+
+**Nota IC Constructora:** Los proyectos Mitika, Azul Celeste, Azul Turquesa, Well y Verde Vivo son desarrollados por IC como **constructor**, no como vendedor. No tienen equipo comercial propio de IC. La estructura de ventas aplica únicamente a los 8 proyectos CBR y similares donde IC commercializa directamente.
+
+#### Dirección de Ventas
+
+| Nombre | Cargo | Alcance |
+|--------|-------|---------|
+| LUISA FERNANDA MORENO GUIJO | DIRECTOR DE VENTAS 1 | Toda la fuerza de ventas (transversal a proyectos) |
+| ANGELICA YOHANA PINEDA NOGUERA | COORDINADOR COMERCIAL 1 | Mismo alcance que Luisa — rol complementario |
+
+#### Jefes de Sala (por proyecto)
+
+| Nombre | Cargo | Proyecto asignado |
+|--------|-------|------------------|
+| CATALINA HERRERA RESTREPO | JEFE DE SALA 1 | **Praia Natura CBR** |
+| CARLOS ERNESTO MALDONADO HERNANDEZ | JEFE DE SALA 1 | **Castilla Imperial CBR** y **Castilla Living CBR** |
+| JUAN CARLOS GIL ARIAS | ASESOR COMERCIAL 2 *(actúa como director de sala)* | **Reserva de Oporto CBR** |
+| JEIMY PAOLA PINEDA TRUJILLO | ASESOR COMERCIAL 1 *(actúa como director de sala)* | **Primera Este CBR** |
+
+> Equipo bajo Catalina Herrera: Claudia Marcela Álvarez Vila (antes también Angélica Pineda) + Johana Milena Cataño García.
+> Equipo bajo Jeimy: Gustavo Andrés Aristizabal Pulgarín.
+> **Gaia CBR:** se comercializa a través de Claudia Jaramillo, broker externa (empresa aliada, no empleada IC). No aplica estructura de sala interna.
+> **Bosque Central CBR:** sala vacante tras retiro de Esmeralda. Sin reemplazo confirmado a mayo 2026.
+> **La Hacienda Jamundí CBR:** Sin Jefe de Sala en el organigrama Excel IC 2026. Angie Borja Quintero está asignada a Reserva de Oporto, no a La Hacienda.
+
+#### Proyectos CBR — Director de Sala asignado
+
+| Proyecto | Director de Sala | Estado |
+|----------|-----------------|--------|
+| Bosque Central CBR | *Vacante* — Esmeralda (retirada, sin reemplazo confirmado) | ⚠ |
+| Gaia CBR | **Claudia Jaramillo** — Broker externa (empresa, no empleada IC) | ✓ |
+| Praia Natura CBR | Catalina Herrera Restrepo | ✓ |
+| Primera Este CBR | Jeimy Paola Pineda Trujillo | ✓ |
+| Castilla Imperial CBR | Carlos Ernesto Maldonado Hernández | ✓ |
+| Castilla Living CBR | Carlos Ernesto Maldonado Hernández | ✓ |
+| La Hacienda Jamundí CBR | **Sin Jefe de Sala registrado** — asesores: Diana Paola Reina Chamorro, Michel Saa Bejarano, Paola Lucumi, Juan Pablo Ledesma (admin) | ⚠ |
+| Reserva de Oporto CBR | Juan Carlos Gil Arias | ✓ |
+
+#### Cartera
+
+| Nombre | Cargo |
+|--------|-------|
+| NICOLAS PLATA GONZALEZ | COORDINADOR DE CARTERA 1 |
+
+#### Trámites
+
+| Nombre | Cargo | Fuente de datos |
+|--------|-------|----------------|
+| JAIME FRANCISCO RAMOS RUEDA | COORDINADOR DE TRAMITES 1 | ADI DTM Trámites en CBR |
+
+#### Mercadeo
+
+| Nombre | Cargo |
+|--------|-------|
+| MAYRA NATHALIA MARTINEZ MEJIA | COORDINADOR DE MERCADEO Y COMUNICACIONES 1 |
+| BRAYAN DANIEL SANTAMARIA GARZON | ANALISTA DE DISEÑO GRAFICO 1 |
+| KAROL ANDREA RODRIGUEZ RODRIGUEZ | ANALISTA DE DISEÑO GRAFICO 2 |
+
+#### Otros asesores comerciales (proyecto por confirmar)
+
+| Nombre | Cargo |
+|--------|-------|
+| NESTOR JAVIER REY GODOY | ASESOR COMERCIAL 1 |
+| CLAUDIA PATRICIA MARTINEZ MARTINEZ | ASESOR COMERCIAL 2 |
+| MICHEL LICETH SAA BEJARANO | ASESOR COMERCIAL 2 |
+| DIANA PAOLA REINA CHAMORRO | ASESOR COMERCIAL 1 |
+| RIAÑO SANTOS LUZ ADRIANA | ASESOR COMERCIAL 3 |
+| ANGIE KATHERIN BORJA QUINTERO | ASESOR COMERCIAL 2 |
+| SANDRA PATRICIA QUITIAN MATEUS | COORDINADOR DE ATENCION AL CLIENTE 1 |
+
+---
 
 ### ANDRES ARANGO FUENTES (GERENTE UNIDAD DE NEGOCIO DE CONSTRUCCION 1)
 
@@ -154,3 +229,4 @@ GONZÁLEZ | DIRECTOR DE COMPRAS Y CONTRATACION 1 | GERENCIA DE CONTROL |
 | Versión | Fecha | Cambio | Autor |
 |---------|-------|--------|-------|
 | 1.0 | 2026-05-09 | Creación inicial | JPM |
+| 1.1 | 2026-05-13 | Estructura completa Gerencia de Experiencia: dirección de ventas, jefes de sala, cartera, trámites, mercadeo. Mapeo proyecto→director de sala (parcial). Nota: IC actúa como constructor (no vendedor) en Mitika, Azul Celeste, Azul Turquesa, Well, Verde Vivo. | Claude |

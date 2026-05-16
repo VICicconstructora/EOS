@@ -6,11 +6,13 @@ import ProtectedRoute from './components/auth/ProtectedRoute'
 
 import Sidebar from './components/layout/Sidebar'
 import TopHeader from './components/layout/TopHeader'
+import WelcomeModal from './components/layout/WelcomeModal'
 
 const DashboardPage      = lazy(() => import('./pages/DashboardPage'))
 const VisionPage         = lazy(() => import('./pages/VisionPage'))
 const PersonasPage       = lazy(() => import('./pages/PersonasPage'))
 const DatosPage          = lazy(() => import('./pages/DatosPage'))
+const KpisPage           = lazy(() => import('./pages/KpisPage'))
 const AsuntosPage        = lazy(() => import('./pages/AsuntosPage'))
 const ProcesosPage       = lazy(() => import('./pages/ProcesosPage'))
 const TraccionPage       = lazy(() => import('./pages/TraccionPage'))
@@ -42,6 +44,8 @@ function AppLayout() {
 
   return (
     <div className="app-shell">
+      <WelcomeModal />
+
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
@@ -64,6 +68,7 @@ function AppLayout() {
               <Route path="/vision"         element={<VisionPage />} />
               <Route path="/personas"       element={<PersonasPage />} />
               <Route path="/datos"          element={<DatosPage />} />
+              <Route path="/kpis"          element={<KpisPage />} />
               <Route path="/asuntos"        element={<AsuntosPage />} />
               <Route path="/procesos"       element={<ProcesosPage />} />
               <Route path="/traccion"       element={<TraccionPage />} />

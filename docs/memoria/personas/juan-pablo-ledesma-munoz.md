@@ -13,6 +13,10 @@ estado: vigente
 **Antigüedad:** 2026-04-27
 **Celular:** No registrado
 
+## Proyecto asignado
+
+**La Hacienda Jamundí CBR** — Auxiliar Administrativo de Ventas. Centro: `GE DV LA HACIENDA`.
+
 ## Notas de la Entrevista / Contexto
 
 [Pendiente de documentar tras las entrevistas]

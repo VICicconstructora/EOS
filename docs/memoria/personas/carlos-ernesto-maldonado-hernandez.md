@@ -13,6 +13,10 @@ estado: vigente
 **Antigüedad:** 2025-10-02
 **Celular:** No registrado
 
+## Proyectos asignados
+
+**Castilla Imperial CBR** y **Castilla Living CBR** — Jefe de Sala de Ventas de ambos proyectos.
+
 ## Notas de la Entrevista / Contexto
 
 [Pendiente de documentar tras las entrevistas]

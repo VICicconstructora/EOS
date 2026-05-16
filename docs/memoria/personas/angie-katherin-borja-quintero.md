@@ -13,6 +13,10 @@ estado: vigente
 **Antigüedad:** 2026-04-16
 **Celular:** No registrado
 
+## Proyecto asignado
+
+**Reserva de Oporto CBR** — Asesora Comercial. Centro de trabajo: `GE DV RESERVA DE OPORTO`.
+
 ## Notas de la Entrevista / Contexto
 
 [Pendiente de documentar tras las entrevistas]

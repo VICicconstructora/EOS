@@ -17,6 +17,10 @@ estado: vigente
 
 [Pendiente de documentar tras las entrevistas]
 
+## Proyecto asignado
+
+**Praia Natura CBR — Asesora Comercial bajo Catalina Herrera Restrepo.** Centro de trabajo: `GE DV PRAIA`.
+
 ## Responsabilidades y Procesos
 
 [Pendiente de documentar]

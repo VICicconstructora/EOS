@@ -7,11 +7,15 @@ estado: vigente
 
 # PAOLA ANDREA LUCUMI CRUZ
 
-**Cargo:** OFICIAL DE OBRA 2
-**Área:** GERENCIA DE CONSTRUCCION
-**Reporta a:** DIRECTOR DE OBRA 1
+**Cargo:** ASESOR COMERCIAL
+**Área:** GERENCIA DE EXPERIENCIA
+**Reporta a:** [Jefe de Sala La Hacienda — vacante]
 **Antigüedad:** 2026-01-05
 **Celular:** No registrado
+
+## Proyecto asignado
+
+**La Hacienda Jamundí CBR** — Asesora Comercial. Centro: `GE DV LA HACIENDA`.
 
 ## Notas de la Entrevista / Contexto
 
