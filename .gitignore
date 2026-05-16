@@ -31,7 +31,9 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db
 
-# Extracted epub / temp files
+# Books / ebooks — never commit copyrighted material
+*.epub
+*.pdf
 epub_extracted/
 
 # Claude Code local settings (contiene rutas locales)
@@ -39,3 +41,12 @@ epub_extracted/
 
 # Superpowers / herramientas de IDE
 .superpowers/
+
+# Power BI — binarios grandes (38–42 MB c/u)
+*.pbix
+
+# Datasets pesados (>50 MB, supera límite GitHub)
+Historico/*.csv
+
+# Excel binarios
+*.xlsx
