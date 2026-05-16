@@ -501,13 +501,16 @@ export function useKpis(scope = 'total') {
 
         // Aplicar status (semáforo) a todos los nodos
         const applyStatus = (node) => {
-          node.status = evalStatus(node.currentValue, node.rules)
+          node.status = node.currentValue == null ? 'gray' : evalStatus(node.currentValue, node.rules)
           if (node.children) node.children = node.children.map(applyStatus)
           return node
         }
 
-        cardVentas.level = [1, 2]
-        cardVentas.levelOwners = { 1: CEO_NAME, 2: MONICA_NAME }
+        // Ventas: CEO (1) → Mónica (2) → Luisa Dir. Ventas (3) → Director de Sala por proyecto (4)
+        cardVentas.level = [1, 2, 3]
+        cardVentas.levelOwners = { 1: CEO_NAME, 2: MONICA_NAME, 3: 'Luisa Moreno' }
+        // En nivel 3, cardVentas aparece bajo la expansión del nodo ceo-ventas (nivel 2)
+        cardVentas.cascadeParentIds = { 3: 'ceo-ventas' }
         cardVentas.onExport = async () => {
           const { data: rows } = await supabaseIc.from('kpi_ventas_ytd_proyecto').select('*')
           downloadCsv(`ventas_ytd_${new Date().toISOString().slice(0, 7)}.csv`, rows || [])
@@ -520,7 +523,11 @@ export function useKpis(scope = 'total') {
           downloadCsv(`escrituracion_ytd_${new Date().toISOString().slice(0, 7)}.csv`, rows || [])
         }
 
-        cardTram.level = 2
+        // Trámites: Mónica (2) → Luisa Dir. Ventas (3) [bajo expansión de Ventas]
+        cardTram.level = [2, 3]
+        cardTram.levelOwners = { 2: MONICA_NAME, 3: 'Luisa Moreno' }
+        // En nivel 3, cardTram (Luisa) aparece bajo la expansión de Ventas (junto con Luisa Ventas)
+        cardTram.cascadeParentIds = { 3: 'ceo-ventas' }
         cardTram.onExport = async () => {
           const { data: rows } = await supabaseIc.from('kpi_tramites_ytd_proyecto').select('*')
           downloadCsv(`tramites_ytd_${new Date().toISOString().slice(0, 7)}.csv`, rows || [])
@@ -538,7 +545,43 @@ export function useKpis(scope = 'total') {
           downloadCsv(`cartera_post_ytd_${new Date().toISOString().slice(0, 7)}.csv`, rows || [])
         }
 
-        const built = [cardVentas, cardEscr, cardTram, cardCarteraPre, cardCarteraPost].map(applyStatus)
+        // Mapeo macroproyecto → Director de Sala (IC vende directamente)
+        // Gaia se excluye del cascade (broker externo Claudia Jaramillo) pero
+        // permanece en .children de Ventas y Trámites para el modal / promedio ponderado.
+        // Proyectos sin venta IC (Mitika, Azul, Well, Verde Vivo) no aparecen en el YTD.
+        const DIRECTOR_SALA = {
+          'Praia Natura':      'Catalina Herrera',
+          'Primera Este':      'Jeimy Pineda',
+          'Castilla Imperial': 'Carlos Ernesto Maldonado',
+          'Castilla Living':   'Carlos Ernesto Maldonado',
+          'Reserva De Oporto': 'Juan Carlos Gil',
+          'La Hacienda':       '(Sin jefe de sala)',
+          'Bosque Central':    '(Vacante)',
+        }
+
+        const toSalaNode = (prefix, macroNode, cascadeParentId) => ({
+          ...macroNode,
+          id:    `${prefix}-${macroNode.id}`,
+          owner: DIRECTOR_SALA[macroNode.title] ?? 'Por definir',
+          level: 4,
+          cascadeParentId,
+        })
+
+        // Nivel 4 Ventas: excluye Gaia (permanece en modal para promedio ponderado)
+        const dirSalaVentasNodes = cardVentas.children
+          .filter(n => n.title !== 'Gaia')
+          .map(n => toSalaNode('dir-vta', n, 'ceo-ventas'))
+
+        // Nivel 4 Trámites: mismo patrón, excluye Gaia
+        const dirSalaTramNodes = cardTram.children
+          .filter(n => n.title !== 'Gaia')
+          .map(n => toSalaNode('dir-tram', n, 'monica-tramites'))
+
+        const built = [
+          cardVentas, cardEscr, cardTram, cardCarteraPre, cardCarteraPost,
+          ...dirSalaVentasNodes,
+          ...dirSalaTramNodes,
+        ].map(applyStatus)
 
         if (alive) {
           setTree(built)

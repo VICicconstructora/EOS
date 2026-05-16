@@ -3,7 +3,7 @@ import { KpiTooltip } from './KpiTooltip';
 import { ChevronDown, ChevronRight, Download, Loader2 } from 'lucide-react';
 import './kpi.css';
 
-export const KpiCard = ({ node, isExpanded, onClick }) => {
+export const KpiCard = ({ node, isExpanded, onClick, onExpandClick = () => {} }) => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [exporting, setExporting] = useState(false);
@@ -41,6 +41,7 @@ export const KpiCard = ({ node, isExpanded, onClick }) => {
   // en cuyo caso currentValue ya ES el cumplimiento)
   const computeCumplimiento = () => {
     if (node.format === 'percentage') return node.currentValue;
+    if (node.rules?.type === 'lower_is_better') return null;
     if (!node.targetValue || node.targetValue === 0) return null;
     return Math.round((node.currentValue / node.targetValue) * 1000) / 10;
   };
@@ -66,12 +67,13 @@ export const KpiCard = ({ node, isExpanded, onClick }) => {
         </div>
         <div className="kpi-card-body">
           <span className="kpi-value">{formatValue(node.currentValue, node.format)}</span>
-          {/* Solo mostramos % cumplimiento explicito si el valor principal NO es ya un % */}
-          {node.format !== 'percentage' && cumplimiento != null && (
-            <span className="kpi-cumplimiento">
-              {cumplimiento.toLocaleString()}% cumplimiento
-            </span>
-          )}
+          <span className="kpi-cumplimiento">
+            {node.format === 'percentage'
+              ? 'cumplimiento'
+              : cumplimiento != null
+                ? `${cumplimiento.toLocaleString()}% cumplimiento`
+                : '—'}
+          </span>
         </div>
         <div className="kpi-card-footer">
           {node.onExport ? (
@@ -86,8 +88,11 @@ export const KpiCard = ({ node, isExpanded, onClick }) => {
                 : <Download size={13} />}
             </button>
           ) : <span />}
-          {node.children && node.children.length > 0 && (
-            <span className="expand-icon">
+          {onExpandClick && (
+            <span
+              className="expand-icon"
+              onClick={(e) => { e.stopPropagation(); onExpandClick(node); }}
+            >
               {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
             </span>
           )}

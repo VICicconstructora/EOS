@@ -126,7 +126,7 @@ export function useTramitesFrancisco() {
           ),
         ]
 
-        const leveledChildren = children.map(c => ({ ...c, level: 3 }))
+        const leveledChildren = children.map(c => ({ ...c, level: 3, cascadeParentId: 'monica-tramites' }))
 
         if (alive) {
           setNodes(leveledChildren)
