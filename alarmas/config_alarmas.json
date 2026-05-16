@@ -1,0 +1,19 @@
+﻿{
+  "informacion": {
+    "proyecto": "Alarma Automática de Ingesta - IC Constructora",
+    "version": "1.0",
+    "estado": "EN CONFIGURACION - Falta Client Secret"
+  },
+  "azure_ad": {
+    "app_name": "Traccion-IC",
+    "tenant_id": "129cb8aa-2444-49b4-acc9-3f6a696f1ff0",
+    "client_id": "a3e3e09a-9bcc-4c58-b6d7-3aefd8bbd744",
+    "client_secret": "PENDIENTE - Obtener desde Azure Portal"
+  },
+  "teams": {
+    "enabled": false,
+    "tipo": "Microsoft Graph API",
+    "sender": "vic@icconstructora.co"
+  },
+  "proximo_paso": "Copiar Client Secret desde Azure Portal > Traccion-IC > Certificados y secretos"
+}
