@@ -8,9 +8,9 @@
 /* ---- TOKENS ---- */
 :root {
   /* Brand */
-  --brand-primary:    #E8A020;
-  --brand-secondary:  #C47D10;
-  --brand-accent:     #F5C55A;
+  --brand-primary:    #D32F2F;
+  --brand-secondary:  #B71C1C;
+  --brand-accent:     #F44336;
 
   /* EOS Component Colors */
   --eos-vision:    #3B82F6;

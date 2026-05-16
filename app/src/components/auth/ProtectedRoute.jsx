@@ -40,7 +40,7 @@ export default function ProtectedRoute({ children, requireAdmin = false }) {
         setOnboardingDone(true)
         setOnboardingChecked(true)
       })
-  }, [loading, user, isDemoMode, loadDocuments])
+  }, [loading, user, isDemoMode, loadDocuments, location.pathname])
 
   if (loading) return null
 

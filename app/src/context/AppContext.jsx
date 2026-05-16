@@ -64,24 +64,34 @@ export function AppProvider({ children }) {
     async function initAuth() {
       try {
         if (!isSupabaseConfigured || !supabase) {
-          throw new Error('Supabase not configured')
+          enterDemoMode()
+          return
         }
 
-        const { data: { session }, error } = await supabase.auth.getSession()
+        const withTimeout = (promise, ms = 8000) => Promise.race([
+          promise,
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('auth_timeout')), ms)
+          ),
+        ])
+
+        const { data: { session }, error } = await withTimeout(supabase.auth.getSession())
         if (error) throw error
 
         setUser(session?.user ?? null)
         setProviderToken(session?.provider_token ?? null)
 
         if (session?.user) {
-          await loadProfile(session.user.id)
+          await withTimeout(loadProfile(session.user.id))
         }
       } catch (err) {
-        console.warn('EOS App: Starting in Demo Mode due to:', err.message)
-        setIsDemoMode(true)
-        setUser(DEMO_USER)
-        setProfile(DEMO_PROFILE)
-        setVto(DEMO_VTO)
+        console.warn('EOS App: Auth init error —', err.message)
+        // Limpiar estado para que LoginPage aparezca limpia
+        setUser(null)
+        setProfile(null)
+        if (err.message === 'auth_timeout') {
+          try { supabase.auth.signOut() } catch (_) { /* ignore */ }
+        }
       } finally {
         setLoading(false)
       }
@@ -114,17 +124,20 @@ export function AppProvider({ children }) {
   }, [isSupabaseConfigured])
 
   async function loadProfile(userId) {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single()
-    if (error) {
-      console.error('Error loading profile:', error)
-      setProfile(null)
-      return
+    for (let attempt = 0; attempt < 2; attempt++) {
+      if (attempt > 0) await new Promise(r => setTimeout(r, 1500))
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single()
+      if (!error) {
+        setProfile(data)
+        return
+      }
+      console.error(`Error loading profile (attempt ${attempt + 1}):`, error)
     }
-    setProfile(data)
+    setProfile(null)
   }
 
   // Load VTO when user becomes active

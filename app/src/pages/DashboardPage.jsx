@@ -56,9 +56,9 @@ export default function DashboardPage() {
       <section style={{ position: 'relative', height: 460, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 'var(--space-10)' }}>
         <div style={{ position: 'absolute', width: 400, height: 400, borderRadius: '50%', border: '1px solid var(--border-subtle)', background: 'radial-gradient(circle, rgba(232,160,32,0.05) 0%, transparent 70%)', animation: 'spin 60s linear infinite' }} />
 
-        <div style={{ width: 110, height: 110, borderRadius: '50%', background: '#E60000', border: '4px solid #ffffff', boxShadow: '0 4px 16px rgba(230, 0, 0, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem', zIndex: 10, position: 'relative', flexDirection: 'column', color: '#ffffff', fontWeight: 900, fontFamily: 'var(--font-display)', letterSpacing: '-0.05em' }}>
+        <div style={{ width: 110, height: 110, borderRadius: '50%', background: 'var(--brand-primary)', border: '4px solid #ffffff', boxShadow: '0 4px 16px rgba(211, 47, 47, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem', zIndex: 10, position: 'relative', flexDirection: 'column', color: '#ffffff', fontWeight: 900, fontFamily: 'var(--font-display)', letterSpacing: '-0.05em' }}>
           IC
-          <div style={{ position: 'absolute', bottom: -28, whiteSpace: 'nowrap', fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '0.8rem', color: '#E60000', letterSpacing: '0.05em' }}>CONSTRUCTORA</div>
+          <div style={{ position: 'absolute', bottom: -28, whiteSpace: 'nowrap', fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '0.8rem', color: 'var(--brand-primary)', letterSpacing: '0.05em' }}>CONSTRUCTORA</div>
         </div>
 
         {EOS_MODULES.map((module, i) => {
