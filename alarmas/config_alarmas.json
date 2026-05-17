@@ -2,18 +2,58 @@
   "informacion": {
     "proyecto": "Alarma Automática de Ingesta - IC Constructora",
     "version": "1.0",
-    "estado": "EN CONFIGURACION - Falta Client Secret"
+    "estado": "ACTIVO - Client Secret configurado",
+    "activado_fecha": "2026-05-16",
+    "actualizado_por": "Claude"
   },
   "azure_ad": {
     "app_name": "Traccion-IC",
     "tenant_id": "129cb8aa-2444-49b4-acc9-3f6a696f1ff0",
     "client_id": "a3e3e09a-9bcc-4c58-b6d7-3aefd8bbd744",
-    "client_secret": "PENDIENTE - Obtener desde Azure Portal"
+    "client_secret": "10h8Q~dUeSRuEgKB6Xf_xNhh~sc~5DtgJCaT1cXH"
   },
   "teams": {
-    "enabled": false,
+    "enabled": true,
     "tipo": "Microsoft Graph API",
-    "sender": "vic@icconstructora.co"
+    "sender": "vic@icconstructora.co",
+    "recipients": {
+      "aarango": {
+        "email": "aarango@icconstructora.co",
+        "nombre": "Andrés Arango",
+        "area": "Construcción"
+      },
+      "mbaez": {
+        "email": "mbaez@icconstructora.co",
+        "nombre": "Mónica Báez",
+        "area": "Experiencia"
+      },
+      "lserrano": {
+        "email": "lserrano@icconstructora.co",
+        "nombre": "Luis Miguel Serrano",
+        "area": "TI"
+      }
+    }
   },
-  "proximo_paso": "Copiar Client Secret desde Azure Portal > Traccion-IC > Certificados y secretos"
+  "proyectos_monitoreados": [
+    "Bosque Central CBR",
+    "Gaia CBR",
+    "Praia Natura CBR",
+    "Primera Este CBR",
+    "Castilla Imperial CBR",
+    "Castilla Living CBR",
+    "La Hacienda Jamundi CBR",
+    "Reserva de Oporto CBR",
+    "Well",
+    "Verde Vivo",
+    "Azul Celeste E1",
+    "Azul Celeste E2",
+    "Azul Celeste E3",
+    "Azul Turquesa E1"
+  ],
+  "validacion": {
+    "fecha_limite_ingesta": 15,
+    "mes_referencia": "actual",
+    "verificar_campos": ["fecha_datos", "pg", "valor", "tipo_dato"]
+  },
+  "proximo_paso": "Obtener Chat IDs de Teams (ver instrucciones en alarmas/INSTRUCCIONES_CHAT_IDS.md)"
 }
