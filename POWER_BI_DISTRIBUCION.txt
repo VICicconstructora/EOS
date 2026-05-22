@@ -1,0 +1,288 @@
+═══════════════════════════════════════════════════════════════════════════════
+  DOCUMENTACIÓN POWER BI ADPRO IC CONSTRUCTORA — LISTA DE DISTRIBUCIÓN
+═══════════════════════════════════════════════════════════════════════════════
+
+Fecha de Entrega: 16-05-2026
+Versión: 1.0
+Documentos Totales: 6
+Líneas de Código/Documentación: 2,882
+
+───────────────────────────────────────────────────────────────────────────────
+ARCHIVOS ENTREGADOS
+───────────────────────────────────────────────────────────────────────────────
+
+1. README_POWER_BI_DOCUMENTATION.md (13.3 KB)
+   → Índice maestro y mapa de navegación
+   → Punto de entrada para todos los usuarios
+   → Flujos de lectura recomendados por rol
+
+2. POWER_BI_IMPLEMENTATION_SUMMARY.md (12 KB)
+   → Resumen ejecutivo (2-3 páginas)
+   → Qué se construye, cuándo, cuánto cuesta
+   → Para: Ejecutivos y sponsors
+
+3. POWER_BI_SETUP_GUIDE.md (11.7 KB)
+   → Guía paso a paso de instalación y conexión
+   → 11 secciones detalladas con screenshots recomendadas
+   → Para: Técnico BI, Analista BI, IT
+
+4. POWER_BI_DATA_MODEL.md (19.4 KB)
+   → Especificación del modelo de datos completo
+   → 25 tablas ADPRO + Histórico, relaciones, medidas DAX
+   → Para: Modelador BI, Developer
+
+5. POWER_BI_REPORT_SPECS.md (25.4 KB)
+   → Especificación funcional de 3 reportes principales
+   → Wireframes y casos de uso detallados
+   → Para: Product Owner, Stakeholder, Analista BI
+
+6. POWER_BI_QUICK_REFERENCE.md (11.3 KB)
+   → Guía del usuario final (cheat sheet)
+   → Cómo usar reportes, filtros, troubleshooting, FAQ
+   → Para: Usuarios finales (Andrés, Marcela, Juan José, analistas)
+
+───────────────────────────────────────────────────────────────────────────────
+PLAN DE DISTRIBUCIÓN
+───────────────────────────────────────────────────────────────────────────────
+
+PASO 1: DISTRIBUCIÓN INMEDIATA (Hoy — 16/05/2026)
+────────────────────────────────────────────────────
+
+Receptor: Juan Paulo McAllister (CEO, Sponsor Ejecutivo)
+Documentos:
+  □ README_POWER_BI_DOCUMENTATION.md (índice maestro)
+  □ POWER_BI_IMPLEMENTATION_SUMMARY.md (resumen ejecutivo)
+Asunto Email: "Power BI ADPRO — Documentación Lista Para Revisión"
+Tiempo Lectura: 20-30 minutos
+
+Receptor: Andrés Arango (Construcción, Stakeholder Principal)
+Documentos:
+  □ README_POWER_BI_DOCUMENTATION.md
+  □ POWER_BI_IMPLEMENTATION_SUMMARY.md
+  □ POWER_BI_REPORT_SPECS.md (sección 1 — Control Presupuesto)
+  □ POWER_BI_QUICK_REFERENCE.md (usuario final)
+Asunto Email: "Power BI ADPRO — Reportes Diseñados, Requiero Validación"
+Tiempo Lectura: 60 minutos
+Acción Requerida: Validar requisitos, aprobar diseño en 48h
+
+Receptor: Marcela Arroyave (Control)
+Documentos:
+  □ README_POWER_BI_DOCUMENTATION.md
+  □ POWER_BI_REPORT_SPECS.md (sección 3 — Compras y Actas)
+  □ POWER_BI_QUICK_REFERENCE.md
+Asunto Email: "Power BI ADPRO — Reporte Compras/Actas, Validar"
+Tiempo Lectura: 45 minutos
+Acción Requerida: Validar campos y cálculos
+
+Receptor: Juan José Leal (Finanzas)
+Documentos:
+  □ README_POWER_BI_DOCUMENTATION.md
+  □ POWER_BI_REPORT_SPECS.md (sección 2 — Flujo de Caja)
+  □ POWER_BI_QUICK_REFERENCE.md
+Asunto Email: "Power BI ADPRO — Reporte Flujo de Caja, Validar"
+Tiempo Lectura: 45 minutos
+Acción Requerida: Validar proyecciones y cálculos de liquidez
+
+Receptor: Luis Miguel Serrano (TI)
+Documentos:
+  □ README_POWER_BI_DOCUMENTATION.md
+  □ POWER_BI_IMPLEMENTATION_SUMMARY.md (sección 4 — Requisitos Técnicos)
+  □ POWER_BI_SETUP_GUIDE.md
+Asunto Email: "Power BI ADPRO — Requisitos Técnicos y Soporte"
+Tiempo Lectura: 45 minutos
+Acción Requerida: Validar infraestructura, soporte técnico
+
+PASO 2: DISTRIBUCIÓN SECUNDARIA (Próxima Semana — 19/05/2026)
+──────────────────────────────────────────────────────────────
+
+Receptor: [Analista BI asignado] — SI SE ASIGNA
+Documentos (COMPLETO):
+  □ POWER_BI_SETUP_GUIDE.md (implementación)
+  □ POWER_BI_DATA_MODEL.md (modelado)
+  □ POWER_BI_REPORT_SPECS.md (reportería)
+  □ README_POWER_BI_DOCUMENTATION.md (referencia)
+Asunto Email: "Power BI ADPRO — Documentación Técnica Completa"
+Tiempo Lectura: 2-3 horas
+Acción Requerida: Comenzar Fase 1 (Preparación) de implementación
+
+Receptor: [Otros stakeholders según necesidad]
+Documentos:
+  □ README_POWER_BI_DOCUMENTATION.md (índice)
+  □ Otros según escenario específico
+
+PASO 3: DISTRIBUCIÓN A USUARIOS FINALES (Post-Implementación)
+──────────────────────────────────────────────────────────────
+
+Receptor: Todos los usuarios finales (analistas, controllers, tesoreros)
+Documentos:
+  □ POWER_BI_QUICK_REFERENCE.md (guía usuario)
+  □ README_POWER_BI_DOCUMENTATION.md (índice, sección acceso)
+Formato: PDF impreso + acceso digital
+Sesión Entrenamiento: 30 min (cómo acceder + filtros básicos)
+
+───────────────────────────────────────────────────────────────────────────────
+UBICACIÓN DE ARCHIVOS
+───────────────────────────────────────────────────────────────────────────────
+
+Carpeta Local:
+c:\Users\jmacallister\OneDrive\Documentos\Documentos\Traccion\
+
+Archivos:
+  ✓ POWER_BI_SETUP_GUIDE.md
+  ✓ POWER_BI_DATA_MODEL.md
+  ✓ POWER_BI_REPORT_SPECS.md
+  ✓ POWER_BI_IMPLEMENTATION_SUMMARY.md
+  ✓ POWER_BI_QUICK_REFERENCE.md
+  ✓ README_POWER_BI_DOCUMENTATION.md (este índice)
+
+Ubicación Compartida (PRÓXIMAMENTE):
+  → SharePoint: [Crear carpeta "Power BI Reportería"]
+  → OneDrive: Documentos/Tracción/Power BI/
+
+───────────────────────────────────────────────────────────────────────────────
+INSTRUCCIONES DE LECTURA POR ROL
+───────────────────────────────────────────────────────────────────────────────
+
+┌─ EJECUTIVO / SPONSOR (Juan Paulo) ─────────────────────────────┐
+│ 1. Lee: README (5 min) — entender estructura                   │
+│ 2. Lee: IMPLEMENTATION_SUMMARY (10 min) — entender proyecto    │
+│ 3. Valida: ¿está alineado con objetivos?                       │
+│ Total: 15-20 minutos                                           │
+└────────────────────────────────────────────────────────────────┘
+
+┌─ PRODUCT OWNER / STAKEHOLDER (Andrés, Marcela, Juan José) ────┐
+│ 1. Lee: README (5 min)                                         │
+│ 2. Lee: IMPLEMENTATION_SUMMARY (10 min)                        │
+│ 3. Lee: REPORT_SPECS completo (40 min)                         │
+│ 4. Valida: ¿cumplen mis necesidades?                           │
+│ Total: 55 minutos + reunión de validación                      │
+└────────────────────────────────────────────────────────────────┘
+
+┌─ TÉCNICO / ANALISTA BI (Luis Miguel, Analista BI) ─────────────┐
+│ 1. Lee: README (5 min)                                         │
+│ 2. Lee: IMPLEMENTATION_SUMMARY (10 min)                        │
+│ 3. Lee: SETUP_GUIDE paso a paso (30 min) + implementa (2-3h)  │
+│ 4. Lee: DATA_MODEL paso a paso (30 min) + implementa (2-3h)   │
+│ 5. Lee: REPORT_SPECS (30 min) + crea reportes (4-5h)          │
+│ Total: 2 horas lectura + 8-10 horas implementación            │
+└────────────────────────────────────────────────────────────────┘
+
+┌─ USUARIO FINAL (Analistas, Controllers, Tesoreros) ────────────┐
+│ 1. Lee: QUICK_REFERENCE (15 min)                               │
+│ 2. Práctica: Acceder reportes + filtros (15 min)               │
+│ 3. Consulta rápida: Ref-card siempre disponible                │
+│ Total: 30 minutos iniciales                                    │
+└────────────────────────────────────────────────────────────────┘
+
+───────────────────────────────────────────────────────────────────────────────
+VALIDACIÓN REQUERIDA ANTES DE IMPLEMENTAR
+───────────────────────────────────────────────────────────────────────────────
+
+Necesitamos APROBACIÓN de:
+
+[ ] Andrés Arango — Requisitos de Construcción (REPORT_SPECS s.1)
+    [ ] Presupuesto vs Real — OK?
+    [ ] Capítulos presupuestarios — OK?
+    [ ] Ítems — OK?
+    Firma: _________________ Fecha: _______
+
+[ ] Marcela Arroyave — Requisitos de Control (REPORT_SPECS s.3)
+    [ ] OC y estado — OK?
+    [ ] Actas y retenciones — OK?
+    [ ] Análisis proveedores — OK?
+    Firma: _________________ Fecha: _______
+
+[ ] Juan José Leal — Requisitos de Finanzas (REPORT_SPECS s.2)
+    [ ] Flujo de caja real+forecast — OK?
+    [ ] Alertas de liquidez — OK?
+    [ ] Análisis de fuentes/usos — OK?
+    Firma: _________________ Fecha: _______
+
+[ ] Juan Paulo McAllister — Aprobación Ejecutiva (IMPLEMENTATION_SUMMARY)
+    [ ] Timeline: 10-14 días — OK?
+    [ ] Inversión: $11K-15K — OK?
+    [ ] Proceder a Fase 1 — Sí?
+    Firma: _________________ Fecha: _______
+
+Una vez aprobado: Proceder a asignar Analista BI e iniciar Fase 1
+
+───────────────────────────────────────────────────────────────────────────────
+TIMELINE DE IMPLEMENTACIÓN (ESPERADO)
+───────────────────────────────────────────────────────────────────────────────
+
+Hoy (16/05):
+  ✓ Documentación completa
+
+19/05 (Día +3):
+  - Validación de requisitos (reunión 30 min)
+  - Aprobación ejecutiva
+
+22/05 (Día +6):
+  - Fase 1: Preparación (credenciales Supabase)
+
+23-24/05 (Día +7-8):
+  - Fase 2: Conexión Power BI → Supabase
+
+25-27/05 (Día +9-11):
+  - Fase 3: Modelado (relaciones, medidas DAX)
+  - Fase 4: Reportería (3 reportes)
+
+28-29/05 (Día +12-13):
+  - Fase 5: Testing y validación
+
+30/05 (Día +14):
+  - Publicación a Power BI Service
+  - Entrenamiento usuarios finales
+
+01/06:
+  - Reportes en producción
+
+───────────────────────────────────────────────────────────────────────────────
+CONTACTOS PARA PREGUNTAS
+───────────────────────────────────────────────────────────────────────────────
+
+Preguntas Documentación General:
+  Claude Code (IA) — via Teams
+
+Preguntas Setup/Conexión:
+  Luis Miguel Serrano (TI) — luis.miguel@icconstructora.com
+
+Preguntas de Negocio:
+  Andrés Arango (Construcción) — andres.arango@icconstructora.com
+  Marcela Arroyave (Control) — marcela.arroyave@icconstructora.com
+  Juan José Leal (Finanzas) — juan.jose.leal@icconstructora.com
+
+───────────────────────────────────────────────────────────────────────────────
+MÉTRICAS DE ÉXITO TRAS IMPLEMENTACIÓN
+───────────────────────────────────────────────────────────────────────────────
+
+Técnicas:
+  [ ] Conexión a Supabase: OK, sin errores
+  [ ] 25 tablas cargadas: Completo
+  [ ] Relaciones Power BI: Sin conflictos cardinalidad
+  [ ] Medidas DAX: Todas funcionando
+  [ ] Refresh: < 60 segundos (tablas core)
+
+Negocio:
+  [ ] 3 reportes: Funcionales
+  [ ] Usuarios pueden acceder: Power BI Service OK
+  [ ] Datos vs ADPRO: Conciliados
+  [ ] Alertas varianzas: Identificadas en 48h
+  [ ] Flujo caja: Forecast con 85%+ precisión
+
+Adopción:
+  [ ] 5+ usuarios usando diariamente
+  [ ] 0 cambios funcionales solicitados en primer mes
+  [ ] Feedback positivo (NPS > 7/10)
+  [ ] 10% reducción en tiempo de cierre financiero
+
+═══════════════════════════════════════════════════════════════════════════════
+FIN DE LISTA DE DISTRIBUCIÓN
+═══════════════════════════════════════════════════════════════════════════════
+
+Preparado por: Claude Code
+Fecha: 16-05-2026
+Versión: 1.0
+Estado: LISTO PARA DISTRIBUCIÓN
+
+Próximo paso: Distribuir según Plan (Paso 1) e iniciar proceso de validación

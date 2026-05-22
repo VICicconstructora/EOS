@@ -9,6 +9,7 @@ import TopHeader from './components/layout/TopHeader'
 import WelcomeModal from './components/layout/WelcomeModal'
 
 const DashboardPage      = lazy(() => import('./pages/DashboardPage'))
+const ExecutiveDashboardPage = lazy(() => import('./pages/ExecutiveDashboard'))
 const VisionPage         = lazy(() => import('./pages/VisionPage'))
 const PersonasPage       = lazy(() => import('./pages/PersonasPage'))
 const DatosPage          = lazy(() => import('./pages/DatosPage'))
@@ -65,6 +66,7 @@ function AppLayout() {
           <Suspense fallback={<PageFallback />}>
             <Routes>
               <Route path="/"               element={<DashboardPage />} />
+              <Route path="/executive"      element={<ExecutiveDashboardPage />} />
               <Route path="/vision"         element={<VisionPage />} />
               <Route path="/personas"       element={<PersonasPage />} />
               <Route path="/datos"          element={<DatosPage />} />

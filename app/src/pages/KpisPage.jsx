@@ -1,7 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import KpiDashboard from '../components/kpi/KpiDashboard';
+import { KpisProyectosChart } from '../components/charts/KpisProyectosChart';
+import { FlujosHistoricoChart } from '../components/charts/FlujosHistoricoChart';
+import { useTranslation } from 'react-i18next';
 
 export default function KpisPage() {
+  const { t } = useTranslation();
+  const [activeTab, setActiveTab] = useState('estrategicos');
+
   return (
     <div className="p-6">
       <div className="mb-6 flex justify-between items-center">
@@ -11,8 +17,43 @@ export default function KpisPage() {
         </div>
       </div>
 
+      <div className="mb-4 flex gap-2 border-b border-slate-200">
+        <button
+          onClick={() => setActiveTab('estrategicos')}
+          className={`px-4 py-2 font-medium text-sm ${
+            activeTab === 'estrategicos'
+              ? 'border-b-2 border-blue-600 text-blue-600'
+              : 'text-slate-600 hover:text-slate-800'
+          }`}
+        >
+          KPIs Estratégicos
+        </button>
+        <button
+          onClick={() => setActiveTab('proyectos')}
+          className={`px-4 py-2 font-medium text-sm ${
+            activeTab === 'proyectos'
+              ? 'border-b-2 border-blue-600 text-blue-600'
+              : 'text-slate-600 hover:text-slate-800'
+          }`}
+        >
+          KPIs Proyectos (Financiero)
+        </button>
+        <button
+          onClick={() => setActiveTab('historico')}
+          className={`px-4 py-2 font-medium text-sm ${
+            activeTab === 'historico'
+              ? 'border-b-2 border-blue-600 text-blue-600'
+              : 'text-slate-600 hover:text-slate-800'
+          }`}
+        >
+          Flujos Históricos
+        </button>
+      </div>
+
       <div className="bg-white rounded-lg shadow-sm border border-slate-200">
-        <KpiDashboard />
+        {activeTab === 'estrategicos' && <KpiDashboard />}
+        {activeTab === 'proyectos' && <KpisProyectosChart />}
+        {activeTab === 'historico' && <FlujosHistoricoChart />}
       </div>
     </div>
   );

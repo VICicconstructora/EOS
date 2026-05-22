@@ -1,0 +1,27 @@
+- generic [ref=e5]:
+  - img "Imagen de fondo de la organización" [ref=e6]
+  - generic [ref=e8]:
+    - generic [ref=e13]:
+      - generic [ref=e14]:
+        - img "Microsoft" [ref=e17]
+        - main [ref=e18]:
+          - generic [ref=e21]:
+            - heading "Iniciar sesión" [level=1] [ref=e25]
+            - generic [ref=e26]:
+              - alert
+              - generic [ref=e28]:
+                - textbox "Escriba su correo electrónico, teléfono o Skype." [active] [ref=e29]:
+                  - /placeholder: Correo electrónico, teléfono o Skype
+                - textbox [ref=e30]
+            - link "¿No puede acceder a su cuenta?" [ref=e36] [cursor=pointer]:
+              - /url: "#"
+            - button "Siguiente" [ref=e39] [cursor=pointer]
+      - button "Opciones de inicio de sesión" [ref=e45] [cursor=pointer]:
+        - generic [ref=e49]: Opciones de inicio de sesión
+    - contentinfo [ref=e50]:
+      - generic [ref=e51]:
+        - link "Términos de uso" [ref=e52] [cursor=pointer]:
+          - /url: https://www.microsoft.com/es-ES/servicesagreement/
+        - link "Privacidad y cookies" [ref=e53] [cursor=pointer]:
+          - /url: https://privacy.microsoft.com/es-ES/privacystatement
+        - button "Haga clic aquí para obtener información relacionada con la solución de problemas." [ref=e54] [cursor=pointer]: ...

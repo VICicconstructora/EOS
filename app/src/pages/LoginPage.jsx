@@ -2,7 +2,6 @@
 import { useState } from 'react'
 import { useApp } from '../context/AppContext'
 
-// SVG inline del logo Microsoft (4 cuadritos rojo/verde/azul/amarillo)
 function MicrosoftLogo({ size = 20 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 23 23" xmlns="http://www.w3.org/2000/svg">
@@ -15,9 +14,9 @@ function MicrosoftLogo({ size = 20 }) {
 }
 
 export default function LoginPage() {
-  const { signInWithMicrosoft, isDemoMode, enterDemoMode } = useApp()
+  const { signInWithMicrosoft, enterDemoMode } = useApp()
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [error, setError]     = useState('')
 
   async function handleClick() {
     setLoading(true)
@@ -45,20 +44,6 @@ export default function LoginPage() {
             Sistema EOS de IC Constructora
           </p>
         </div>
-
-        {isDemoMode && (
-          <div style={{
-            background: 'rgba(245, 158, 11, 0.1)',
-            border: '1px solid var(--status-warning, #f59e0b)',
-            borderRadius: 'var(--radius-md)',
-            padding: 'var(--space-3)',
-            marginBottom: 'var(--space-6)',
-            color: 'var(--status-warning, #f59e0b)',
-            fontSize: '0.85rem',
-          }}>
-            Modo demo activo — datos no persistentes.
-          </div>
-        )}
 
         {error && (
           <div style={{
