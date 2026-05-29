@@ -5,7 +5,13 @@ on:
     # Lunes 07:00 Bogotá (UTC-5) = lunes 12:00 UTC
     - cron: '0 12 * * 1'
   workflow_dispatch:
-    # Permite ejecutar manualmente desde GitHub Actions UI
+    inputs:
+      discover:
+        description: 'Imprimir estructura de la hoja (debug)'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['false', 'true']
 
 jobs:
   sync:
@@ -32,4 +38,4 @@ jobs:
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           ALERT_FROM_EMAIL:     ${{ secrets.ALERT_FROM_EMAIL }}
           ALERT_TO_EMAILS:      ${{ secrets.ALERT_TO_EMAILS }}
-        run: node sync-datamart-cloud.js
+        run: node sync-datamart-cloud.js ${{ github.event.inputs.discover == 'true' && '--discover' || '' }}

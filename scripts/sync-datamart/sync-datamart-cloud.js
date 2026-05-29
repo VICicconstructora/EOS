@@ -27,6 +27,7 @@ const SHAREPOINT_SITE_PATH = '/sites/GND';
 const FILE_NAME            = 'Datamart.xlsx';
 const SHEET_NAME           = 'Proyectos';
 const DATA_RANGE           = 'A1:DM300';   // 300 filas cubre las ~130 etapas actuales
+const DISCOVER_RANGE       = 'A1:P15';     // para debug: primeras 15 filas, columnas A-P
 
 // ─── Configuración de alarmas ─────────────────────────────────────────────────
 
@@ -362,7 +363,8 @@ function buildAlarms(slug, etapas) {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
-  console.log(`\n[datamart-sync] ${TODAY_STR}`);
+  const DISCOVER = process.argv.includes('--discover');
+  console.log(`\n[datamart-sync] ${TODAY_STR}${DISCOVER ? ' [DISCOVER MODE]' : ''}`);
 
   // 1. Autenticar
   console.log('[graph] Obteniendo token...');
@@ -372,6 +374,20 @@ async function main() {
   console.log('[graph] Localizando Datamart.xlsx...');
   const ref = await locateFile(token);
   console.log(`[graph] Drive: ${ref.driveId.slice(0, 20)}... Item: ${ref.itemId.slice(0, 20)}...`);
+
+  // Modo discover: imprime las primeras 15 filas para inspeccionar estructura
+  if (DISCOVER) {
+    console.log(`\n[discover] Leyendo rango ${DISCOVER_RANGE}...`);
+    const preview = await graphGet(token,
+      `/drives/${ref.driveId}/items/${ref.itemId}/workbook/worksheets('${encodeURIComponent(SHEET_NAME)}')/range(address='${DISCOVER_RANGE}')`
+    );
+    const rows = preview.values || [];
+    rows.forEach((row, i) => {
+      const nonEmpty = row.filter(v => v !== '' && v !== null);
+      console.log(`  Fila ${i + 1} (${nonEmpty.length} celdas): ${JSON.stringify(row.slice(0, 16))}`);
+    });
+    return;
+  }
 
   // 3. Leer hoja Proyectos
   console.log(`[graph] Leyendo hoja "${SHEET_NAME}" rango ${DATA_RANGE}...`);
