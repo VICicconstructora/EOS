@@ -1,0 +1,35 @@
+name: Datamart Sync — Alarmas Operativas
+
+on:
+  schedule:
+    # Lunes 07:00 Bogotá (UTC-5) = lunes 12:00 UTC
+    - cron: '0 12 * * 1'
+  workflow_dispatch:
+    # Permite ejecutar manualmente desde GitHub Actions UI
+
+jobs:
+  sync:
+    name: Sincronizar Datamart → Supabase
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Ejecutar sincronización
+        working-directory: scripts/sync-datamart
+        env:
+          AZURE_TENANT_ID:      ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID:      ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET:  ${{ secrets.AZURE_CLIENT_SECRET }}
+          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          ALERT_FROM_EMAIL:     ${{ secrets.ALERT_FROM_EMAIL }}
+          ALERT_TO_EMAILS:      ${{ secrets.ALERT_TO_EMAILS }}
+        run: node sync-datamart-cloud.js

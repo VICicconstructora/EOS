@@ -1,0 +1,471 @@
+/**
+ * sync-datamart-cloud.js — versión para GitHub Actions
+ *
+ * Lee Datamart.xlsx directamente desde SharePoint vía Microsoft Graph API
+ * (sin descargar el archivo; usa la Graph Excel API para obtener los datos
+ * como JSON). Actualiza alarmas en Supabase y envía email via Graph sendMail.
+ *
+ * Variables de entorno requeridas (GitHub Secrets):
+ *   AZURE_TENANT_ID      — tenant de Entra ID (129cb8aa-...)
+ *   AZURE_CLIENT_ID      — app registration client ID
+ *   AZURE_CLIENT_SECRET  — secret del app registration
+ *   SUPABASE_URL         — https://zbjwasufengayvmutypr.supabase.co
+ *   SUPABASE_SERVICE_KEY — service_role key de Supabase
+ *   ALERT_FROM_EMAIL     — jmacallister@icconstructora.co
+ *   ALERT_TO_EMAILS      — jmacallister@icconstructora.co
+ *
+ * Variables opcionales:
+ *   WIKI_ROOT            — ruta local al wiki de Obsidian (solo en ejecución local)
+ */
+
+'use strict';
+
+// ─── Configuración SharePoint ─────────────────────────────────────────────────
+
+const SHAREPOINT_HOST      = 'icconstructora.sharepoint.com';
+const SHAREPOINT_SITE_PATH = '/sites/GND';
+const FILE_NAME            = 'Datamart.xlsx';
+const SHEET_NAME           = 'Proyectos';
+const DATA_RANGE           = 'A1:DM300';   // 300 filas cubre las ~130 etapas actuales
+
+// ─── Configuración de alarmas ─────────────────────────────────────────────────
+
+const UMBRAL_POLIZA   = 30;
+const UMBRAL_LICENCIA = 60;
+const UMBRAL_CREDITO  = 90;
+
+// Índices de columnas (0-based) en la hoja Proyectos
+const C = {
+  Estado:           2,
+  CodSinco:         3,
+  Proyecto:        12,
+  Etapa:           13,
+  Torres:          14,
+  PolizaTR:        34,
+  VencTR:          36,
+  PolizaRC:        40,
+  VencRC:          42,
+  VentasProy:      46,
+  EntidadCredito:  48,
+  MontoCredito:    51,
+  FechaVencCred:   57,
+  FechaVencProrr:  59,
+  NumProrrogas:    60,
+  EntidadFiducia:  61,
+  Responsable:     86,
+  LicUrbanismo:    87,
+  LicConstruccion: 89,
+  VencLicConst:   108,
+  ProxTramite:    116,
+};
+
+// Nombre en Datamart → slug wiki
+const PROJECT_MAP = {
+  'PRAIA':               'praia-natura',
+  'RESERVA DE OPORTO':   'reserva-de-oporto',
+  'PRIMERA ESTE':        'primera-este',
+  'LA HACIENDA JAMUNDI': 'la-hacienda-jamundi',
+  'BOSQUE CENTRAL':      'bosque-central',
+  'CASTILLA LIVING':     'castilla-living',
+  'GAIA':                'gaia',
+  'CASTILLA IMPERIAL':   'castilla-imperial',
+  'AZUL TURQUESA':       'azul-turquesa',
+  'AZUL CELESTE':        'azul-celeste',
+  'VERDE VIVO':          'verde-vivo',
+  'MITIKA':              'mitika',
+  'WELL':                'well',
+};
+
+// ─── Credenciales ─────────────────────────────────────────────────────────────
+
+const TENANT_ID     = process.env.AZURE_TENANT_ID;
+const CLIENT_ID     = process.env.AZURE_CLIENT_ID;
+const CLIENT_SECRET = process.env.AZURE_CLIENT_SECRET;
+const SUPABASE_URL  = process.env.SUPABASE_URL         || '';
+const SUPABASE_KEY  = process.env.SUPABASE_SERVICE_KEY || '';
+const FROM_EMAIL    = process.env.ALERT_FROM_EMAIL     || '';
+const TO_EMAILS     = (process.env.ALERT_TO_EMAILS     || '').split(',').map(e => e.trim()).filter(Boolean);
+
+if (!TENANT_ID || !CLIENT_ID || !CLIENT_SECRET) {
+  console.error('ERROR: Faltan AZURE_TENANT_ID, AZURE_CLIENT_ID o AZURE_CLIENT_SECRET');
+  process.exit(1);
+}
+
+// ─── Fecha ────────────────────────────────────────────────────────────────────
+
+const TODAY = new Date();
+TODAY.setHours(0, 0, 0, 0);
+const TODAY_STR = TODAY.toISOString().split('T')[0];
+
+// ─── Microsoft Graph — autenticación ─────────────────────────────────────────
+
+async function getGraphToken() {
+  const url  = `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`;
+  const body = new URLSearchParams({
+    grant_type:    'client_credentials',
+    client_id:     CLIENT_ID,
+    client_secret: CLIENT_SECRET,
+    scope:         'https://graph.microsoft.com/.default',
+  });
+  const res = await fetch(url, { method: 'POST', body });
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(`Token error ${res.status}: ${txt}`);
+  }
+  const data = await res.json();
+  return data.access_token;
+}
+
+async function graphGet(token, path) {
+  const res = await fetch(`https://graph.microsoft.com/v1.0${path}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(`Graph GET ${path} → ${res.status}: ${txt}`);
+  }
+  return res.json();
+}
+
+// ─── Localizar Datamart.xlsx en SharePoint ────────────────────────────────────
+
+async function locateFile(token) {
+  // 1. Resolver site ID
+  const site = await graphGet(token, `/sites/${SHAREPOINT_HOST}:${SHAREPOINT_SITE_PATH}`);
+  const siteId = site.id;
+
+  // 2. Buscar la library "DataMart" entre los drives del sitio
+  const drivesData = await graphGet(token, `/sites/${siteId}/drives`);
+  const drives = drivesData.value || [];
+  const datamartDrive = drives.find(d => d.name.toLowerCase() === 'datamart');
+
+  let driveId, filePath;
+  if (datamartDrive) {
+    driveId  = datamartDrive.id;
+    filePath = FILE_NAME;
+  } else {
+    // Fallback: drive raíz + subcarpeta DataMart
+    const defaultDrive = await graphGet(token, `/sites/${siteId}/drive`);
+    driveId  = defaultDrive.id;
+    filePath = `DataMart/${FILE_NAME}`;
+  }
+
+  // 3. Obtener item ID del archivo
+  const item = await graphGet(token, `/drives/${driveId}/root:/${filePath}`);
+  return { driveId, itemId: item.id };
+}
+
+// ─── Leer hoja con Graph Excel API ───────────────────────────────────────────
+
+async function getSheetData(token, ref) {
+  const { driveId, itemId } = ref;
+  const encodedSheet = encodeURIComponent(SHEET_NAME);
+  const path = `/drives/${driveId}/items/${itemId}/workbook/worksheets('${encodedSheet}')/range(address='${DATA_RANGE}')`;
+  const data = await graphGet(token, path);
+  return data.values;   // array 2D de celdas
+}
+
+// ─── Utilidades ───────────────────────────────────────────────────────────────
+
+function excelDate(n) {
+  if (!n || typeof n !== 'number') return null;
+  const d = new Date(Math.round((n - 25569) * 86400 * 1000));
+  d.setUTCHours(0, 0, 0, 0);
+  return d;
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  return d.toISOString().split('T')[0];
+}
+
+function diasRestantes(d) {
+  if (!d) return null;
+  return Math.ceil((d.getTime() - TODAY.getTime()) / 86400000);
+}
+
+function iconoAlarma(dias, umbral) {
+  if (dias === null) return '';
+  if (dias < 0)      return ' 🔴';
+  if (dias < umbral) return ' 🟡';
+  return '';
+}
+
+function fmtMonto(n) {
+  if (!n || typeof n !== 'number' || n === 0) return '—';
+  return '$' + (n / 1e9).toFixed(1) + 'B';
+}
+
+// ─── Supabase ─────────────────────────────────────────────────────────────────
+
+async function supabaseUpsert(table, rows, conflictColumn) {
+  if (!SUPABASE_URL || !SUPABASE_KEY || rows.length === 0) return;
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?on_conflict=${conflictColumn}`, {
+    method:  'POST',
+    headers: {
+      apikey:          SUPABASE_KEY,
+      Authorization:   `Bearer ${SUPABASE_KEY}`,
+      'Content-Type':  'application/json',
+      Prefer:          'resolution=merge-duplicates,return=minimal',
+    },
+    body: JSON.stringify(rows),
+  });
+  if (!res.ok) console.warn(`[supabase] Error en ${table}: ${res.status} ${await res.text()}`);
+}
+
+async function supabaseResolveStale(runTime) {
+  if (!SUPABASE_URL || !SUPABASE_KEY) return;
+  const staleUrl = `${SUPABASE_URL}/rest/v1/alarms?company_id=eq.ic-constructora&status=eq.active&last_seen_at=lt.${encodeURIComponent(runTime)}`;
+  const res = await fetch(staleUrl, {
+    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+  });
+  if (!res.ok) return;
+  const stale = await res.json();
+  if (stale.length === 0) return;
+
+  console.log(`[supabase] Resolviendo ${stale.length} alarmas obsoletas...`);
+  for (const alarm of stale) {
+    await fetch(`${SUPABASE_URL}/rest/v1/alarms?id=eq.${alarm.id}`, {
+      method:  'PATCH',
+      headers: {
+        apikey:         SUPABASE_KEY,
+        Authorization:  `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        Prefer:         'return=minimal',
+      },
+      body: JSON.stringify({ status: 'resolved', resolved_at: runTime }),
+    });
+  }
+}
+
+// ─── Email via Graph API ──────────────────────────────────────────────────────
+
+async function sendEmail(token, vencidas, porVencer) {
+  if (!FROM_EMAIL || TO_EMAILS.length === 0) {
+    console.log('[email] Omitido — configura ALERT_FROM_EMAIL y ALERT_TO_EMAILS.');
+    return;
+  }
+
+  function filaHtml(a) {
+    const ico  = a.nivel === 'VENCIDA' ? '🔴' : '🟡';
+    const nombre = a.slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    return `<tr>
+      <td style="padding:6px 12px;border-bottom:1px solid #eee">${ico}</td>
+      <td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">${nombre}</td>
+      <td style="padding:6px 12px;border-bottom:1px solid #eee">${a.area}</td>
+      <td style="padding:6px 12px;border-bottom:1px solid #eee">${a.detalle}</td>
+    </tr>`;
+  }
+
+  const tablaHtml = rows =>
+    rows.length === 0
+      ? '<p style="color:#888">Ninguna</p>'
+      : `<table style="border-collapse:collapse;width:100%;font-size:13px">
+           <thead><tr style="background:#f5f5f5">
+             <th style="padding:8px 12px;text-align:left"></th>
+             <th style="padding:8px 12px;text-align:left">Proyecto</th>
+             <th style="padding:8px 12px;text-align:left">Tipo</th>
+             <th style="padding:8px 12px;text-align:left">Detalle</th>
+           </tr></thead>
+           <tbody>${rows.map(filaHtml).join('')}</tbody>
+         </table>`;
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;max-width:700px;margin:0 auto">
+      <div style="background:#1a1a2e;padding:20px 28px;border-radius:8px 8px 0 0">
+        <h2 style="color:#fff;margin:0;font-size:18px">IC Constructora — Alarmas Operativas</h2>
+        <p style="color:#aaa;margin:4px 0 0;font-size:13px">Sincronización Datamart · ${TODAY_STR}</p>
+      </div>
+      <div style="padding:24px 28px;background:#fff;border:1px solid #eee;border-top:none">
+        <h3 style="color:#dc2626;margin-top:0">Vencidas (${vencidas.length})</h3>
+        ${tablaHtml(vencidas)}
+        <h3 style="color:#d97706;margin-top:24px">Por vencer en los próximos 90 días (${porVencer.length})</h3>
+        ${tablaHtml(porVencer)}
+        <hr style="border:none;border-top:1px solid #eee;margin:24px 0">
+        <p style="color:#888;font-size:12px">Generado automáticamente por el sistema EOS de IC Constructora.</p>
+      </div>
+    </div>`;
+
+  const message = {
+    message: {
+      subject: `[IC EOS] ${vencidas.length} alarmas vencidas + ${porVencer.length} por vencer · ${TODAY_STR}`,
+      body:    { contentType: 'HTML', content: html },
+      toRecipients: TO_EMAILS.map(e => ({ emailAddress: { address: e } })),
+    },
+    saveToSentItems: false,
+  };
+
+  const res = await fetch(`https://graph.microsoft.com/v1.0/users/${FROM_EMAIL}/sendMail`, {
+    method:  'POST',
+    headers: {
+      Authorization:  `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(message),
+  });
+
+  if (res.ok || res.status === 202) {
+    console.log(`[email] Enviado a: ${TO_EMAILS.join(', ')}`);
+  } else {
+    console.warn(`[email] Error ${res.status}: ${await res.text()}`);
+  }
+}
+
+// ─── Lógica de alarmas ────────────────────────────────────────────────────────
+
+function buildAlarms(slug, etapas) {
+  const alarmas = [];
+
+  etapas.forEach(e => {
+    // Crédito
+    const credVenc = e.fechaVencProrr || e.fechaVencCred;
+    const diasC = diasRestantes(credVenc);
+    if (diasC !== null && diasC < UMBRAL_CREDITO) {
+      alarmas.push({
+        slug, nivel: diasC < 0 ? 'VENCIDA' : 'POR VENCER',
+        area: 'Crédito', category: 'credito',
+        etapa: String(e.etapa), expires_at: fmtDate(credVenc), dias: diasC,
+        detalle: `E${e.etapa}: ${e.entidadCredito}, vence ${fmtDate(credVenc)} (${diasC} días)`,
+      });
+    }
+
+    // Pólizas TR y RC
+    [
+      { dias: diasRestantes(e.vencTR), venc: fmtDate(e.vencTR), ent: e.polizaTR, tipo: 'TR', cat: 'poliza_tr' },
+      { dias: diasRestantes(e.vencRC), venc: fmtDate(e.vencRC), ent: e.polizaRC, tipo: 'RC', cat: 'poliza_rc' },
+    ].forEach(p => {
+      if (p.dias !== null && p.dias < UMBRAL_POLIZA) {
+        alarmas.push({
+          slug, nivel: p.dias < 0 ? 'VENCIDA' : 'POR VENCER',
+          area: `Póliza ${p.tipo}`, category: p.cat,
+          etapa: String(e.etapa), expires_at: p.venc, dias: p.dias,
+          detalle: `E${e.etapa}: ${p.ent}, vence ${p.venc} (${p.dias} días)`,
+        });
+      }
+    });
+
+    // Licencia
+    const diasL = diasRestantes(e.vencLicConst);
+    if (diasL !== null && diasL < UMBRAL_LICENCIA) {
+      alarmas.push({
+        slug, nivel: diasL < 0 ? 'VENCIDA' : 'POR VENCER',
+        area: 'Licencia Construcción', category: 'licencia',
+        etapa: String(e.etapa), expires_at: fmtDate(e.vencLicConst), dias: diasL,
+        detalle: `E${e.etapa}: venció ${fmtDate(e.vencLicConst)} (${diasL} días)`,
+      });
+    }
+  });
+
+  return alarmas;
+}
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
+
+async function main() {
+  console.log(`\n[datamart-sync] ${TODAY_STR}`);
+
+  // 1. Autenticar
+  console.log('[graph] Obteniendo token...');
+  const token = await getGraphToken();
+
+  // 2. Localizar archivo
+  console.log('[graph] Localizando Datamart.xlsx...');
+  const ref = await locateFile(token);
+  console.log(`[graph] Drive: ${ref.driveId.slice(0, 20)}... Item: ${ref.itemId.slice(0, 20)}...`);
+
+  // 3. Leer hoja Proyectos
+  console.log(`[graph] Leyendo hoja "${SHEET_NAME}" rango ${DATA_RANGE}...`);
+  const values = await getSheetData(token, ref);
+
+  // Fila 4 (índice 4) = cabeceras; datos desde fila 5 (índice 5)
+  const DATA = values.slice(5).filter(r => r[0] !== '' && r[0] !== null && r[0] !== undefined);
+  console.log(`[parse] ${DATA.length} etapas encontradas`);
+
+  // 4. Parsear filas
+  const filas = DATA.map(r => ({
+    estado:          String(r[C.Estado]          || '').trim(),
+    proyecto:        String(r[C.Proyecto]        || '').trim(),
+    etapa:           String(r[C.Etapa]           || '').trim(),
+    polizaTR:        String(r[C.PolizaTR]        || ''),
+    vencTR:          excelDate(r[C.VencTR]),
+    polizaRC:        String(r[C.PolizaRC]        || ''),
+    vencRC:          excelDate(r[C.VencRC]),
+    ventasProy:      r[C.VentasProy]      || 0,
+    entidadCredito:  String(r[C.EntidadCredito]  || ''),
+    montoCredito:    r[C.MontoCredito]    || 0,
+    fechaVencCred:   excelDate(r[C.FechaVencCred]),
+    fechaVencProrr:  excelDate(r[C.FechaVencProrr]),
+    entidadFiducia:  String(r[C.EntidadFiducia]  || ''),
+    responsable:     String(r[C.Responsable]     || ''),
+    licUrbanismo:    String(r[C.LicUrbanismo]    || ''),
+    licConstruccion: String(r[C.LicConstruccion] || ''),
+    vencLicConst:    excelDate(r[C.VencLicConst]),
+    proxTramite:     typeof r[C.ProxTramite] === 'number' ? excelDate(r[C.ProxTramite]) : null,
+  }));
+
+  // 5. Agrupar y generar alarmas
+  const porProyecto = {};
+  filas.forEach(f => {
+    if (!porProyecto[f.proyecto]) porProyecto[f.proyecto] = [];
+    porProyecto[f.proyecto].push(f);
+  });
+
+  const alarmasGlobales = [];
+  for (const [dmName, slug] of Object.entries(PROJECT_MAP)) {
+    const etapas = porProyecto[dmName];
+    if (!etapas || etapas.length === 0) {
+      console.warn(`  [warn] No encontrado en Datamart: "${dmName}"`);
+      continue;
+    }
+    const alarmasProyecto = buildAlarms(slug, etapas);
+    alarmasProyecto.forEach(a => alarmasGlobales.push(a));
+    const activas = etapas.filter(e => e.estado === 'ACTIVO').length;
+    console.log(`  ✓ ${dmName.padEnd(22)} ${activas} activas · ${alarmasProyecto.length} alarmas`);
+  }
+
+  const vencidas  = alarmasGlobales.filter(a => a.nivel === 'VENCIDA');
+  const porVencer = alarmasGlobales.filter(a => a.nivel === 'POR VENCER');
+
+  console.log(`\n[alarmas] Total: ${alarmasGlobales.length} (${vencidas.length} vencidas, ${porVencer.length} por vencer)`);
+
+  // 6. Upsert en Supabase
+  if (SUPABASE_URL && SUPABASE_KEY) {
+    const RUN_TIME = new Date().toISOString();
+    const records = alarmasGlobales.map(a => ({
+      company_id:   'ic-constructora',
+      external_id:  `${a.slug}::${a.etapa}::${a.category}`,
+      project:      a.slug,
+      category:     a.category,
+      etapa:        a.etapa || '',
+      detail:       a.detalle || '',
+      severity:     a.nivel === 'VENCIDA' ? 'alta' : 'media',
+      expires_at:   a.expires_at || null,
+      dias:         a.dias !== undefined ? a.dias : null,
+      status:       'active',
+      last_seen_at: RUN_TIME,
+      updated_at:   RUN_TIME,
+    }));
+
+    console.log(`[supabase] Sincronizando ${records.length} alarmas...`);
+    await supabaseUpsert('alarms', records, 'company_id,external_id');
+    await supabaseResolveStale(RUN_TIME);
+    console.log('[supabase] Listo.');
+  } else {
+    console.log('[supabase] Omitido — configura SUPABASE_URL y SUPABASE_SERVICE_KEY.');
+  }
+
+  // 7. Email
+  await sendEmail(token, vencidas, porVencer);
+
+  // 8. Resumen final
+  console.log(`\n────────────────────────────────────────`);
+  console.log(`Alarmas: ${alarmasGlobales.length} total`);
+  console.log(`  Vencidas:    ${vencidas.length}`);
+  console.log(`  Por vencer:  ${porVencer.length}`);
+  console.log(`────────────────────────────────────────\n`);
+}
+
+main().catch(err => {
+  console.error('[ERROR]', err.message);
+  process.exit(1);
+});
