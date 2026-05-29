@@ -16,7 +16,7 @@ async function searchWiki(query) {
     .textSearch('search_vector', query, { type: 'websearch', config: 'spanish' })
     .not('file_path', 'like', 'wiki/actas/%')
     .not('file_path', 'like', 'wiki/raw/%')
-    .limit(5)
+    .limit(8)
 
   if (!err1 && structured?.length >= 1) {
     return structured.map(d => ({

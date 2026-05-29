@@ -23,23 +23,62 @@ const WIKI_PATH = process.env.WIKI_PATH ||
   'C:/Users/jmacallister/OneDrive - IC CONSTRUCTORA SAS/Documentos/ICEOS/IC-EOS'
 
 const CHUNK_CHARS = 1200
+const MAX_CHUNK_CHARS = 2000  // límite duro — evita chunks de 65K de transcripciones
 const MIN_CHUNK_CHARS = 60
+
+// Línea de transcripción cruda: [HH:MM:SS] **Persona:** texto
+const TRANSCRIPT_LINE = /^\[\d{2}:\d{2}:\d{2}\]\s+\*\*/
 
 function extractTitle(content, filePath) {
   const match = content.match(/^#\s+(.+)/m)
   return match ? match[1].trim() : path.basename(filePath, '.md')
 }
 
-function chunkByHeaders(text) {
+// Para actas: elimina las líneas de diálogo crudo y conserva solo las secciones estructuradas
+// (Resumen Ejecutivo, Temas Tratados, Decisiones, Compromisos, etc.)
+function stripTranscriptLines(text) {
+  const lines = text.split('\n')
+  const cleaned = []
+  let inTranscriptBlock = false
+
+  for (const line of lines) {
+    if (TRANSCRIPT_LINE.test(line)) {
+      inTranscriptBlock = true
+      continue  // descartar línea de diálogo
+    }
+    // Una línea de header (##, ###) o línea en blanco después de un bloque transcript
+    // indica que salimos del bloque de diálogo
+    if (inTranscriptBlock && (line.startsWith('#') || line.trim() === '')) {
+      inTranscriptBlock = false
+    }
+    if (!inTranscriptBlock) cleaned.push(line)
+  }
+
+  return cleaned.join('\n')
+}
+
+function splitHard(text) {
+  // Partir cualquier texto que supere MAX_CHUNK_CHARS en fragmentos fijos
+  const parts = []
+  for (let i = 0; i < text.length; i += MAX_CHUNK_CHARS) {
+    const part = text.slice(i, i + MAX_CHUNK_CHARS).trim()
+    if (part.length > MIN_CHUNK_CHARS) parts.push(part)
+  }
+  return parts
+}
+
+function chunkByHeaders(text, isActa = false) {
+  const processedText = isActa ? stripTranscriptLines(text) : text
+
   // Dividir por headers H1 y H2 para mantener coherencia semántica
-  const sections = text.split(/(?=^#{1,2} )/m).filter(s => s.trim().length > MIN_CHUNK_CHARS)
+  const sections = processedText.split(/(?=^#{1,2} )/m).filter(s => s.trim().length > MIN_CHUNK_CHARS)
   const chunks = []
 
   for (const section of sections) {
     if (section.length <= CHUNK_CHARS) {
       chunks.push(section.trim())
-    } else {
-      // Sección larga: dividir por párrafos respetando el límite
+    } else if (section.length <= MAX_CHUNK_CHARS) {
+      // Sección mediana: dividir por párrafos
       const paragraphs = section.split(/\n{2,}/)
       let current = ''
       for (const para of paragraphs) {
@@ -51,6 +90,9 @@ function chunkByHeaders(text) {
         }
       }
       if (current.trim().length > MIN_CHUNK_CHARS) chunks.push(current.trim())
+    } else {
+      // Sección enorme (ej: transcript no filtrado): partir duro
+      chunks.push(...splitHard(section))
     }
   }
 
@@ -110,7 +152,8 @@ async function indexWiki() {
       if (!content.trim()) continue
 
       const title = extractTitle(content, filePath)
-      const chunks = chunkByHeaders(content)
+      const isActa = relativePath.startsWith('wiki/actas/')
+      const chunks = chunkByHeaders(content, isActa)
 
       if (!chunks.length) continue
 
