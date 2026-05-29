@@ -300,7 +300,7 @@ export default function AlarmasPage() {
           </p>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
             {alarms.length === 0
-              ? 'Las alarmas se sincronizan automáticamente cada 8 días desde Datamart.xlsx.'
+              ? 'Las alarmas se sincronizan automáticamente cada lunes desde Datamart.xlsx.'
               : 'Cambia los filtros para ver más alarmas.'}
           </p>
         </div>
@@ -320,7 +320,7 @@ export default function AlarmasPage() {
       {filtered.length > 0 && (
         <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: 'var(--space-4)' }}>
           {filtered.length} alarma{filtered.length !== 1 ? 's' : ''} ·
-          Datamart.xlsx sincroniza automáticamente cada 8 días
+          Datamart.xlsx sincroniza automáticamente cada lunes
         </p>
       )}
     </div>
