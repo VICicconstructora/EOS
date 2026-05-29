@@ -465,8 +465,12 @@ async function main() {
       updated_at:   RUN_TIME,
     }));
 
-    console.log(`[supabase] Sincronizando ${records.length} alarmas...`);
-    await supabaseUpsert('alarms', records, 'company_id,external_id');
+    // Deduplicar por external_id — quedarse con la última ocurrencia
+    const seen = new Map();
+    records.forEach(r => seen.set(r.external_id, r));
+    const deduped = Array.from(seen.values());
+    console.log(`[supabase] Sincronizando ${deduped.length} alarmas (${records.length - deduped.length} duplicados eliminados)...`);
+    await supabaseUpsert('alarms', deduped, 'company_id,external_id');
     await supabaseResolveStale(RUN_TIME);
     console.log('[supabase] Listo.');
   } else {
