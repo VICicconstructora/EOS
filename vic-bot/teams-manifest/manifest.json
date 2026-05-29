@@ -1,0 +1,54 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.17/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.17",
+  "version": "1.0.0",
+  "id": "a0c36b4a-9d57-46e3-8b6c-5d92ba028851",
+  "developer": {
+    "name": "IC Constructora",
+    "websiteUrl": "https://icconstructora.com",
+    "privacyUrl": "https://icconstructora.com",
+    "termsOfUseUrl": "https://icconstructora.com"
+  },
+  "name": {
+    "short": "VIC",
+    "full": "VIC — Asistente IC Constructora"
+  },
+  "description": {
+    "short": "Asistente ejecutivo de IC Constructora",
+    "full": "VIC es el asistente ejecutivo de IC Constructora. Conectado al wiki de la empresa y al sistema EOS (Tracción): rocas, scorecard, asuntos, personas, reuniones y procesos."
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#1B4F72",
+  "bots": [
+    {
+      "botId": "a0c36b4a-9d57-46e3-8b6c-5d92ba028851",
+      "scopes": ["personal", "team", "groupchat"],
+      "supportsFiles": false,
+      "isNotificationOnly": false,
+      "commandLists": [
+        {
+          "scopes": ["personal"],
+          "commands": [
+            {
+              "title": "Rocas del trimestre",
+              "description": "Ver el estado de las rocas Q2 2026"
+            },
+            {
+              "title": "Asuntos abiertos",
+              "description": "Lista IDS de asuntos pendientes"
+            },
+            {
+              "title": "Scorecard",
+              "description": "Métricas del scorecard semanal"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "permissions": ["identity", "messageTeamMembers"],
+  "validDomains": []
+}
