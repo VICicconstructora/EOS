@@ -36,28 +36,30 @@ const UMBRAL_LICENCIA = 60;
 const UMBRAL_CREDITO  = 90;
 
 // Índices de columnas (0-based) en la hoja Proyectos
+// La columna A (índice 0) siempre está vacía; los datos reales empiezan en B (índice 1)
+// Confirmado con discover mode: fila 6 = ["",1,"PR1","ACTIVO",...,"PRAIA",1,1,...]
 const C = {
-  Estado:           2,
-  CodSinco:         3,
-  Proyecto:        12,
-  Etapa:           13,
-  Torres:          14,
-  PolizaTR:        34,
-  VencTR:          36,
-  PolizaRC:        40,
-  VencRC:          42,
-  VentasProy:      46,
-  EntidadCredito:  48,
-  MontoCredito:    51,
-  FechaVencCred:   57,
-  FechaVencProrr:  59,
-  NumProrrogas:    60,
-  EntidadFiducia:  61,
-  Responsable:     86,
-  LicUrbanismo:    87,
-  LicConstruccion: 89,
-  VencLicConst:   108,
-  ProxTramite:    116,
+  Estado:           3,   // col D
+  CodSinco:         4,   // col E
+  Proyecto:        13,   // col N
+  Etapa:           14,   // col O
+  Torres:          15,   // col P
+  PolizaTR:        35,
+  VencTR:          37,
+  PolizaRC:        41,
+  VencRC:          43,
+  VentasProy:      47,
+  EntidadCredito:  49,
+  MontoCredito:    52,
+  FechaVencCred:   58,
+  FechaVencProrr:  60,
+  NumProrrogas:    61,
+  EntidadFiducia:  62,
+  Responsable:     87,
+  LicUrbanismo:    88,
+  LicConstruccion: 90,
+  VencLicConst:   109,
+  ProxTramite:    117,
 };
 
 // Nombre en Datamart → slug wiki
@@ -393,8 +395,9 @@ async function main() {
   console.log(`[graph] Leyendo hoja "${SHEET_NAME}" rango ${DATA_RANGE}...`);
   const values = await getSheetData(token, ref);
 
-  // Fila 4 (índice 4) = cabeceras; datos desde fila 5 (índice 5)
-  const DATA = values.slice(5).filter(r => r[0] !== '' && r[0] !== null && r[0] !== undefined);
+  // Fila 5 (índice 4) = cabeceras; datos desde fila 6 (índice 5)
+  // Col A (índice 0) siempre vacía — filtrar por col B (índice 1) que tiene CodDataMart numérico
+  const DATA = values.slice(5).filter(r => r[1] !== '' && r[1] !== null && r[1] !== undefined);
   console.log(`[parse] ${DATA.length} etapas encontradas`);
 
   // 4. Parsear filas
