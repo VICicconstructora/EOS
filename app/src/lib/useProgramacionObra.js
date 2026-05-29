@@ -18,6 +18,32 @@ import { downloadCsv } from '../utils/exportCsv'
 
 const CEO_NAME    = 'Juan Paulo McAllister'
 const ANDRES_NAME = 'Andrés Arango'
+const JULIAN_NAME = 'Julián García'
+
+// Mapeo macroproyecto → Director de Obra (nombres del wiki)
+// Bosque Central: Director de Construcción = Julián García; Director de Obra = por asignar
+const DIRECTOR_OBRA_MAP = {
+  'bosque central':      '(Por asignar)',
+  'castilla imperial':   'Carlos Valencia / Oscar Fandiño',
+  'castilla living':     'Mauricio Arias',
+  'gaia':                'Eliecer Aldana Pinzón',
+  'la hacienda':         'Jorge Nelson Vela Fonseca',
+  'la hacienda jamundí': 'Jorge Nelson Vela Fonseca',
+  'praia natura':        'Jairo Ernesto Mera Patiño',
+  'primera este':        'Fabián Andrés Cardona Motato',
+  'reserva de oporto':   'Sandra Patricia Solano Maya',
+  'azul celeste':        'Lina María Jaimes Aguilar',
+  'azul turquesa':       'Alfonso Escobar Trujillo',
+  'mitika':              'Holmes De La Rosa Díaz',
+  'verde vivo':          'Jaime Alberto Cabezas Molano',
+  'well':                'Elver Alejandro Sopo Uribe',
+}
+
+// Lookup case-insensitive y sin tildes problemáticas
+const lookupDirectorObra = (macroTitle) => {
+  const key = String(macroTitle ?? '').toLowerCase().trim()
+  return DIRECTOR_OBRA_MAP[key] ?? 'Por asignar'
+}
 
 const MONTHS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
 
@@ -249,14 +275,10 @@ export function useProgramacionObra() {
           .map(row => buildProjectLeaf(row, serieByProj.get(row.proyecto_ppto) || []))
           .filter(l => l._meta.pptoRaw > 0 || l._meta.realRaw > 0)
 
-        // Nodos macro aplanados (level 3) con cascadeParentId para KpiLevelRows
-        const macroNodes = groupByMacro(leafs).map(n => ({
-          ...n,
-          level: 3,
-          cascadeParentId: 'andres-prog-obra',
-        }))
+        // Nodos macro: solo para el modal de drill (sin level de cascade)
+        const macroNodesForModal = groupByMacro(leafs)
 
-        // Nodo Andrés (level 2)
+        // Nodo Andrés (levels 2 y 3: Andrés → Julián García)
         const nodeAndres = {
           id:           'andres-prog-obra',
           title:        'Prog. de Obra YTD',
@@ -267,8 +289,10 @@ export function useProgramacionObra() {
           rules:        { ...RULES },
           status:       evalStatus(cumplTotal, RULES),
           history:      historyRoot,
-          level:        2,
-          children:     macroNodes,
+          level:        [2, 3],
+          levelOwners:  { 2: ANDRES_NAME, 3: JULIAN_NAME },
+          cascadeParentIds: { 3: 'andres-prog-obra' },
+          children:     macroNodesForModal,
           childrenAggregationType: 'none',
           _meta: {
             pptoRaw:         pptoTotal,
@@ -277,6 +301,15 @@ export function useProgramacionObra() {
             pctCumplimiento: cumplTotal,
           },
         }
+
+        // Level 4: director de obra por macroproyecto
+        const dirObraNodes = macroNodesForModal.map(n => ({
+          ...n,
+          id:              `dir-obra-${n.id}`,
+          owner:           lookupDirectorObra(n.title),
+          level:           4,
+          cascadeParentId: 'andres-prog-obra',
+        }))
 
         // Nodo CEO (level 1)
         const nodeCeo = {
@@ -290,6 +323,7 @@ export function useProgramacionObra() {
           status:       evalStatus(cumplTotal, RULES),
           history:      historyRoot,
           level:        1,
+          cascadeOwner: ANDRES_NAME,
           children:     [nodeAndres],
           childrenAggregationType: 'none',
           _meta: {
@@ -307,7 +341,7 @@ export function useProgramacionObra() {
         }
 
         if (alive) {
-          setNodes([nodeCeo, nodeAndres, ...macroNodes])
+          setNodes([nodeCeo, nodeAndres, ...dirObraNodes])
           setLoading(false)
         }
       } catch (e) {

@@ -14,6 +14,12 @@ const fs = require('fs')
 const path = require('path')
 const { createClient } = require('@supabase/supabase-js')
 
+// Nota: este script sube SOLO el texto de los chunks (rápido, habilita la
+// búsqueda léxica de inmediato). Los embeddings semánticos se generan aparte
+// con `npm run embed-wiki` (backfillEmbeddings.js), que respeta el rate limit
+// de Voyage y es reanudable. Separarlos evita que el rate limit bloquee la
+// indexación de texto.
+
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY

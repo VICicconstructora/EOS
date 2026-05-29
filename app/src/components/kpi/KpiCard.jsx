@@ -32,9 +32,10 @@ export const KpiCard = ({ node, isExpanded, onClick, onExpandClick = () => {} })
 
   const formatValue = (val, format) => {
     if (val == null || isNaN(val)) return '—';
-    if (format === 'currency') return `$${Number(val).toLocaleString()}`;
-    if (format === 'percentage') return `${Number(val).toLocaleString()}%`;
-    return Number(val).toLocaleString();
+    const n = Number(val);
+    if (format === 'currency') return `$${n.toLocaleString('es-CO', { maximumFractionDigits: 1 })}`;
+    if (format === 'percentage') return `${n.toLocaleString('es-CO', { maximumFractionDigits: 1 })}%`;
+    return n.toLocaleString('es-CO', { maximumFractionDigits: 0 });
   };
 
   // Cumplimiento = currentValue / targetValue (excepto cuando ya es percentage,
@@ -71,7 +72,7 @@ export const KpiCard = ({ node, isExpanded, onClick, onExpandClick = () => {} })
             {node.format === 'percentage'
               ? 'cumplimiento'
               : cumplimiento != null
-                ? `${cumplimiento.toLocaleString()}% cumplimiento`
+                ? `${cumplimiento.toLocaleString('es-CO', { maximumFractionDigits: 1 })}% cumplimiento`
                 : '—'}
           </span>
         </div>

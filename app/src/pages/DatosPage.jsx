@@ -3,7 +3,8 @@ import { useState } from 'react'
 import { BarChart3, TrendingUp, TrendingDown, Minus, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react'
 import { useKpis } from '../lib/useKpis'
 import { useTramitesFrancisco } from '../lib/useTramitesFrancisco'
-import { mockKpiTree } from '../data/kpiMockData'
+import { useProgramacionObra } from '../lib/useProgramacionObra'
+import { useProgramacionIntermedia } from '../lib/useProgramacionIntermedia'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import GuiaEOS from '../components/guia/GuiaEOS'
 
@@ -92,16 +93,14 @@ function ScoreRow({ node }) {
 }
 
 export default function DatosPage() {
-  const { tree: realTree, loading, error, isConfigured } = useKpis('total')
+  const { tree: realTree, loading, error } = useKpis('total')
   const { nodes: franciscoNodes } = useTramitesFrancisco()
+  const { nodes: obraNodes } = useProgramacionObra()
+  const { nodes: interMediaNodes } = useProgramacionIntermedia()
   const [activeTab,   setActiveTab]   = useState('scorecard')
   const [ownerFilter, setOwnerFilter] = useState('all')
 
-  // Misma lógica que KpiDashboard: real si está configurado, mock si no
-  const baseTree = isConfigured ? (realTree || []) : (mockKpiTree || [])
-  const allKpis  = isConfigured && franciscoNodes.length > 0
-    ? [...baseTree, ...franciscoNodes]
-    : baseTree
+  const allKpis = [...obraNodes, ...interMediaNodes, ...(realTree || []), ...franciscoNodes]
 
   const owners   = ['all', ...new Set(allKpis.map(k => k.owner).filter(Boolean))]
   const filtered = ownerFilter === 'all' ? allKpis : allKpis.filter(k => k.owner === ownerFilter)
@@ -136,17 +135,10 @@ export default function DatosPage() {
         </div>
       </div>
 
-      {!isConfigured && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', padding: 'var(--space-3) var(--space-4)', marginBottom: 'var(--space-4)', background: 'var(--bg-elevated)', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-          <AlertCircle size={16} style={{ flexShrink: 0 }} />
-          Supabase IC no configurado — mostrando datos demo.
-        </div>
-      )}
-
-      {isConfigured && error && (
+      {error && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', padding: 'var(--space-3) var(--space-4)', marginBottom: 'var(--space-4)', background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', color: 'var(--status-error)' }}>
           <AlertCircle size={16} style={{ flexShrink: 0 }} />
-          Error cargando indicadores: {error.message}
+          Error cargando indicadores: {error?.message}
         </div>
       )}
 

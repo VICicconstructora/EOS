@@ -9,6 +9,7 @@ import { Settings, AlertCircle, Sparkles } from 'lucide-react';
 import { useTramitesFrancisco } from '../../lib/useTramitesFrancisco';
 import { useProgramacionObra } from '../../lib/useProgramacionObra';
 import { useProgramacionIntermedia } from '../../lib/useProgramacionIntermedia';
+import { useKpiProyectos } from '../../lib/useKpiProyectos';
 import './kpi.css';
 
 const STORAGE_KEY = 'ic_kpi_rules_overrides_v1'
@@ -32,19 +33,18 @@ const nodeLevels = (n) => {
 }
 
 const KpiLevelRows = ({ data, onCardClick }) => {
-  // expandedByLevel[N] = id del nodo expandido en el nivel N
-  // Nivel 1: cualquier expansión → muestra todos los nodos de nivel 2 sin parentId
-  // Nivel 2+: solo muestra hijos cuyo cascadeParentId coincide con el nodo expandido
   const [expandedByLevel, setExpandedByLevel] = useState({})
 
   const allLevels = [...new Set(data.flatMap(nodeLevels))].sort((a, b) => a - b)
   const firstLvl = allLevels[0] ?? 1
 
-  // Devuelve el id del padre en cascada para un nodo en un nivel dado
   const getCascadeParentId = (node, lvl) =>
     node.cascadeParentIds?.[lvl] ?? node.cascadeParentId ?? null
 
-  // Nodos a mostrar para un nivel específico, filtrados por padre expandido
+  // El owner efectivo de un nodo en un nivel dado (multi-level nodes usan levelOwners)
+  const getEffectiveOwner = (node, lvl) =>
+    node.levelOwners?.[lvl] ?? node.owner
+
   const getNodesForLevel = (lvl) => {
     const nodesAtLevel = data.filter(n => nodeLevels(n).includes(lvl))
     if (lvl === firstLvl) return nodesAtLevel
@@ -55,11 +55,14 @@ const KpiLevelRows = ({ data, onCardClick }) => {
     if (expandedParentId === undefined) return []
 
     if (lvl === firstLvl + 1) {
-      // Nivel 2: se muestran todos los nodos sin restricción de padre
-      return nodesAtLevel.filter(n => !getCascadeParentId(n, lvl))
+      // Nivel 2: mostrar TODOS los KPIs del gerente responsable del nodo expandido.
+      // El nodo CEO declara cascadeOwner = nombre del gerente responsable en el siguiente nivel.
+      const expandedNode = data.find(n => n.id === expandedParentId && nodeLevels(n).includes(prevLvl))
+      if (!expandedNode?.cascadeOwner) return []
+      return nodesAtLevel.filter(n => getEffectiveOwner(n, lvl) === expandedNode.cascadeOwner)
     }
 
-    // Nivel 3+: solo hijos del nodo expandido
+    // Nivel 3+: filtrar por cascadeParentId apuntando al nodo expandido
     return nodesAtLevel.filter(n => getCascadeParentId(n, lvl) === expandedParentId)
   }
 
@@ -67,11 +70,9 @@ const KpiLevelRows = ({ data, onCardClick }) => {
     setExpandedByLevel(prev => {
       const next = { ...prev }
       if (next[lvl] === nodeId) {
-        // Colapsar: eliminar este nivel y todos los inferiores
         const lvlIdx = allLevels.indexOf(lvl)
         allLevels.slice(lvlIdx).forEach(l => delete next[l])
       } else {
-        // Expandir: fijar este nodo, limpiar niveles más profundos
         next[lvl] = nodeId
         const lvlIdx = allLevels.indexOf(lvl)
         allLevels.slice(lvlIdx + 1).forEach(l => delete next[l])
@@ -106,12 +107,20 @@ const KpiLevelRows = ({ data, onCardClick }) => {
 
                 const isExpanded = expandedByLevel[lvl] === node.id
 
-                // Tiene hijos en el nivel siguiente?
-                const hasChildrenBelow = nextLvl !== null && data.some(n => {
-                  if (!nodeLevels(n).includes(nextLvl)) return false
-                  if (nextLvl === firstLvl + 1) return !getCascadeParentId(n, nextLvl)
-                  return getCascadeParentId(n, nextLvl) === node.id
-                })
+                // ¿Tiene hijos en el siguiente nivel?
+                const hasChildrenBelow = nextLvl !== null && (() => {
+                  if (nextLvl === firstLvl + 1) {
+                    // Para nivel 1→2: verificar que existan nodos de nivel 2 con ese owner
+                    return !!node.cascadeOwner && data.some(n =>
+                      nodeLevels(n).includes(nextLvl) &&
+                      getEffectiveOwner(n, nextLvl) === node.cascadeOwner
+                    )
+                  }
+                  return data.some(n =>
+                    nodeLevels(n).includes(nextLvl) &&
+                    getCascadeParentId(n, nextLvl) === node.id
+                  )
+                })()
 
                 return (
                   <KpiCard
@@ -138,20 +147,16 @@ export const KpiDashboard = () => {
   const [isChatOpen, setIsChatOpen] = useState(false)
   const [drillRoot, setDrillRoot] = useState(null)
 
-  const { tree: realTree, loading, error, isConfigured } = useKpis('total')
+  const { tree: realTree, loading, error } = useKpis('total')
   const { nodes: franciscoNodes } = useTramitesFrancisco()
-  const { nodes: obraNodes } = useProgramacionObra()
-  const { nodes: interMediaNodes } = useProgramacionIntermedia()
+  const { nodes: obraNodes, error: obraError } = useProgramacionObra()
+  const { nodes: interMediaNodes, error: interMediaError } = useProgramacionIntermedia()
+  const { nodes: proyectosNodes, error: proyectosError } = useKpiProyectos()
 
-  // Reconstruir el árbol cuando llegan datos
   useEffect(() => {
-    if (realTree && realTree.length > 0) {
-      const merged = [...obraNodes, ...interMediaNodes, ...realTree, ...franciscoNodes]
-      setData(applyStoredRulesToTree(merged, overrides))
-    } else {
-      setData([])
-    }
-  }, [realTree, overrides, franciscoNodes, obraNodes, interMediaNodes])
+    const merged = [...obraNodes, ...interMediaNodes, ...(realTree || []), ...franciscoNodes, ...proyectosNodes]
+    setData(merged.length > 0 ? applyStoredRulesToTree(merged, overrides) : [])
+  }, [realTree, overrides, franciscoNodes, obraNodes, interMediaNodes, proyectosNodes])
 
   const handleSaveRules = (kpiId, newRules) => {
     const next = { ...overrides, [kpiId]: newRules }
@@ -188,21 +193,14 @@ export const KpiDashboard = () => {
         </div>
       </div>
 
-      {error && (
+      {(error || obraError || interMediaError || proyectosError) && (
         <div className="mb-4 flex items-start gap-3 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700">
           <AlertCircle size={18} className="mt-0.5 flex-shrink-0" />
-          <div className="text-sm">
-            <strong>No se pudieron cargar los KPIs:</strong> {error.message || String(error)}.
-            Revisa la configuración de Supabase IC.
-          </div>
-        </div>
-      )}
-
-      {!isConfigured && (
-        <div className="mb-4 flex items-start gap-3 p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm">
-          <AlertCircle size={18} className="mt-0.5 flex-shrink-0" />
-          <div>
-            Supabase IC no está configurado (faltan <code>VITE_SUPABASE_IC_URL</code> y <code>VITE_SUPABASE_IC_ANON_KEY</code> en <code>.env</code>).
+          <div className="text-sm space-y-1">
+            {error && <div><strong>KPIs comerciales:</strong> {error.message || String(error)}</div>}
+            {obraError && <div><strong>Prog. Obra (Andrés):</strong> {obraError.message || String(obraError)}</div>}
+            {interMediaError && <div><strong>Prog. Intermedia (Marcela):</strong> {interMediaError.message || String(interMediaError)}</div>}
+            {proyectosError && <div><strong>Utilidad / TIR:</strong> {proyectosError.message || String(proyectosError)}</div>}
           </div>
         </div>
       )}

@@ -90,6 +90,9 @@ TALENTO HUMANO (Gerente: Diana Olave)
 CONTROL (Gerente: Marcela Arroyave)
   - Álvaro Enrique Bravo Cortés — Director de Compras y Contratación
   - Laura Sofía Angarita González — Director de Compras y Contratación
+    - Noel Ricardo Vargas Pedraza — Residente de Compras y Contratación 1
+    - Julián David Campos Santa — Residente de Compras y Contratación 2
+    - Carlos Andrés Barrios Salazar — Analista de Compras
   - Kerly Hoanna Cadena Guevara — Director de Control de Costos
   - Óscar Arley Alarcón — Analista de Calidad
 

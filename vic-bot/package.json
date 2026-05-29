@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "index-wiki": "node indexer/indexWiki.js"
+    "index-wiki": "node indexer/indexWiki.js",
+    "embed-wiki": "node indexer/backfillEmbeddings.js",
+    "daily-sync": "node indexer/dailySync.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "latest",

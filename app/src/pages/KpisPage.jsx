@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import KpiDashboard from '../components/kpi/KpiDashboard';
 import { KpisProyectosChart } from '../components/charts/KpisProyectosChart';
 import { FlujosHistoricoChart } from '../components/charts/FlujosHistoricoChart';
+import ProyectosResumenTable from '../components/kpi/ProyectosResumenTable';
 import { useTranslation } from 'react-i18next';
 
 export default function KpisPage() {
@@ -48,12 +49,23 @@ export default function KpisPage() {
         >
           Flujos Históricos
         </button>
+        <button
+          onClick={() => setActiveTab('resumen')}
+          className={`px-4 py-2 font-medium text-sm ${
+            activeTab === 'resumen'
+              ? 'border-b-2 border-blue-600 text-blue-600'
+              : 'text-slate-600 hover:text-slate-800'
+          }`}
+        >
+          Resumen Proyectos
+        </button>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-slate-200">
         {activeTab === 'estrategicos' && <KpiDashboard />}
         {activeTab === 'proyectos' && <KpisProyectosChart />}
         {activeTab === 'historico' && <FlujosHistoricoChart />}
+        {activeTab === 'resumen' && <ProyectosResumenTable />}
       </div>
     </div>
   );

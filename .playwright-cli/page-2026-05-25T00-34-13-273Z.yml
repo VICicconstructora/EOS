@@ -1,0 +1,273 @@
+- generic [ref=e19]:
+  - generic [ref=e21]:
+    - heading "¡Bienvenido, Admin IC!" [level=2] [ref=e22]
+    - paragraph [ref=e23]: Estás explorando en modo demo. Todos los datos son locales.
+    - paragraph [ref=e24]: Aquí puedes gestionar tu VTO, Rocks, Scorecards, Issues y mucho más.
+    - button "Cerrar" [ref=e25] [cursor=pointer]
+  - complementary [ref=e26]:
+    - generic [ref=e27]:
+      - generic [ref=e28]: 🏗️
+      - generic [ref=e29]:
+        - generic [ref=e30]: IC Constructora
+        - generic [ref=e31]: Sistema EOS
+    - navigation [ref=e32]:
+      - generic [ref=e33]: General
+      - link "Dashboard" [ref=e34] [cursor=pointer]:
+        - /url: /
+        - img [ref=e35]
+        - text: Dashboard
+      - link "Reuniones" [ref=e40] [cursor=pointer]:
+        - /url: /reuniones
+        - img [ref=e41]
+        - text: Reuniones
+      - generic [ref=e43]: Módulos EOS
+      - link "Visión" [ref=e44] [cursor=pointer]:
+        - /url: /vision
+        - img [ref=e45]
+        - text: Visión
+      - link "Personas" [ref=e49] [cursor=pointer]:
+        - /url: /personas
+        - img [ref=e50]
+        - text: Personas
+      - link "Datos" [ref=e56] [cursor=pointer]:
+        - /url: /datos
+        - img [ref=e57]
+        - text: Datos
+      - link "Asuntos" [ref=e60] [cursor=pointer]:
+        - /url: /asuntos
+        - img [ref=e61]
+        - text: Asuntos
+      - link "Procesos" [ref=e64] [cursor=pointer]:
+        - /url: /procesos
+        - img [ref=e65]
+        - text: Procesos
+      - link "Tracción" [ref=e69] [cursor=pointer]:
+        - /url: /traccion
+        - img [ref=e70]
+        - text: Tracción
+      - generic [ref=e76]: EOS Toolkit
+      - link "Implementación" [ref=e77] [cursor=pointer]:
+        - /url: /implementacion
+        - img [ref=e78]
+        - text: Implementación
+      - link "Biblioteca EOS" [ref=e80] [cursor=pointer]:
+        - /url: /biblioteca
+        - img [ref=e81]
+        - text: Biblioteca EOS
+      - generic [ref=e83]: IC Constructora
+      - link "Alarmas 3" [ref=e84] [cursor=pointer]:
+        - /url: /alarmas
+        - img [ref=e85]
+        - text: Alarmas
+        - generic [ref=e90]: "3"
+      - link "Tareas" [ref=e91] [cursor=pointer]:
+        - /url: /tareas
+        - img [ref=e92]
+        - text: Tareas
+      - link "RRHH" [ref=e95] [cursor=pointer]:
+        - /url: /rrhh
+        - img [ref=e96]
+        - text: RRHH
+      - link "Lotes" [ref=e100] [cursor=pointer]:
+        - /url: /lotes
+        - img [ref=e101]
+        - text: Lotes
+      - link "Jurídico" [ref=e104] [cursor=pointer]:
+        - /url: /juridico
+        - img [ref=e105]
+        - text: Jurídico
+      - link "KPIs" [ref=e109] [cursor=pointer]:
+        - /url: /kpis
+        - img [ref=e110]
+        - text: KPIs
+      - generic [ref=e113]: Administración
+      - link "Usuarios" [ref=e114] [cursor=pointer]:
+        - /url: /admin/usuarios
+        - img [ref=e115]
+        - text: Usuarios
+      - generic [ref=e127]: Herramientas
+      - link "Indicadores" [ref=e128] [cursor=pointer]:
+        - /url: http://localhost:8501
+        - img [ref=e129]
+        - text: Indicadores
+        - img [ref=e132]
+      - link "Análisis de Planos" [ref=e136] [cursor=pointer]:
+        - /url: http://localhost:5174
+        - img [ref=e137]
+        - text: Análisis de Planos
+        - img [ref=e142]
+    - generic [ref=e146]:
+      - generic [ref=e147]: 🎯 Modo Demo activo
+      - button "A Admin IC" [ref=e148] [cursor=pointer]:
+        - generic [ref=e149]: A
+        - generic [ref=e150]: Admin IC
+        - img [ref=e151]
+  - generic [ref=e153]:
+    - banner [ref=e154]:
+      - generic [ref=e156]:
+        - strong [ref=e157]: "Misión:"
+        - generic [ref=e158]: Construir el futuro de la infraestructura con calidad y confianza.
+      - generic [ref=e159]:
+        - generic [ref=e161]:
+          - img [ref=e162]
+          - textbox "Buscar..." [ref=e165]
+        - button "3" [ref=e167]:
+          - img [ref=e168]
+          - generic [ref=e171]: "3"
+        - button "Admin IC Modo demo A" [ref=e173] [cursor=pointer]:
+          - generic [ref=e174]:
+            - generic [ref=e175]: Admin IC
+            - generic [ref=e176]: Modo demo
+          - generic [ref=e177]: A
+    - main [ref=e178]:
+      - generic [ref=e179]:
+        - generic [ref=e180]:
+          - heading "Bienvenido, Admin IC 👋" [level=1] [ref=e181]
+          - paragraph [ref=e182]: Construir el futuro de la infraestructura con calidad y confianza.
+        - generic [ref=e183]:
+          - generic [ref=e185]:
+            - text: IC
+            - generic [ref=e186]: CONSTRUCTORA
+          - link "Visión Valores, propósito y metas" [ref=e187] [cursor=pointer]:
+            - /url: /vision
+            - img [ref=e188]
+            - generic [ref=e191]:
+              - generic [ref=e192]: Visión
+              - generic [ref=e193]: Valores, propósito y metas
+          - link "Personas El equipo correcto en el asiento correcto" [ref=e194] [cursor=pointer]:
+            - /url: /personas
+            - img [ref=e195]
+            - generic [ref=e200]:
+              - generic [ref=e201]: Personas
+              - generic [ref=e202]: El equipo correcto en el asiento correcto
+          - link "Datos Scorecard semanal de métricas" [ref=e203] [cursor=pointer]:
+            - /url: /datos
+            - img [ref=e204]
+            - generic [ref=e206]:
+              - generic [ref=e207]: Datos
+              - generic [ref=e208]: Scorecard semanal de métricas
+          - link "Tracción Rocas trimestrales y reuniones" [ref=e209] [cursor=pointer]:
+            - /url: /traccion
+            - img [ref=e210]
+            - generic [ref=e215]:
+              - generic [ref=e216]: Tracción
+              - generic [ref=e217]: Rocas trimestrales y reuniones
+          - link "Procesos Procesos medulares documentados" [ref=e218] [cursor=pointer]:
+            - /url: /procesos
+            - img [ref=e219]
+            - generic [ref=e222]:
+              - generic [ref=e223]: Procesos
+              - generic [ref=e224]: Procesos medulares documentados
+          - link "Asuntos Identificar, Discutir y Solucionar" [ref=e225] [cursor=pointer]:
+            - /url: /asuntos
+            - img [ref=e226]
+            - generic [ref=e228]:
+              - generic [ref=e229]: Asuntos
+              - generic [ref=e230]: Identificar, Discutir y Solucionar
+        - generic [ref=e231]:
+          - link "3 Rocas en Camino" [ref=e232] [cursor=pointer]:
+            - /url: /traccion
+            - generic [ref=e233]:
+              - paragraph [ref=e234]: "3"
+              - paragraph [ref=e235]: Rocas en Camino
+          - link "1 Rocas Completas" [ref=e236] [cursor=pointer]:
+            - /url: /traccion
+            - generic [ref=e237]:
+              - paragraph [ref=e238]: "1"
+              - paragraph [ref=e239]: Rocas Completas
+          - link "3 Asuntos Abiertos" [ref=e240] [cursor=pointer]:
+            - /url: /asuntos
+            - generic [ref=e241]:
+              - paragraph [ref=e242]: "3"
+              - paragraph [ref=e243]: Asuntos Abiertos
+          - link "6 Métricas Activas" [ref=e244] [cursor=pointer]:
+            - /url: /datos
+            - generic [ref=e245]:
+              - paragraph [ref=e246]: "6"
+              - paragraph [ref=e247]: Métricas Activas
+        - generic [ref=e248]:
+          - generic [ref=e249]:
+            - generic [ref=e250]:
+              - heading "Rocas del Trimestre" [level=3] [ref=e251]:
+                - img [ref=e252]
+                - text: Rocas del Trimestre
+              - link [ref=e256] [cursor=pointer]:
+                - /url: /traccion
+                - img [ref=e257]
+            - generic [ref=e259]:
+              - generic [ref=e260]:
+                - img [ref=e261]
+                - generic [ref=e264]:
+                  - paragraph [ref=e265]: Implementar sistema de gestión de calidad ISO 9001
+                  - paragraph [ref=e266]: Carlos Martínez
+              - generic [ref=e267]:
+                - img [ref=e268]
+                - generic [ref=e270]:
+                  - paragraph [ref=e271]: Abrir oficina de representación en Monterrey
+                  - paragraph [ref=e272]: Ana López
+              - generic [ref=e273]:
+                - img [ref=e274]
+                - generic [ref=e277]:
+                  - paragraph [ref=e278]: Contratar 3 ingenieros senior para área estructural
+                  - paragraph [ref=e279]: RRHH
+              - generic [ref=e280]:
+                - img [ref=e281]
+                - generic [ref=e284]:
+                  - paragraph [ref=e285]: Lanzar plataforma de licitaciones online v1.0
+                  - paragraph [ref=e286]: Tech
+              - paragraph [ref=e287]: +1 más →
+          - generic [ref=e288]:
+            - generic [ref=e289]:
+              - heading "Asuntos Pendientes" [level=3] [ref=e290]:
+                - img [ref=e291]
+                - text: Asuntos Pendientes
+              - link [ref=e293] [cursor=pointer]:
+                - /url: /asuntos
+                - img [ref=e294]
+            - generic [ref=e296]:
+              - generic [ref=e299]:
+                - paragraph [ref=e300]: Retrasos en entrega de materiales por proveedor principal
+                - paragraph [ref=e301]: Identificado
+              - generic [ref=e304]:
+                - paragraph [ref=e305]: Falta de proceso claro para onboarding de nuevos ingenieros
+                - paragraph [ref=e306]: Discutiendo
+              - generic [ref=e309]:
+                - paragraph [ref=e310]: Comunicación deficiente entre equipo en campo y oficina
+                - paragraph [ref=e311]: Identificado
+          - generic [ref=e312]:
+            - generic [ref=e313]:
+              - heading "Scorecard Semana Actual" [level=3] [ref=e314]:
+                - img [ref=e315]
+                - text: Scorecard Semana Actual
+              - link [ref=e317] [cursor=pointer]:
+                - /url: /datos
+                - img [ref=e318]
+            - generic [ref=e320]:
+              - generic [ref=e321]:
+                - generic [ref=e322]: Ventas Semanales ($k)
+                - generic [ref=e324]: 122$k
+              - generic [ref=e326]:
+                - generic [ref=e327]: Proyectos a Tiempo (%)
+                - generic [ref=e329]: 95%
+              - generic [ref=e331]:
+                - generic [ref=e332]: Asuntos Resueltos
+                - generic [ref=e334]: "5"
+              - generic [ref=e336]:
+                - generic [ref=e337]: Incidentes de Seguridad
+                - generic [ref=e339]: "0"
+              - generic [ref=e341]:
+                - generic [ref=e342]: Satisfacción del Equipo (%)
+                - generic [ref=e344]: 87%
+          - generic [ref=e346]:
+            - generic [ref=e347]:
+              - heading "Próxima Reunión" [level=3] [ref=e348]:
+                - img [ref=e349]
+                - text: Próxima Reunión
+              - link [ref=e351] [cursor=pointer]:
+                - /url: /reuniones
+                - img [ref=e352]
+            - generic [ref=e354]:
+              - paragraph [ref=e355]: Reunión L10 Semanal
+              - paragraph [ref=e356]: Lunes · 09:00 · 90 min
+              - link "Iniciar Reunión L10" [ref=e357] [cursor=pointer]:
+                - /url: /reuniones

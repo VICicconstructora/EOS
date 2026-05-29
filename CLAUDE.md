@@ -55,6 +55,14 @@ Al crear componentes que lean de Supabase:
 
 Ver plantilla completa en `.claude/commands/new-analytics-chart.md`.
 
+## Wiki de IC Constructora
+
+Cuando Juan Paulo dice "el wiki" o "revisa el wiki", se refiere a:
+
+`C:\Users\jmacallister\IC CONSTRUCTORA SAS\AA General Edicion - .AI\Wiki\ICEOS\IC-EOS`
+
+Esa es la fuente de verdad de personas, proyectos, procesos y estructura organizacional. Cualquier actualización de información (nombres, roles, proyectos) debe hacerse ahí, no en el wiki local de este repositorio.
+
 ## Dev / testing
 
 Para probar sin Supabase real: borrar o vaciar las env vars → la app entra en Demo Mode automáticamente.

@@ -17,6 +17,9 @@ import { downloadCsv } from '../utils/exportCsv'
 
 const CEO_NAME = 'Juan Paulo McAllister'
 const MARCELA_NAME = 'Marcela Arroyave'
+const LAURA_NAME = 'Laura Sofía Angarita González'
+const RICARDO_NAME = 'Noel Ricardo Vargas Pedraza'
+const JULIAN_NAME = 'Julián David Campos Santa'
 
 const MONTHS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
 
@@ -65,18 +68,30 @@ const macroProyectoOf = (name) => {
 
 const KPI_RULES = { type: 'higher_is_better', green: 90, yellow: 70 }
 
+// Asignación provisional proyecto → coordinador. Actualizar según asignación real.
+const PROYECTO_COORD = {
+  'BOSQUE CENTRAL':      RICARDO_NAME,
+  'CASTILLA IMPERIAL':   RICARDO_NAME,
+  'PRIMERA ESTE':        RICARDO_NAME,
+  'LA HACIENDA JAMUNDI': RICARDO_NAME,
+  'GAIA':                JULIAN_NAME,
+  'PRAIA NATURA':        JULIAN_NAME,
+  'CASTILLA LIVING':     JULIAN_NAME,
+  'RESERVA DE OPORTO':   JULIAN_NAME,
+}
+
 // Construye un nodo hoja (proyecto PPTO individual)
 const buildLeafNode = (row, serieRows) => {
-  const programados = Number(row.contratos_programados) || 0
-  const cerrados    = Number(row.contratos_cerrados)    || 0
+  const programados = Number(row.compras_ppto) || 0
+  const cerrados    = Number(row.compras_real) || 0
   const pct = programados > 0 ? Math.round((cerrados / programados) * 1000) / 10 : 0
 
   const history = (serieRows || [])
     .slice()
     .sort((a, b) => String(a.mes).localeCompare(String(b.mes)))
     .map(s => {
-      const sp = Number(s.contratos_programados) || 0
-      const sc = Number(s.contratos_cerrados)    || 0
+      const sp = Number(s.compras_ppto) || 0
+      const sc = Number(s.compras_real) || 0
       const pctMes = sp > 0 ? Math.round((sc / sp) * 1000) / 10 : 0
       return { period: monthLabel(s.mes), target: 100, actual: pctMes }
     })
@@ -186,10 +201,10 @@ export function useProgramacionIntermedia() {
 
         const [ytdRes, serieRes] = await Promise.all([
           supabaseIc.from('kpi_prog_intermedia_ytd_proyecto').select(
-            'proyecto_ppto, contratos_programados, contratos_cerrados, fuente_real'
+            'proyecto_ppto, compras_ppto, compras_real, fuente_real'
           ),
           supabaseIc.from('kpi_prog_intermedia_serie_mensual').select(
-            'proyecto_ppto, mes, contratos_programados, contratos_cerrados'
+            'proyecto_ppto, mes, compras_ppto, compras_real'
           ),
         ])
 
@@ -209,8 +224,8 @@ export function useProgramacionIntermedia() {
         })
 
         // Totales globales
-        const totalProgramados = ytdRows.reduce((a, r) => a + (Number(r.contratos_programados) || 0), 0)
-        const totalCerrados    = ytdRows.reduce((a, r) => a + (Number(r.contratos_cerrados)    || 0), 0)
+        const totalProgramados = ytdRows.reduce((a, r) => a + (Number(r.compras_ppto) || 0), 0)
+        const totalCerrados    = ytdRows.reduce((a, r) => a + (Number(r.compras_real) || 0), 0)
         const pctTotal = totalProgramados > 0
           ? Math.round((totalCerrados / totalProgramados) * 1000) / 10
           : 0
@@ -220,8 +235,8 @@ export function useProgramacionIntermedia() {
         serieRows.forEach(r => {
           const k = String(r.mes)
           const o = serieGlobal.get(k) || { mes: k, programados: 0, cerrados: 0 }
-          o.programados += Number(r.contratos_programados) || 0
-          o.cerrados    += Number(r.contratos_cerrados)    || 0
+          o.programados += Number(r.compras_ppto) || 0
+          o.cerrados    += Number(r.compras_real) || 0
           serieGlobal.set(k, o)
         })
         const historyGlobal = [...serieGlobal.values()]
@@ -238,14 +253,112 @@ export function useProgramacionIntermedia() {
           .filter(r => r.proyecto_ppto)
           .map(row => buildLeafNode(row, serieByProj.get(row.proyecto_ppto) || []))
 
-        // Nodos macro aplanados (level 3) con cascadeParentId para KpiLevelRows
-        const macroNodes = groupByMacro(leafs).map(n => ({
+        // Macroproyectos particionados por coordinador según PROYECTO_COORD
+        const allMacroNodes = groupByMacro(leafs)
+
+        const ricardoProjects = allMacroNodes.filter(
+          n => (PROYECTO_COORD[n.title?.toUpperCase()] ?? RICARDO_NAME) === RICARDO_NAME
+        )
+        const julianProjects = allMacroNodes.filter(
+          n => PROYECTO_COORD[n.title?.toUpperCase()] === JULIAN_NAME
+        )
+
+        const coordPct = (projects) => {
+          const prog = projects.reduce((a, n) => a + (n._meta?.programados || 0), 0)
+          const cerr = projects.reduce((a, n) => a + (n._meta?.cerrados    || 0), 0)
+          return prog > 0 ? Math.round((cerr / prog) * 1000) / 10 : 0
+        }
+
+        const pctRicardo = coordPct(ricardoProjects)
+        const pctJulian  = coordPct(julianProjects)
+
+        // Nivel 5: un nodo por proyecto, con cascadeParentId → coordinador
+        const ricardoLevel5 = ricardoProjects.map(n => ({
           ...n,
-          level: 3,
-          cascadeParentId: 'marcela-prog-intermedia',
+          level: 5,
+          cascadeParentId: 'ricardo-prog-intermedia',
+        }))
+        const julianLevel5 = julianProjects.map(n => ({
+          ...n,
+          level: 5,
+          cascadeParentId: 'julian-prog-intermedia',
         }))
 
+        // ============ Nodos coordinadores (level 4) ============
+        const nodeRicardo = {
+          id: 'ricardo-prog-intermedia',
+          title: 'Prog. Intermedia Compras YTD',
+          owner: RICARDO_NAME,
+          currentValue: pctRicardo,
+          targetValue: 100,
+          format: 'percentage',
+          rules: { ...KPI_RULES },
+          status: evalStatus(pctRicardo, KPI_RULES),
+          childrenAggregationType: 'none',
+          children: ricardoProjects,
+          history: historyGlobal,
+          level: 4,
+          cascadeParentId: 'laura-prog-intermedia',
+          _meta: {
+            programadosTotal: ricardoProjects.reduce((a, n) => a + (n._meta?.programados || 0), 0),
+            cerradosTotal: ricardoProjects.reduce((a, n) => a + (n._meta?.cerrados || 0), 0),
+            unidadLabel: 'contratos',
+            pctCumplimiento: pctRicardo,
+          },
+        }
+
+        const nodeJulian = {
+          id: 'julian-prog-intermedia',
+          title: 'Prog. Intermedia Compras YTD',
+          owner: JULIAN_NAME,
+          currentValue: pctJulian,
+          targetValue: 100,
+          format: 'percentage',
+          rules: { ...KPI_RULES },
+          status: evalStatus(pctJulian, KPI_RULES),
+          childrenAggregationType: 'none',
+          children: julianProjects,
+          history: historyGlobal,
+          level: 4,
+          cascadeParentId: 'laura-prog-intermedia',
+          _meta: {
+            programadosTotal: julianProjects.reduce((a, n) => a + (n._meta?.programados || 0), 0),
+            cerradosTotal: julianProjects.reduce((a, n) => a + (n._meta?.cerrados || 0), 0),
+            unidadLabel: 'contratos',
+            pctCumplimiento: pctJulian,
+          },
+        }
+
+        // ============ Nodo Laura (level 3) ============
+        const nodeLaura = {
+          id: 'laura-prog-intermedia',
+          title: 'Prog. Intermedia Compras YTD',
+          owner: LAURA_NAME,
+          currentValue: pctTotal,
+          targetValue: 100,
+          format: 'percentage',
+          rules: { ...KPI_RULES },
+          status: evalStatus(pctTotal, KPI_RULES),
+          childrenAggregationType: 'none',
+          children: allMacroNodes,
+          history: historyGlobal,
+          level: 3,
+          cascadeParentId: 'marcela-prog-intermedia',
+          _meta: {
+            programadosTotal: totalProgramados,
+            cerradosTotal: totalCerrados,
+            unidadLabel: 'contratos',
+            pctCumplimiento: pctTotal,
+          },
+        }
+
         // ============ Nodo Marcela (level 2) ============
+        const metaGlobal = {
+          programadosTotal: totalProgramados,
+          cerradosTotal: totalCerrados,
+          unidadLabel: 'contratos',
+          pctCumplimiento: pctTotal,
+        }
         const nodeMarcela = {
           id: 'marcela-prog-intermedia',
           title: 'Prog. Intermedia Compras YTD',
@@ -256,22 +369,17 @@ export function useProgramacionIntermedia() {
           rules: { ...KPI_RULES },
           status: evalStatus(pctTotal, KPI_RULES),
           childrenAggregationType: 'none',
-          children: macroNodes,
+          children: [nodeLaura],
           history: historyGlobal,
           level: 2,
-          _meta: {
-            programadosTotal: totalProgramados,
-            cerradosTotal: totalCerrados,
-            unidadLabel: 'contratos',
-            pctCumplimiento: pctTotal,
-          },
+          _meta: metaGlobal,
         }
 
         // ============ Nodo CEO (level 1) ============
         const onExport = async () => {
           const { data: rows } = await supabaseIc
             .from('kpi_prog_intermedia_ytd_proyecto')
-            .select('proyecto_ppto, contratos_programados, contratos_cerrados, fuente_real')
+            .select('proyecto_ppto, compras_ppto, compras_real, fuente_real')
           downloadCsv(
             `prog_intermedia_ytd_${new Date().toISOString().slice(0, 7)}.csv`,
             rows || []
@@ -291,17 +399,13 @@ export function useProgramacionIntermedia() {
           children: [nodeMarcela],
           history: historyGlobal,
           level: 1,
-          _meta: {
-            programadosTotal: totalProgramados,
-            cerradosTotal: totalCerrados,
-            unidadLabel: 'contratos',
-            pctCumplimiento: pctTotal,
-          },
+          cascadeOwner: MARCELA_NAME,
+          _meta: metaGlobal,
           onExport,
         }
 
         if (alive) {
-          setNodes([nodeCeo, nodeMarcela, ...macroNodes])
+          setNodes([nodeCeo, nodeMarcela, nodeLaura, nodeRicardo, nodeJulian, ...ricardoLevel5, ...julianLevel5])
           setLoading(false)
         }
       } catch (e) {

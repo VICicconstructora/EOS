@@ -1,15 +1,23 @@
 /**
- * sync-datamart.js
+ * sync-datamart.js — SCRIPT LOCAL (fallback de emergencia)
+ *
+ * NOTA: La versión cloud de este proceso corre como Supabase Edge Function en
+ *       app/supabase/functions/datamart-sync/index.ts  (cron: lunes 07:00 Bogotá).
+ *       Este script solo se necesita si la Edge Function está caída o para pruebas locales.
+ *
  * Lee Datamart.xlsx y actualiza docs/memoria/proyectos/<slug>/index.md
  * con datos operativos: responsable, fiducia, crédito, pólizas, licencias.
  * Genera un reporte de alarmas en docs/memoria/reportes/datamart-YYYY-MM-DD.md
  *
  * Uso:
- *   node sync-datamart.js
- *   DATAMART_PATH="C:/ruta/Datamart.xlsx" node sync-datamart.js
+ *   DATAMART_PATH="C:/ruta/local/Datamart.xlsx" node sync-datamart.js
+ *   DATAMART_PATH="C:/ruta/local/Datamart.xlsx" node sync-datamart.js --force
+ *
+ * Variables de entorno requeridas:
+ *   DATAMART_PATH  — ruta local al archivo xlsx descargado de SharePoint
+ *                    (sites/GND/DataMart/Datamart.xlsx)
  *
  * Variables de entorno opcionales:
- *   DATAMART_PATH  — ruta al archivo xlsx  (default: C:/Users/Ana/Downloads/Datamart.xlsx)
  *   REPO_ROOT      — raíz del repositorio  (default: detecta desde __dirname)
  */
 
@@ -40,8 +48,12 @@ if (!FORCE && fs.existsSync(LAST_RUN_FILE)) {
 
 // ─── Configuración ────────────────────────────────────────────────────────────
 
-const DATAMART_PATH = process.env.DATAMART_PATH
-  || 'C:/Users/Ana/Downloads/Datamart.xlsx';
+const DATAMART_PATH = process.env.DATAMART_PATH;
+if (!DATAMART_PATH) {
+  console.error('ERROR: Define la variable de entorno DATAMART_PATH con la ruta al archivo descargado.');
+  console.error('  Ejemplo: DATAMART_PATH="C:/Downloads/Datamart.xlsx" node sync-datamart.js');
+  process.exit(1);
+}
 
 const REPO_ROOT = process.env.REPO_ROOT
   || path.resolve(__dirname, '../../');

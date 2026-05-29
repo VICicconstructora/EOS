@@ -55,7 +55,13 @@ export function AppProvider({ children }) {
   }
 
   useEffect(() => {
+    // Si la URL trae parámetros de error OAuth los limpiamos inmediatamente
+    // para que ningún cliente Supabase los procese de nuevo.
     const params = new URLSearchParams(window.location.search)
+    if (params.get('error')) {
+      window.history.replaceState(null, '', window.location.pathname)
+    }
+
     if (params.get('demo') === '1') {
       enterDemoMode()
       return

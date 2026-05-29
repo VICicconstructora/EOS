@@ -1,2 +1,0 @@
-INSERT INTO public.flujo_historico (company_id, proyecto, fecha_datos, fuente, linea_contable, fecha_periodo, valor, tipo_linea) VALUES
-('ic-constructora', 'WELL', '2026-04-01', 'Proyectos', '9.0 TOTAL COSTOS', '2026-12-01', -142221605, 'Otro');

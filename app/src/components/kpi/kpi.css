@@ -108,8 +108,9 @@
 .kpi-card-wrapper {
   position: relative;
   width: 185px;
-  height: 175px;
+  min-height: 175px;
   flex-shrink: 0;
+  align-self: stretch;
 }
 
 .kpi-card {

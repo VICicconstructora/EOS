@@ -1,0 +1,12 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e6]: 🏗️
+    - heading "Tracción" [level=1] [ref=e7]
+    - paragraph [ref=e8]: Sistema EOS de IC Constructora
+  - button "Iniciar sesión con Microsoft" [ref=e9] [cursor=pointer]:
+    - img [ref=e10]
+    - text: Iniciar sesión con Microsoft
+  - paragraph [ref=e15]:
+    - text: Solo cuentas
+    - strong [ref=e16]: "@icconstructora.com"
+  - button "Entrar en modo demo (sin cuenta)" [ref=e18] [cursor=pointer]

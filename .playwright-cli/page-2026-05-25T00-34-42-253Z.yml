@@ -1,0 +1,158 @@
+- generic [ref=e23]:
+  - complementary [ref=e24]:
+    - generic [ref=e25]:
+      - generic [ref=e26]: 🏗️
+      - generic [ref=e27]:
+        - generic [ref=e28]: IC Constructora
+        - generic [ref=e29]: Sistema EOS
+    - navigation [ref=e30]:
+      - generic [ref=e31]: General
+      - link "Dashboard" [ref=e32] [cursor=pointer]:
+        - /url: /
+        - img [ref=e33]
+        - text: Dashboard
+      - link "Reuniones" [ref=e38] [cursor=pointer]:
+        - /url: /reuniones
+        - img [ref=e39]
+        - text: Reuniones
+      - generic [ref=e41]: Módulos EOS
+      - link "Visión" [ref=e42] [cursor=pointer]:
+        - /url: /vision
+        - img [ref=e43]
+        - text: Visión
+      - link "Personas" [ref=e47] [cursor=pointer]:
+        - /url: /personas
+        - img [ref=e48]
+        - text: Personas
+      - link "Datos" [ref=e54] [cursor=pointer]:
+        - /url: /datos
+        - img [ref=e55]
+        - text: Datos
+      - link "Asuntos" [ref=e58] [cursor=pointer]:
+        - /url: /asuntos
+        - img [ref=e59]
+        - text: Asuntos
+      - link "Procesos" [ref=e62] [cursor=pointer]:
+        - /url: /procesos
+        - img [ref=e63]
+        - text: Procesos
+      - link "Tracción" [ref=e67] [cursor=pointer]:
+        - /url: /traccion
+        - img [ref=e68]
+        - text: Tracción
+      - generic [ref=e74]: EOS Toolkit
+      - link "Implementación" [ref=e75] [cursor=pointer]:
+        - /url: /implementacion
+        - img [ref=e76]
+        - text: Implementación
+      - link "Biblioteca EOS" [ref=e78] [cursor=pointer]:
+        - /url: /biblioteca
+        - img [ref=e79]
+        - text: Biblioteca EOS
+      - generic [ref=e81]: IC Constructora
+      - link "Alarmas 3" [ref=e82] [cursor=pointer]:
+        - /url: /alarmas
+        - img [ref=e83]
+        - text: Alarmas
+        - generic [ref=e88]: "3"
+      - link "Tareas" [ref=e89] [cursor=pointer]:
+        - /url: /tareas
+        - img [ref=e90]
+        - text: Tareas
+      - link "RRHH" [ref=e93] [cursor=pointer]:
+        - /url: /rrhh
+        - img [ref=e94]
+        - text: RRHH
+      - link "Lotes" [ref=e98] [cursor=pointer]:
+        - /url: /lotes
+        - img [ref=e99]
+        - text: Lotes
+      - link "Jurídico" [ref=e102] [cursor=pointer]:
+        - /url: /juridico
+        - img [ref=e103]
+        - text: Jurídico
+      - link "KPIs" [ref=e107] [cursor=pointer]:
+        - /url: /kpis
+        - img [ref=e108]
+        - text: KPIs
+      - generic [ref=e111]: Administración
+      - link "Usuarios" [ref=e112] [cursor=pointer]:
+        - /url: /admin/usuarios
+        - img [ref=e113]
+        - text: Usuarios
+      - generic [ref=e125]: Herramientas
+      - link "Indicadores" [ref=e126] [cursor=pointer]:
+        - /url: http://localhost:8501
+        - img [ref=e127]
+        - text: Indicadores
+        - img [ref=e130]
+      - link "Análisis de Planos" [ref=e134] [cursor=pointer]:
+        - /url: http://localhost:5174
+        - img [ref=e135]
+        - text: Análisis de Planos
+        - img [ref=e140]
+    - generic [ref=e144]:
+      - generic [ref=e145]: 🎯 Modo Demo activo
+      - button "A Admin IC" [ref=e146] [cursor=pointer]:
+        - generic [ref=e147]: A
+        - generic [ref=e148]: Admin IC
+        - img [ref=e149]
+  - generic [ref=e151]:
+    - banner [ref=e152]:
+      - generic [ref=e154]:
+        - strong [ref=e155]: "Misión:"
+        - generic [ref=e156]: Construir el futuro de la infraestructura con calidad y confianza.
+      - generic [ref=e157]:
+        - generic [ref=e159]:
+          - img [ref=e160]
+          - textbox "Buscar..." [ref=e163]
+        - button "3" [ref=e165]:
+          - img [ref=e166]
+          - generic [ref=e169]: "3"
+        - button "Admin IC Modo demo A" [ref=e171] [cursor=pointer]:
+          - generic [ref=e172]:
+            - generic [ref=e173]: Admin IC
+            - generic [ref=e174]: Modo demo
+          - generic [ref=e175]: A
+    - main [ref=e176]:
+      - generic [ref=e177]:
+        - generic [ref=e179]:
+          - heading "Indicadores Estratégicos" [level=1] [ref=e180]
+          - paragraph [ref=e181]: Navegación en cascada de KPIs organizacionales
+        - generic [ref=e182]:
+          - button "KPIs Estratégicos" [ref=e183]
+          - button "KPIs Proyectos (Financiero)" [ref=e184]
+          - button "Flujos Históricos" [ref=e185]
+        - generic [ref=e187]:
+          - generic [ref=e188]:
+            - heading "Dashboard Corporativo en Cascada" [level=1] [ref=e189]
+            - generic [ref=e190]:
+              - button "Consultar IA" [ref=e191]:
+                - img [ref=e192]
+                - generic [ref=e194]: Consultar IA
+              - button "Configurar Reglas" [ref=e195]:
+                - img [ref=e196]
+                - generic [ref=e199]: Configurar Reglas
+          - generic [ref=e202]:
+            - generic [ref=e204] [cursor=pointer]:
+              - generic [ref=e205]:
+                - generic [ref=e206]: Ventas YTD
+                - generic [ref=e207]: Juan Paulo McAllister
+              - generic [ref=e208]:
+                - generic [ref=e209]: $54.552,9
+                - generic [ref=e210]: 76,6% cumplimiento
+              - generic [ref=e211]:
+                - button "Exportar soporte a CSV" [ref=e212]:
+                  - img [ref=e213]
+                - img [ref=e217]
+            - generic [ref=e220] [cursor=pointer]:
+              - generic [ref=e221]:
+                - generic [ref=e222]: Escrituración YTD
+                - generic [ref=e223]: Juan Paulo McAllister
+              - generic [ref=e224]:
+                - generic [ref=e225]: $52.087,7
+                - generic [ref=e226]: 37,2% cumplimiento
+              - generic [ref=e227]:
+                - button "Exportar soporte a CSV" [ref=e228]:
+                  - img [ref=e229]
+                - img [ref=e233]

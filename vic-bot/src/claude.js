@@ -1,5 +1,5 @@
 const Anthropic = require('@anthropic-ai/sdk')
-const { searchWiki, getWikiPage } = require('./tools/wiki')
+const { searchWiki, getWikiPage, listWikiPages } = require('./tools/wiki')
 const { getRocks, getMetrics, getIssues, getPeople, getMeetings, getProcesses } = require('./tools/eos')
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -18,13 +18,19 @@ Reglas de respuesta:
 - Usa tablas solo cuando compares datos u opciones. Usa listas solo cuando el contenido es genuinamente enumerativo.
 - No resumas al final lo que acabas de hacer.
 - Usa los datos exactos de las herramientas — no inventes información.
-- Si no encuentras algo, dilo directamente y sugiere cómo buscarlo mejor.
-- Cuando la pregunta merezca consultar varias fuentes, hazlo (primero wiki, luego EOS).`
+- Cuando la pregunta merezca consultar varias fuentes, hazlo (primero wiki, luego EOS).
+
+Cómo buscar bien en el wiki (CRÍTICO — el wiki tiene 594 páginas; el dato casi siempre existe):
+- search_wiki devuelve extractos, no la página completa. Un extracto puede no contener el dato exacto aunque la página sí lo tenga.
+- Si la pregunta pide un dato concreto (un número, una fecha, un nombre, un total) y un resultado de search_wiki parece la ficha correcta, SIEMPRE lee la página completa con get_wiki_page antes de responder. No te quedes solo con el extracto.
+- Si search_wiki no trae lo que buscas, NO concluyas que el dato no existe. Reformula con sinónimos (apartamentos/unidades/viviendas, ventas/colocaciones) o usa list_wiki_pages con el nombre del proyecto/persona para ver qué fichas existen, y luego lee la relevante con get_wiki_page.
+- Las fichas de un proyecto suelen estar bajo "wiki/proyectos/<nombre>/" e incluyen index.md, unidades.md, cronograma, etc. El conteo de apartamentos/unidades vive en la ficha de unidades.
+- Solo di "no encontré el dato" después de haber intentado: reformular la búsqueda Y listar las páginas del tema Y leer la página candidata completa.`
 
 const TOOLS = [
   {
     name: 'search_wiki',
-    description: 'Busca en el wiki de IC Constructora. Úsalo para preguntas sobre personas, proyectos, procesos, estructura organizacional, información de la empresa, o cualquier tema que no sea datos EOS en tiempo real. Devuelve extractos de los chunks más relevantes. Si el extracto de un archivo parece incompleto, usa get_wiki_page con el file_path para leer la página completa.',
+    description: 'Busca en el wiki de IC Constructora (594 páginas) con búsqueda híbrida: léxica + semántica. Úsalo para preguntas sobre personas, proyectos, procesos, estructura organizacional, información de la empresa. Devuelve EXTRACTOS de los chunks más relevantes, no páginas completas. Importante: el extracto puede no contener el dato exacto aunque la página sí. Si un resultado parece la ficha correcta para un dato concreto (número, fecha, total), lee la página completa con get_wiki_page usando su file_path.',
     input_schema: {
       type: 'object',
       properties: {
@@ -44,10 +50,24 @@ const TOOLS = [
       properties: {
         file_path: {
           type: 'string',
-          description: 'Ruta relativa del archivo en el wiki, exactamente como aparece en el campo "archivo" de search_wiki. Ejemplo: "wiki/proyectos/mitika/index.md"'
+          description: 'Ruta relativa del archivo en el wiki, exactamente como aparece en el campo "archivo" de search_wiki o list_wiki_pages. Ejemplo: "wiki/proyectos/reserva-de-oporto/unidades.md"'
         }
       },
       required: ['file_path']
+    }
+  },
+  {
+    name: 'list_wiki_pages',
+    description: 'Lista todas las páginas del wiki cuya ruta contiene un texto dado. Úsalo para descubrir qué fichas existen sobre un proyecto o persona cuando search_wiki no encuentra el dato concreto. Ejemplo: pasar "reserva-de-oporto" devuelve index.md, unidades.md, cronograma, etc. Luego lee la ficha relevante con get_wiki_page.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        path_prefix: {
+          type: 'string',
+          description: 'Texto a buscar en la ruta de los archivos. Suele ser el nombre del proyecto o persona en kebab-case. Ejemplo: "reserva-de-oporto", "mitika", "proyectos".'
+        }
+      },
+      required: ['path_prefix']
     }
   },
   {
@@ -154,8 +174,9 @@ async function runTool(name, input) {
   console.log(`[VIC] Usando herramienta: ${name}`, JSON.stringify(input))
   try {
     switch (name) {
-      case 'search_wiki':   return await searchWiki(input.query)
-      case 'get_wiki_page': return await getWikiPage(input.file_path)
+      case 'search_wiki':     return await searchWiki(input.query)
+      case 'get_wiki_page':   return await getWikiPage(input.file_path)
+      case 'list_wiki_pages': return await listWikiPages(input.path_prefix)
       case 'get_rocks':     return await getRocks(input)
       case 'get_metrics':   return await getMetrics(input)
       case 'get_issues':    return await getIssues(input)

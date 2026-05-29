@@ -509,6 +509,7 @@ export function useKpis(scope = 'total') {
         // Ventas: CEO (1) → Mónica (2) → Luisa Dir. Ventas (3) → Director de Sala por proyecto (4)
         cardVentas.level = [1, 2, 3]
         cardVentas.levelOwners = { 1: CEO_NAME, 2: MONICA_NAME, 3: 'Luisa Moreno' }
+        cardVentas.cascadeOwner = MONICA_NAME   // quién es responsable en nivel 2
         // En nivel 3, cardVentas aparece bajo la expansión del nodo ceo-ventas (nivel 2)
         cardVentas.cascadeParentIds = { 3: 'ceo-ventas' }
         cardVentas.onExport = async () => {
@@ -518,6 +519,7 @@ export function useKpis(scope = 'total') {
 
         cardEscr.level = [1, 2]
         cardEscr.levelOwners = { 1: CEO_NAME, 2: MONICA_NAME }
+        cardEscr.cascadeOwner = MONICA_NAME
         cardEscr.onExport = async () => {
           const { data: rows } = await supabaseIc.from('kpi_escrituracion_ytd_proyecto').select('*')
           downloadCsv(`escrituracion_ytd_${new Date().toISOString().slice(0, 7)}.csv`, rows || [])
@@ -572,15 +574,34 @@ export function useKpis(scope = 'total') {
           .filter(n => n.title !== 'Gaia')
           .map(n => toSalaNode('dir-vta', n, 'ceo-ventas'))
 
-        // Nivel 4 Trámites: mismo patrón, excluye Gaia
+        // Nivel 4 Trámites: mismo patrón, excluye Gaia (path CEO/ventas)
         const dirSalaTramNodes = cardTram.children
           .filter(n => n.title !== 'Gaia')
           .map(n => toSalaNode('dir-tram', n, 'monica-tramites'))
 
+        // Nodo Trámites en nivel 3 para el path Mónica → expansión directa
+        // Aparece junto a los KPIs de Francisco cuando se expande monica-tramites en nivel 2
+        const cardTramL3Monica = {
+          ...cardTram,
+          id: 'monica-tramites-l3',
+          owner: 'Luisa Moreno',
+          level: 3,
+          levelOwners: undefined,
+          cascadeParentIds: undefined,
+          cascadeParentId: 'monica-tramites',
+        }
+
+        // Nivel 4 para el path Mónica: misma estructura por proyecto
+        const dirSalaTramNodesMonicaPath = cardTram.children
+          .filter(n => n.title !== 'Gaia')
+          .map(n => toSalaNode('dir-tram-mp', n, 'monica-tramites-l3'))
+
         const built = [
           cardVentas, cardEscr, cardTram, cardCarteraPre, cardCarteraPost,
+          cardTramL3Monica,
           ...dirSalaVentasNodes,
           ...dirSalaTramNodes,
+          ...dirSalaTramNodesMonicaPath,
         ].map(applyStatus)
 
         if (alive) {

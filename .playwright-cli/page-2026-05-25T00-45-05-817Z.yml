@@ -1,0 +1,115 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]: 🏗️
+      - generic [ref=e7]:
+        - generic [ref=e8]: IC Constructora
+        - generic [ref=e9]: Sistema EOS
+    - navigation [ref=e10]:
+      - generic [ref=e11]: General
+      - link "Dashboard" [ref=e12] [cursor=pointer]:
+        - /url: /
+        - img [ref=e13]
+        - text: Dashboard
+      - link "Reuniones" [ref=e18] [cursor=pointer]:
+        - /url: /reuniones
+        - img [ref=e19]
+        - text: Reuniones
+      - generic [ref=e21]: Módulos EOS
+      - link "Visión" [ref=e22] [cursor=pointer]:
+        - /url: /vision
+        - img [ref=e23]
+        - text: Visión
+      - link "Personas" [ref=e27] [cursor=pointer]:
+        - /url: /personas
+        - img [ref=e28]
+        - text: Personas
+      - link "Datos" [ref=e34] [cursor=pointer]:
+        - /url: /datos
+        - img [ref=e35]
+        - text: Datos
+      - link "Asuntos" [ref=e38] [cursor=pointer]:
+        - /url: /asuntos
+        - img [ref=e39]
+        - text: Asuntos
+      - link "Procesos" [ref=e42] [cursor=pointer]:
+        - /url: /procesos
+        - img [ref=e43]
+        - text: Procesos
+      - link "Tracción" [ref=e47] [cursor=pointer]:
+        - /url: /traccion
+        - img [ref=e48]
+        - text: Tracción
+      - generic [ref=e54]: EOS Toolkit
+      - link "Implementación" [ref=e55] [cursor=pointer]:
+        - /url: /implementacion
+        - img [ref=e56]
+        - text: Implementación
+      - link "Biblioteca EOS" [ref=e58] [cursor=pointer]:
+        - /url: /biblioteca
+        - img [ref=e59]
+        - text: Biblioteca EOS
+      - generic [ref=e61]: IC Constructora
+      - link "Alarmas" [ref=e62] [cursor=pointer]:
+        - /url: /alarmas
+        - img [ref=e63]
+        - text: Alarmas
+      - link "Tareas" [ref=e68] [cursor=pointer]:
+        - /url: /tareas
+        - img [ref=e69]
+        - text: Tareas
+      - link "RRHH" [ref=e72] [cursor=pointer]:
+        - /url: /rrhh
+        - img [ref=e73]
+        - text: RRHH
+      - link "Lotes" [ref=e77] [cursor=pointer]:
+        - /url: /lotes
+        - img [ref=e78]
+        - text: Lotes
+      - link "Jurídico" [ref=e81] [cursor=pointer]:
+        - /url: /juridico
+        - img [ref=e82]
+        - text: Jurídico
+      - link "KPIs" [ref=e86] [cursor=pointer]:
+        - /url: /kpis
+        - img [ref=e87]
+        - text: KPIs
+      - generic [ref=e90]: Administración
+      - link "Usuarios" [ref=e91] [cursor=pointer]:
+        - /url: /admin/usuarios
+        - img [ref=e92]
+        - text: Usuarios
+      - generic [ref=e104]: Herramientas
+      - link "Indicadores" [ref=e105] [cursor=pointer]:
+        - /url: http://localhost:8501
+        - img [ref=e106]
+        - text: Indicadores
+        - img [ref=e109]
+      - link "Análisis de Planos" [ref=e113] [cursor=pointer]:
+        - /url: http://localhost:5174
+        - img [ref=e114]
+        - text: Análisis de Planos
+        - img [ref=e119]
+    - generic [ref=e123]:
+      - generic [ref=e124]: 🎯 Modo Demo activo
+      - button "A Admin IC" [ref=e125] [cursor=pointer]:
+        - generic [ref=e126]: A
+        - generic [ref=e127]: Admin IC
+        - img [ref=e128]
+  - generic [ref=e130]:
+    - banner [ref=e131]:
+      - generic [ref=e133]:
+        - strong [ref=e134]: "Misión:"
+        - generic [ref=e135]: Construir el futuro de la infraestructura con calidad y confianza.
+      - generic [ref=e136]:
+        - generic [ref=e138]:
+          - img [ref=e139]
+          - textbox "Buscar..." [ref=e142]
+        - button [ref=e144]:
+          - img [ref=e145]
+        - button "Admin IC Modo demo A" [ref=e149] [cursor=pointer]:
+          - generic [ref=e150]:
+            - generic [ref=e151]: Admin IC
+            - generic [ref=e152]: Modo demo
+          - generic [ref=e153]: A
+    - main [ref=e154]

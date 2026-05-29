@@ -5,9 +5,9 @@ import './kpi.css';
 const fmt = (v, format) => {
   if (v == null || isNaN(v)) return '—';
   const n = Number(v);
-  if (format === 'currency') return `$${n.toLocaleString()}`;
-  if (format === 'percentage') return `${n.toLocaleString()}%`;
-  return n.toLocaleString();
+  if (format === 'currency') return `$${n.toLocaleString('es-CO', { maximumFractionDigits: 1 })}`;
+  if (format === 'percentage') return `${n.toLocaleString('es-CO', { maximumFractionDigits: 1 })}%`;
+  return n.toLocaleString('es-CO', { maximumFractionDigits: 0 });
 };
 
 export const KpiTooltip = ({ node }) => {
@@ -49,14 +49,14 @@ export const KpiTooltip = ({ node }) => {
           <div className="kpi-tooltip-row" style={{ borderTop: '1px solid #e2e8f0', paddingTop: 4, marginTop: 4 }}>
             <span className="kpi-tooltip-label" style={{ fontWeight: 600 }}>Cumplimiento</span>
             <span className="kpi-tooltip-value" style={{ color: cumplColor, fontWeight: 700 }}>
-              {cumpl.toLocaleString()}%
+              {cumpl.toLocaleString('es-CO', { maximumFractionDigits: 1 })}%
             </span>
           </div>
         )}
         {meta.unitsPpto != null && meta.unitsReal != null && (
           <div className="kpi-tooltip-row" style={{ fontSize: '0.7rem', color: '#94a3b8' }}>
             <span>Unidades</span>
-            <span>{Number(meta.unitsReal).toLocaleString()} / {Number(meta.unitsPpto).toLocaleString()}</span>
+            <span>{Number(meta.unitsReal).toLocaleString('es-CO', { maximumFractionDigits: 0 })} / {Number(meta.unitsPpto).toLocaleString('es-CO', { maximumFractionDigits: 0 })}</span>
           </div>
         )}
       </div>

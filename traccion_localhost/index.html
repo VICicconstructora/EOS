@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tracción – Localhost Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary-h: 210;
+      --primary-s: 65%;
+      --primary-l: 50%;
+      --bg-h: 225;
+      --bg-s: 10%;
+      --bg-l: 12%;
+    }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: hsl(var(--bg-h), var(--bg-s), var(--bg-l));
+      color: hsl(0, 0%, 90%);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    header {
+      background: linear-gradient(
+        135deg,
+        hsl(var(--primary-h), var(--primary-s), calc(var(--primary-l) + 10%)),
+        hsl(var(--primary-h), var(--primary-s), var(--primary-l))
+      );
+      padding: 2rem;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+    h1 {
+      margin: 0;
+      font-weight: 600;
+      font-size: 2.5rem;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 600px;
+      backdrop-filter: blur(8px);
+      text-align: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    }
+    a {
+      color: hsl(var(--primary-h), var(--primary-s), 70%);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Tracción – Demo Localhost</h1>
+  </header>
+  <main>
+    <div class="card">
+      <p>Esta es una página estática de ejemplo para el proyecto <strong>Tracción</strong>. Puedes usarla como punto de partida para tus dashboards o documentación.</p>
+      <p>
+        <a href="https://github.com/your-repo/traccion" target="_blank">Ver repositorio</a> |
+        <a href="https://www.example.com" target="_blank">Documentación</a>
+      </p>
+    </div>
+  </main>
+  <footer>
+    © 2026 Tracción – Todos los derechos reservados.
+  </footer>
+</body>
+</html>
