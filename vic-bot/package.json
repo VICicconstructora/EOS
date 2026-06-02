@@ -8,7 +8,8 @@
     "dev": "nodemon src/index.js",
     "index-wiki": "node indexer/indexWiki.js",
     "embed-wiki": "node indexer/backfillEmbeddings.js",
-    "daily-sync": "node indexer/dailySync.js"
+    "daily-sync": "node indexer/dailySync.js",
+    "export-propuestas": "node scripts/export-propuestas.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "latest",

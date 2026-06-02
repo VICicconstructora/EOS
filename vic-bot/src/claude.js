@@ -1,17 +1,37 @@
 const Anthropic = require('@anthropic-ai/sdk')
 const { searchWiki, getWikiPage, listWikiPages } = require('./tools/wiki')
 const { getRocks, getMetrics, getIssues, getPeople, getMeetings, getProcesses } = require('./tools/eos')
-const { listSincoTables, describeSincoTable, querySinco } = require('./tools/sinco')
+const {
+  listSincoTables, describeSincoTable, querySinco,
+  listDbSchemas, listDbTables, describeDbTable, queryDb,
+  listasPrecioAtrasadas
+} = require('./tools/sinco')
+const { proposeWikiUpdate } = require('./tools/propuestas')
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+// El cliente NO es global: cada llamada a chat() usa la API key del usuario
+// que está hablando, para que consuma su propia cuota de Anthropic.
+const clientCache = new Map()
+function clientFor(apiKey) {
+  if (!apiKey) throw new Error('Falta API key de Anthropic para esta conversación.')
+  let c = clientCache.get(apiKey)
+  if (!c) {
+    c = new Anthropic({ apiKey })
+    clientCache.set(apiKey, c)
+  }
+  return c
+}
 
 const SYSTEM = `Eres VIC, el asistente ejecutivo interno de IC Constructora (Bogotá, Colombia, UTC-5).
 Hablas principalmente con Juan Paulo McAllister, CEO. Trátalo como un colega — no como un usuario nuevo.
 
-Tienes acceso a tres fuentes de información:
-1. El wiki de la empresa (personas, proyectos, procesos, estructura organizacional).
-2. El sistema EOS/Tracción: rocas trimestrales, scorecard, asuntos IDS, directorio de personas, reuniones y procesos.
-3. Los datos vivos de SINCO (el ERP) en Supabase, que consultas generando SQL propio con las herramientas list_sinco_tables, describe_sinco_table y query_sinco.
+Eres el canal de comunicación del portal EOS: además de responder consultas, tu rol es comunicar lo que pasa en la empresa — alarmas, recomendaciones, sugerencias e inconsistencias que detectes en los datos o en el wiki.
+
+Tienes acceso a TODA la información de la empresa en dos fuentes:
+1. El wiki de la empresa (personas, proyectos, procesos, estructura organizacional) — con search_wiki, get_wiki_page, list_wiki_pages.
+2. Toda la base de datos Supabase en SOLO LECTURA, que abarca:
+   - El sistema EOS/Tracción (esquema public): rocas, scorecard, asuntos IDS, personas, reuniones, procesos, VTO, alarmas (tabla alarms) y tareas (tabla tasks). Tienes tools fijas (get_rocks, get_metrics, etc.) para lo común, pero también puedes consultar cualquier tabla/vista de public con SQL.
+   - Los datos vivos de SINCO (el ERP): esquemas sinco_ic_raw, sinco_ic_model, sinco_ic_calc, sinco_ic_targets, sinco_ic_historico, sinco_ic_export, sinco_ic_meta.
+   Para SQL libre usa list_db_schemas / list_db_tables / describe_db_table / query_db (acceso a cualquier esquema de negocio). Las variantes *_sinco son un atajo histórico acotado a SINCO; query_db es el camino general.
 
 Reglas de respuesta:
 - Español siempre.
@@ -21,6 +41,29 @@ Reglas de respuesta:
 - No resumas al final lo que acabas de hacer.
 - Usa los datos exactos de las herramientas — no inventes información.
 - Cuando la pregunta merezca consultar varias fuentes, hazlo (primero wiki, luego EOS).
+- Si al consultar detectas algo accionable que el usuario no preguntó pero debería saber (una alarma activa, una inconsistencia entre fuentes, un riesgo), menciónalo de forma breve al final. Es parte de tu rol como canal de comunicación.
+
+Alimentar el wiki (propose_wiki_update) — CRÍTICO:
+El wiki es de SOLO LECTURA: tú NUNCA lo escribes ni prometes haberlo actualizado. Pero sí puedes ALIMENTARLO encolando una propuesta para revisión humana con la tool propose_wiki_update. El CEO o un curador la aprueba antes de que entre al wiki.
+
+Cuándo encolar una propuesta:
+- Solo cuando el usuario afirme un HECHO nuevo, duradero y verificable sobre la organización: un rol o cargo, una responsabilidad, una asignación a un proyecto, un dato de un proceso, una corrección de algo que el wiki tiene mal o desactualizado.
+- Antes de proponer, comprueba si el wiki ya lo dice (search_wiki / get_wiki_page). Si ya está igual, NO propongas. Si difiere, propón como corrección e indica la ficha (entidad_objetivo).
+
+Cuándo NO encolar (déjalo pasar, no llames la tool):
+- Opiniones, quejas, estados de ánimo, intenciones, cosas efímeras ("estoy cansado", "creo que deberíamos...").
+- Preguntas. Datos que el usuario pide, no aporta.
+- Cifras de negocio (esas viven en SINCO, no en el wiki).
+- Cualquier cosa que no puedas atribuir a un hecho concreto. Ante la duda, NO propongas. Nunca inventes ni completes datos que el usuario no dijo.
+
+Cómo proponer:
+- contenido: el hecho redactado limpio y atribuible, en tercera persona. Sin adornos.
+- entidad_objetivo: la ficha del wiki a la que aplicaría (ej. "wiki/personas/mayra-nathalia-martinez-mejia.md"). Si no la conoces, búscala con list_wiki_pages; si no existe, descríbela en texto.
+- cita_textual: lo que dijo el usuario, textual.
+- tipo: persona / proyecto / proceso / otro. confianza: alta / media / baja según qué tan claro fue el aporte.
+- NO pases el correo del proponente: el sistema lo añade solo.
+- Tras encolar, díselo al usuario en una frase breve ("Anoté esto para revisión del wiki"). No prometas que ya quedó en el wiki.
+- Si la tool responde que el usuario está fuera del piloto, no insistas: simplemente sigue la conversación con normalidad.
 
 Cómo buscar bien en el wiki (CRÍTICO — el wiki tiene 594 páginas; el dato casi siempre existe):
 - search_wiki devuelve extractos, no la página completa. Un extracto puede no contener el dato exacto aunque la página sí lo tenga.
@@ -155,6 +198,87 @@ const TOOLS = [
     }
   },
   {
+    name: 'list_db_schemas',
+    description: 'Lista los esquemas de negocio disponibles en Supabase (EOS en public, y los esquemas de SINCO). Úsalo para descubrir qué dominios de datos existen antes de consultar con SQL. No incluye esquemas de sistema/credenciales (no son accesibles).',
+    input_schema: { type: 'object', properties: {} }
+  },
+  {
+    name: 'list_db_tables',
+    description: 'Lista tablas y vistas de cualquier esquema de negocio (public, sinco_ic_model, etc.). Filtro opcional por subcadena del nombre. Úsalo para descubrir qué tablas hay en un esquema antes de escribir SQL.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        schema: { type: 'string', description: 'Esquema a listar, ej: public, sinco_ic_model, sinco_ic_calc.' },
+        filter: { type: 'string', description: 'Subcadena del nombre de tabla para filtrar. Omitir para todas.' }
+      },
+      required: ['schema']
+    }
+  },
+  {
+    name: 'describe_db_table',
+    description: 'Describe las columnas (nombre, tipo, nullable) de una tabla o vista de cualquier esquema de negocio. Úsalo antes de escribir SQL si no conoces las columnas exactas.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        schema: { type: 'string', description: 'Esquema de la tabla.' },
+        table:  { type: 'string', description: 'Nombre de la tabla o vista.' }
+      },
+      required: ['schema', 'table']
+    }
+  },
+  {
+    name: 'query_db',
+    description: 'Ejecuta un SELECT de SOLO LECTURA sobre CUALQUIER esquema de negocio de Supabase (EOS en public, SINCO, targets, etc.). Es el camino general para consultar datos: úsalo para EOS (alarmas, rocas, tareas, scorecard) o para cruzar EOS con SINCO. Solo SELECT/WITH; un solo statement; Postgres rechaza escrituras y esquemas sensibles. Califica siempre el esquema (ej: public.alarms, sinco_ic_raw.adi_dtm_venta). Si da error, corrige y reintenta.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        sql:   { type: 'string', description: 'Consulta SELECT/WITH con el esquema calificado. Sin punto y coma final.' },
+        limit: { type: 'number', description: 'Máximo de filas (1-1000). Por defecto: 200.' }
+      },
+      required: ['sql']
+    }
+  },
+  {
+    name: 'listas_precio_atrasadas',
+    description: 'Devuelve las etapas ACTIVAS del portafolio cuya última lista de precios se creó hace 30 o más días (es decir, que NO tienen lista nueva en el último mes). Para cada una indica el slug del proyecto, la etapa, el nombre, la fecha de la última lista, los días sin actualizar y la severidad (alta = >60 días, media = 30-60 días). Úsalo cuando pregunten qué proyectos/etapas tienen las listas de precios atrasadas o sin actualizar. Es la misma alarma que aparece en el portal /alarmas.',
+    input_schema: {
+      type: 'object',
+      properties: {}
+    }
+  },
+  {
+    name: 'propose_wiki_update',
+    description: 'Encola una PROPUESTA de actualización del wiki para revisión humana (no escribe en el wiki). Úsala SOLO cuando el usuario aporte un hecho nuevo, duradero y verificable sobre la organización (rol, responsabilidad, asignación a proyecto, dato de proceso, o corrección de algo que el wiki tiene mal). NO la uses para opiniones, estados de ánimo, preguntas, cifras de negocio, ni nada que no puedas atribuir a un hecho concreto. Antes de proponer, verifica con search_wiki que el wiki no lo diga ya. No inventes ni completes datos que el usuario no dijo. El correo del proponente lo añade el sistema; no lo pases.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        tipo: {
+          type: 'string',
+          enum: ['persona', 'proyecto', 'proceso', 'otro'],
+          description: 'A qué se refiere el hecho.'
+        },
+        contenido: {
+          type: 'string',
+          description: 'El hecho redactado limpio, atribuible, en tercera persona. Sin adornos. Ej: "Mayra Nathalia Martínez coordina la pauta digital de los proyectos Azul Celeste y Gaia."'
+        },
+        entidad_objetivo: {
+          type: 'string',
+          description: 'Ruta de la ficha del wiki a la que aplicaría, si la conoces (ej: "wiki/personas/mayra-nathalia-martinez-mejia.md"). Si no, descríbela en texto o déjala vacía.'
+        },
+        cita_textual: {
+          type: 'string',
+          description: 'Lo que dijo el usuario, textual, para que el curador juzgue el contexto.'
+        },
+        confianza: {
+          type: 'string',
+          enum: ['alta', 'media', 'baja'],
+          description: 'Qué tan claro y verificable fue el aporte. Por defecto: media.'
+        }
+      },
+      required: ['tipo', 'contenido']
+    }
+  },
+  {
     name: 'get_rocks',
     description: 'Obtiene las rocas (objetivos trimestrales) del sistema EOS. Úsalo para preguntas sobre metas del trimestre, estado de objetivos, quién es responsable de qué.',
     input_schema: {
@@ -254,7 +378,7 @@ const TOOLS = [
   }
 ]
 
-async function runTool(name, input) {
+async function runTool(name, input, ctx = {}) {
   console.log(`[VIC] Usando herramienta: ${name}`, JSON.stringify(input))
   try {
     switch (name) {
@@ -264,6 +388,24 @@ async function runTool(name, input) {
       case 'list_sinco_tables':    return await listSincoTables(input)
       case 'describe_sinco_table': return await describeSincoTable(input)
       case 'query_sinco':          return await querySinco(input)
+      case 'list_db_schemas':      return await listDbSchemas()
+      case 'list_db_tables':       return await listDbTables(input)
+      case 'describe_db_table':    return await describeDbTable(input)
+      case 'query_db':             return await queryDb(input)
+      case 'listas_precio_atrasadas': return await listasPrecioAtrasadas()
+      case 'propose_wiki_update':
+        // El email del proponente lo inyecta el servidor (ctx), NO el modelo:
+        // así el LLM no puede falsificar quién aporta. El allowlist del piloto
+        // se valida en la RPC.
+        return await proposeWikiUpdate({
+          proposto_por: ctx.email,
+          tipo: input.tipo,
+          contenido: input.contenido,
+          entidad_objetivo: input.entidad_objetivo,
+          cita_textual: input.cita_textual,
+          confianza: input.confianza,
+          origen_conversacion: ctx.conversationId
+        })
       case 'get_rocks':     return await getRocks(input)
       case 'get_metrics':   return await getMetrics(input)
       case 'get_issues':    return await getIssues(input)
@@ -278,8 +420,10 @@ async function runTool(name, input) {
   }
 }
 
-// Agentic loop: Claude puede encadenar múltiples tool calls antes de responder
-async function chat(history) {
+// Agentic loop: Claude puede encadenar múltiples tool calls antes de responder.
+// `apiKey` es la key del usuario que habla: cada quien gasta su propia cuota.
+async function chat(history, apiKey, ctx = {}) {
+  const client = clientFor(apiKey)
   const messages = history.map(m => ({ role: m.role, content: m.content }))
 
   for (let iteration = 0; iteration < 10; iteration++) {
@@ -304,7 +448,7 @@ async function chat(history) {
       const toolResults = []
       for (const block of response.content) {
         if (block.type !== 'tool_use') continue
-        const result = await runTool(block.name, block.input)
+        const result = await runTool(block.name, block.input, ctx)
         toolResults.push({
           type: 'tool_result',
           tool_use_id: block.id,

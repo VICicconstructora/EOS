@@ -59,6 +59,29 @@ vic-bot/src/
     └── sinco.js      # SINCO + acceso total DB (query_db, etc.) + alarmas de negocio
 ```
 
+## API key de Anthropic por usuario (multi-tenant de cuota)
+
+Cada usuario que habla con VIC consume **su propia** cuota de Anthropic, no la del CEO. El cliente de Anthropic NO es global: `chat(history, apiKey)` en `src/claude.js` crea (y cachea) un cliente por key.
+
+Flujo en cada mensaje (`src/bot.js`):
+
+1. Se extrae el email AAD del usuario (`emailFromContext`, mismo criterio que `push.js`).
+2. Comandos de gestión se atienden primero y **no consumen tokens**:
+   - `/registrar-key sk-ant-...` — registra/actualiza la key del usuario.
+   - `/mi-key` — muestra los últimos 4 chars de la key registrada.
+   - `/borrar-key` — la elimina.
+3. Se resuelve la key con `getUserKey(email)` (`src/lib/keys.js`).
+4. **Sin key registrada → VIC no responde** (no hay fallback a la key del CEO); pide registrarla.
+5. Con key → `chat(history, userKey)` usa esa key.
+
+### Almacenamiento (cifrado)
+
+Las keys viven en `public.vic_user_keys`, **cifradas con pgcrypto** (`pgp_sym_encrypt`). La clave maestra de cifrado vive solo en la variable de entorno `VIC_KEYS_SECRET` del bot; nunca se guarda en la tabla. La tabla tiene RLS sin políticas: el único acceso es vía las RPC `SECURITY DEFINER` (`vic_set_user_key`, `vic_get_user_key`, `vic_user_key_hint`, `vic_delete_user_key`), expuestas solo a `service_role`.
+
+Migración: `app/supabase/migrations/20260602_vic_user_keys.sql`.
+
+> El identificador de usuario es el **email AAD**, no el `conversation.id` (opaco y efímero). Cambiar `VIC_KEYS_SECRET` después de registrar keys las vuelve indescifrables — habría que re-registrarlas.
+
 ## Tools de Claude (en `src/claude.js`)
 
 Wiki: `search_wiki`, `get_wiki_page`, `list_wiki_pages`.
@@ -85,6 +108,7 @@ Así una alarma aparece en los tres canales: el portal `/alarmas`, las respuesta
 | Variable | Para qué |
 |----------|----------|
 | `VIC_PUSH_SECRET` | Secreto compartido que autentica el endpoint `/api/push`. Debe coincidir con el secreto homónimo de la Edge Function `alarmas-push`. |
+| `VIC_KEYS_SECRET` | Clave maestra para cifrar/descifrar las API keys de usuario en `vic_user_keys`. Cadena larga y aleatoria; NO la cambies tras registrar keys (las invalida). |
 
 (Las demás están documentadas en `README.md`.)
 

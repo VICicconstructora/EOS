@@ -7,6 +7,7 @@
 
 const { createClient } = require('@supabase/supabase-js')
 const { TurnContext } = require('botbuilder')
+const { emailFromAadObjectId } = require('./graph')
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -18,10 +19,20 @@ async function saveConversationRef(context) {
   try {
     const ref = TurnContext.getConversationReference(context.activity)
     const from = context.activity.from || {}
-    const email =
-      from.aadObjectId && context.activity.from.userPrincipalName
-        ? context.activity.from.userPrincipalName
-        : (from.properties && from.properties.email) || null
+    const direct =
+      (from.aadObjectId && context.activity.from.userPrincipalName) ||
+      (from.properties && from.properties.email) ||
+      null
+    // Resolver el correo real; NO caer al nombre (rompía el allowlist y el push).
+    const email = direct
+      ? direct.toLowerCase()
+      : await emailFromAadObjectId(from.aadObjectId)
+
+    // Sin correo resoluble no guardamos un ref con identificador basura.
+    if (!email) {
+      console.error('[VIC] No se pudo resolver el email del usuario; ref no guardado.')
+      return
+    }
 
     await supabase
       .from('vic_conversation_refs')
@@ -29,7 +40,7 @@ async function saveConversationRef(context) {
         {
           company_id: 'ic-constructora',
           aad_object_id: from.aadObjectId || null,
-          user_email: (email || from.name || from.id || '').toLowerCase() || null,
+          user_email: email,
           user_name: from.name || '',
           reference: ref,
           updated_at: new Date().toISOString(),

@@ -27,6 +27,7 @@ const JuridicoPage       = lazy(() => import('./pages/JuridicoPage'))
 const AdminUsuariosPage  = lazy(() => import('./pages/AdminUsuariosPage'))
 const EntrevistaPage     = lazy(() => import('./pages/EntrevistaPage'))
 const AlarmasPage        = lazy(() => import('./pages/AlarmasPage'))
+const PropuestasWikiPage = lazy(() => import('./pages/PropuestasWikiPage'))
 
 function PageFallback() {
   return (
@@ -88,6 +89,14 @@ function AppLayout() {
                 element={
                   <ProtectedRoute requireAdmin>
                     <AdminUsuariosPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/propuestas-wiki"
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <PropuestasWikiPage />
                   </ProtectedRoute>
                 }
               />

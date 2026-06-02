@@ -7,9 +7,10 @@ import {
   LayoutDashboard, Eye, Users, BarChart3, AlertTriangle,
   Settings2, Rocket, CalendarDays, Settings, LogOut, Globe,
   Map, BookOpen, UserCheck, Building, Scale, TrendingUp, ScanLine, ExternalLink,
-  Gauge, ChevronUp, ChevronDown, BellRing, CheckSquare, UserCog
+  Gauge, ChevronUp, ChevronDown, BellRing, CheckSquare, UserCog, BookOpen as BookOpenIcon
 } from 'lucide-react'
 import { useAlarms } from '../../lib/useAlarms'
+import { useWikiProposals } from '../../lib/useWikiProposals'
 import { isAdmin } from '../../lib/permissions'
 
 const EOS_MODULES = [
@@ -28,6 +29,7 @@ export default function Sidebar({ isOpen, onClose }) {
   const location = useLocation()
   const [footerOpen, setFooterOpen] = useState(false)
   const { countCritical } = useAlarms()
+  const { countPending: countWikiPending } = useWikiProposals()
 
   function toggleLang() {
     const next = i18n.language === 'es' ? 'en' : 'es'
@@ -204,6 +206,30 @@ export default function Sidebar({ isOpen, onClose }) {
             >
               <UserCog size={18} className="nav-item-icon" style={{ color: 'var(--brand-primary)' }} />
               Usuarios
+            </NavLink>
+
+            <NavLink
+              to="/admin/propuestas-wiki"
+              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+              onClick={handleNavClick}
+            >
+              <BookOpenIcon size={18} className="nav-item-icon" style={{ color: 'var(--brand-primary)' }} />
+              Propuestas Wiki
+              {countWikiPending > 0 && (
+                <span style={{
+                  marginLeft: 'auto',
+                  background: '#d97706',
+                  color: '#fff',
+                  fontSize: '0.65rem',
+                  fontWeight: 700,
+                  padding: '1px 6px',
+                  borderRadius: 'var(--radius-full)',
+                  lineHeight: 1.6,
+                  flexShrink: 0,
+                }}>
+                  {countWikiPending > 99 ? '99+' : countWikiPending}
+                </span>
+              )}
             </NavLink>
           </>
         )}
