@@ -61,4 +61,63 @@ async function querySinco({ sql, limit = 200 } = {}) {
   return data
 }
 
-module.exports = { listSincoTables, describeSincoTable, querySinco }
+// ── Acceso total de SOLO LECTURA a Supabase ─────────────────────────
+// VIC es el canal de comunicación del portal: ve todos los esquemas de
+// negocio (EOS en public, SINCO, targets, etc.), no solo los 4 de SINCO.
+// La seguridad vive en Postgres (RPC vic_query_db: solo-SELECT, READ ONLY,
+// esquemas sensibles bloqueados). Ver migración vic_acceso_total_lectura.
+
+async function listDbSchemas() {
+  const { data, error } = await supabase.rpc('vic_list_db_schemas')
+  if (error) return `Error al listar esquemas: ${error.message}`
+  return data
+}
+
+async function listDbTables({ schema, filter } = {}) {
+  if (!schema?.trim()) return 'Falta el esquema. Usa list_db_schemas para descubrirlos.'
+  const { data, error } = await supabase.rpc('vic_list_db_tables', {
+    schema_name: schema,
+    name_filter: filter || null
+  })
+  if (error) return `Error al listar tablas de ${schema}: ${error.message}`
+  if (!data?.length) return `No hay tablas en ${schema} que coincidan con "${filter || ''}".`
+  return data
+}
+
+async function describeDbTable({ schema, table } = {}) {
+  if (!schema?.trim()) return 'Falta el esquema.'
+  if (!table?.trim()) return 'Falta el nombre de la tabla.'
+  const { data, error } = await supabase.rpc('vic_describe_db_table', {
+    schema_name: schema,
+    tbl_name: table
+  })
+  if (error) return `Error al describir ${schema}.${table}: ${error.message}`
+  return data
+}
+
+async function queryDb({ sql, limit = 200 } = {}) {
+  if (!sql?.trim()) return 'Falta el SQL a ejecutar.'
+  const { data, error } = await supabase.rpc('vic_query_db', {
+    query_text: sql,
+    row_limit: limit
+  })
+  if (error) return `Error en la consulta: ${error.message}`
+  if (!data?.length) return 'La consulta no devolvió filas.'
+  return data
+}
+
+// Alarma de negocio: etapas activas cuya última lista de precios se creó hace
+// 30+ días. Lee la vista curada vía RPC SECURITY DEFINER (misma fuente que el
+// portal /alarmas). alta = >60 días, media = 30-60 días.
+async function listasPrecioAtrasadas() {
+  const { data, error } = await supabase.rpc('vic_listas_precio_atrasadas')
+  if (error) return `Error al consultar listas atrasadas: ${error.message}`
+  if (!data?.length) return 'Todas las etapas activas tienen una lista de precios creada en los últimos 30 días.'
+  return data
+}
+
+module.exports = {
+  listSincoTables, describeSincoTable, querySinco,
+  listDbSchemas, listDbTables, describeDbTable, queryDb,
+  listasPrecioAtrasadas
+}

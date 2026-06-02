@@ -21,14 +21,17 @@ const PROJECT_LABELS = {
 }
 
 const CATEGORY_LABELS = {
-  credito:   'Crédito Constructor',
-  poliza_tr: 'Póliza Todo Riesgo',
-  poliza_rc: 'Póliza Resp. Civil',
-  licencia:  'Licencia Construcción',
+  credito:      'Crédito Constructor',
+  poliza_tr:    'Póliza Todo Riesgo',
+  poliza_rc:    'Póliza Resp. Civil',
+  licencia:     'Licencia Construcción',
+  lista_precio: 'Lista de Precios',
 }
 
-function diasLabel(dias) {
+function diasLabel(dias, category) {
   if (dias === null || dias === undefined) return '—'
+  // Para listas de precios, `dias` (negativo) representa días sin actualizar.
+  if (category === 'lista_precio') return `${Math.abs(dias)}d sin actualizar`
   if (dias < 0) return `${Math.abs(dias)}d vencida`
   if (dias === 0) return 'vence hoy'
   return `${dias}d`
@@ -44,6 +47,7 @@ function AlarmCard({ alarm, onAcknowledge, userEmail }) {
 
   const sevColor = isVencida ? 'var(--status-error)' : '#d97706'
   const sevBg    = isVencida ? 'rgba(239,68,68,0.1)' : 'rgba(217,119,6,0.1)'
+  const isLista  = alarm.category === 'lista_precio'
 
   return (
     <div
@@ -69,7 +73,9 @@ function AlarmCard({ alarm, onAcknowledge, userEmail }) {
               fontSize: '0.7rem', fontWeight: 700,
               color: sevColor, background: sevBg,
             }}>
-              {isVencida ? '🔴 VENCIDA' : '🟡 POR VENCER'}
+              {isLista
+                ? (isVencida ? '🔴 SIN ACTUALIZAR' : '🟡 ACTUALIZAR PRONTO')
+                : (isVencida ? '🔴 VENCIDA' : '🟡 POR VENCER')}
             </span>
             <span style={{
               padding: '2px 8px', borderRadius: 'var(--radius-full)',
@@ -114,12 +120,12 @@ function AlarmCard({ alarm, onAcknowledge, userEmail }) {
 
         {/* Right: días + action */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 'var(--space-2)', flexShrink: 0 }}>
-          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: sevColor, lineHeight: 1 }}>
-            {diasLabel(alarm.dias)}
+          <div style={{ fontSize: isLista ? '0.95rem' : '1.3rem', fontWeight: 800, color: sevColor, lineHeight: 1.1, textAlign: 'right' }}>
+            {diasLabel(alarm.dias, alarm.category)}
           </div>
           {alarm.expires_at && (
             <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
-              Vence: {alarm.expires_at}
+              {isLista ? 'Última lista:' : 'Vence:'} {alarm.expires_at}
             </div>
           )}
           {alarm.status === 'active' ? (
