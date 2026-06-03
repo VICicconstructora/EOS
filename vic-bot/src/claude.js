@@ -428,7 +428,7 @@ async function chat(history, apiKey, ctx = {}) {
 
   for (let iteration = 0; iteration < 10; iteration++) {
     const response = await client.messages.create({
-      model: 'claude-sonnet-4-6',
+      model: 'claude-3-5-sonnet-latest',
       max_tokens: 1500,
       system: SYSTEM,
       tools: TOOLS,
@@ -462,7 +462,7 @@ async function chat(history, apiKey, ctx = {}) {
     }
   }
 
-  return 'No pude generar una respuesta. Intenta reformular la pregunta.'
+  return 'No pude generar una respuesta después de múltiples intentos. Esto puede deberse a que la tarea es muy compleja o hubo un problema inesperado de la API.'
 }
 
 module.exports = { chat }

@@ -117,7 +117,7 @@ class VicBot extends ActivityHandler {
         await context.sendActivity(MessageFactory.text(response))
       } catch (err) {
         console.error('[VIC] Error en chat:', err.message)
-        await context.sendActivity('No pude procesar eso. Intenta reformular la pregunta.')
+        await context.sendActivity(`Ocurrió un error al procesar tu solicitud. Detalle técnico: ${err.message}`)
       }
 
       await next()
