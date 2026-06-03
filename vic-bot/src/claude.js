@@ -428,7 +428,7 @@ async function chat(history, apiKey, ctx = {}) {
 
   for (let iteration = 0; iteration < 10; iteration++) {
     const response = await client.messages.create({
-      model: 'claude-3-5-sonnet-latest',
+      model: 'claude-sonnet-4-6',
       max_tokens: 1500,
       system: SYSTEM,
       tools: TOOLS,

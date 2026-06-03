@@ -2,6 +2,7 @@ const { ActivityHandler, MessageFactory } = require('botbuilder')
 const { chat } = require('./claude')
 const { saveConversationRef } = require('./lib/push')
 const { getUserKey, setUserKey, getUserKeyHint, deleteUserKey, emailFromContext } = require('./lib/keys')
+const { userMessageForChatError, anthropicDetails } = require('./lib/errors')
 
 // Maneja los comandos de gestión de la API key del usuario.
 // Devuelve un texto de respuesta si el mensaje era un comando, o null si no.
@@ -116,8 +117,12 @@ class VicBot extends ActivityHandler {
         history.push({ role: 'assistant', content: response })
         await context.sendActivity(MessageFactory.text(response))
       } catch (err) {
-        console.error('[VIC] Error en chat:', err.message)
-        await context.sendActivity(`Ocurrió un error al procesar tu solicitud. Detalle técnico: ${err.message}`)
+        const { status, apiType, apiMsg } = anthropicDetails(err)
+        console.error(
+          `[VIC] Error en chat (email=${email || 'desconocido'}, status=${status || '-'}, type=${apiType || '-'}):`,
+          apiMsg || err.message
+        )
+        await context.sendActivity(MessageFactory.text(userMessageForChatError(err)))
       }
 
       await next()
