@@ -199,6 +199,29 @@ function fmtMonto(n) {
   return '$' + (n / 1e9).toFixed(1) + 'B';
 }
 
+// ─── Resolución de columnas por nombre de cabecera ───────────────────────────
+// Las columnas de renovación/solicitud/prórrogas se ubican por su nombre en la
+// fila de cabeceras (fila 5), NO por índice fijo: los índices difieren entre el
+// sync local y el cloud y no deben adivinarse. Si la cabecera no existe, la
+// columna queda en null y su señal simplemente no se aplica.
+
+function norm(s) {
+  return String(s ?? '')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')  // quita acentos
+    .toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+function resolveCol(headerRow, targets) {
+  const list = Array.isArray(targets) ? targets : [targets];
+  for (const target of list) {
+    const t = norm(target);
+    let idx = headerRow.findIndex(h => norm(h) === t);          // match exacto
+    if (idx < 0) idx = headerRow.findIndex(h => norm(h).includes(t)); // contiene
+    if (idx >= 0) return idx;
+  }
+  return null;
+}
+
 // ─── Supabase ─────────────────────────────────────────────────────────────────
 
 async function supabaseUpsert(table, rows, conflictColumn) {
@@ -320,31 +343,60 @@ function buildAlarms(slug, etapas) {
   const alarmas = [];
 
   etapas.forEach(e => {
-    // Crédito
+    // Crédito. La fecha de vencimiento prorrogada anula la original
+    // (fechaVencProrr || fechaVencCred). La solicitud de prórroga avisa pero no
+    // silencia; el nº de prórrogas (columna aparte) se anota como control.
     const credVenc = e.fechaVencProrr || e.fechaVencCred;
     const diasC = diasRestantes(credVenc);
     if (diasC !== null && diasC < UMBRAL_CREDITO) {
+      const notas = [];
+      if (e.solicProrrCred) {
+        notas.push(credVenc && e.solicProrrCred > credVenc
+          ? `prórroga solicitada ${fmtDate(e.solicProrrCred)} (aún no otorgada)`
+          : `prórroga solicitada ${fmtDate(e.solicProrrCred)}`);
+      }
+      if (e.numProrrogas > 0) {
+        notas.push(`${e.numProrrogas} prórroga${e.numProrrogas !== 1 ? 's' : ''}`);
+      }
+      const sufijo = notas.length ? ` · ${notas.join(' · ')}` : '';
       alarmas.push({
         slug, nivel: diasC < 0 ? 'VENCIDA' : 'POR VENCER',
         area: 'Crédito', category: 'credito',
         etapa: String(e.etapa), expires_at: fmtDate(credVenc), dias: diasC,
-        detalle: `E${e.etapa}: ${e.entidadCredito}, vence ${fmtDate(credVenc)} (${diasC} días)`,
+        detalle: `E${e.etapa}: ${e.entidadCredito}, vence ${fmtDate(credVenc)} (${diasC} días)${sufijo}`,
       });
     }
 
-    // Pólizas TR y RC
+    // Pólizas TR y RC.
+    // La renovación vigente anula el vencimiento original (mismo patrón que el
+    // crédito: prórroga || original). La SOLICITUD de renovación NO silencia la
+    // alarma — solo la anota: si la solicitud es posterior al vencimiento, es una
+    // ampliación pedida aún no otorgada. El nº de prórrogas se anota como control.
     [
-      { dias: diasRestantes(e.vencTR), venc: fmtDate(e.vencTR), ent: e.polizaTR, tipo: 'TR', cat: 'poliza_tr' },
-      { dias: diasRestantes(e.vencRC), venc: fmtDate(e.vencRC), ent: e.polizaRC, tipo: 'RC', cat: 'poliza_rc' },
+      { venc: e.vencTR, vencRenov: e.vencRenovTR, solic: e.solicRenovTR, prorrogas: e.numProrrogasTR, ent: e.polizaTR, tipo: 'TR', cat: 'poliza_tr' },
+      { venc: e.vencRC, vencRenov: e.vencRenovRC, solic: e.solicRenovRC, prorrogas: e.numProrrogasRC, ent: e.polizaRC, tipo: 'RC', cat: 'poliza_rc' },
     ].forEach(p => {
-      if (p.dias !== null && p.dias < UMBRAL_POLIZA) {
-        alarmas.push({
-          slug, nivel: p.dias < 0 ? 'VENCIDA' : 'POR VENCER',
-          area: `Póliza ${p.tipo}`, category: p.cat,
-          etapa: String(e.etapa), expires_at: p.venc, dias: p.dias,
-          detalle: `E${e.etapa}: ${p.ent}, vence ${p.venc} (${p.dias} días)`,
-        });
+      const vencEf = p.vencRenov || p.venc;      // renovación anula original
+      const dias = diasRestantes(vencEf);
+      if (dias === null || dias >= UMBRAL_POLIZA) return;
+
+      const notas = [];
+      if (p.solic) {
+        notas.push(vencEf && p.solic > vencEf
+          ? `ampliación solicitada ${fmtDate(p.solic)} (aún no otorgada)`
+          : `renovación solicitada ${fmtDate(p.solic)}`);
       }
+      if (p.prorrogas > 0) {
+        notas.push(`${p.prorrogas} prórroga${p.prorrogas !== 1 ? 's' : ''}`);
+      }
+      const sufijo = notas.length ? ` · ${notas.join(' · ')}` : '';
+
+      alarmas.push({
+        slug, nivel: dias < 0 ? 'VENCIDA' : 'POR VENCER',
+        area: `Póliza ${p.tipo}`, category: p.cat,
+        etapa: String(e.etapa), expires_at: fmtDate(vencEf), dias,
+        detalle: `E${e.etapa}: ${p.ent}, vence ${fmtDate(vencEf)} (${dias} días)${sufijo}`,
+      });
     });
 
     // Licencia
@@ -388,6 +440,17 @@ async function main() {
       const nonEmpty = row.filter(v => v !== '' && v !== null);
       console.log(`  Fila ${i + 1} (${nonEmpty.length} celdas): ${JSON.stringify(row.slice(0, 16))}`);
     });
+
+    // Volcado completo de la fila de cabeceras (fila 5) con índices, para verificar
+    // que las columnas de renovación/solicitud/prórrogas resuelven correctamente.
+    console.log(`\n[discover] Cabeceras (fila 5) con índice — rango ${DATA_RANGE}:`);
+    const full = await graphGet(token,
+      `/drives/${ref.driveId}/items/${ref.itemId}/workbook/worksheets('${encodeURIComponent(SHEET_NAME)}')/range(address='${DATA_RANGE}')`
+    );
+    const hdr = (full.values || [])[4] || [];
+    hdr.forEach((h, i) => {
+      if (h !== '' && h !== null) console.log(`  [${i}] ${h}`);
+    });
     return;
   }
 
@@ -397,8 +460,27 @@ async function main() {
 
   // Fila 5 (índice 4) = cabeceras; datos desde fila 6 (índice 5)
   // Col A (índice 0) siempre vacía — filtrar por col B (índice 1) que tiene CodDataMart numérico
+  const headerRow = values[4] || [];
   const DATA = values.slice(5).filter(r => r[1] !== '' && r[1] !== null && r[1] !== undefined);
   console.log(`[parse] ${DATA.length} etapas encontradas`);
+
+  // Resolver por nombre las columnas de renovación/solicitud/prórrogas (índices
+  // no fijos). Si no se encuentran, quedan en null y su señal no se aplica.
+  const DCOL = {
+    vencRenovTR:    resolveCol(headerRow, 'Poliza Vencimiento Renovacion Todo Riesgo'),
+    solicRenovTR:   resolveCol(headerRow, 'Poliza Solicitud Renovacion Todo Riesgo'),
+    numProrrogasTR: resolveCol(headerRow, 'Poliza Numero Prorrogas Todo Riesgo'),
+    vencRenovRC:    resolveCol(headerRow, 'Poliza Vencimiento Renovacion RC'),
+    solicRenovRC:   resolveCol(headerRow, 'Poliza Solicitud Renovacion RC'),
+    numProrrogasRC: resolveCol(headerRow, 'Poliza Numero Prorrogas RC'),
+    // Crédito: el nº de prórrogas ya está en C.NumProrrogas (índice confirmado).
+    // La fecha de solicitud de prórroga se busca por nombre (varios candidatos).
+    solicProrrCred: resolveCol(headerRow, ['Credito Solicitud Prorroga', 'Solicitud Prorroga Credito', 'Fecha Solicitud Prorroga Credito', 'Fecha Solicitud Prorroga']),
+  };
+  console.log('[cols] Columnas de renovación resueltas por cabecera:');
+  for (const [k, v] of Object.entries(DCOL)) {
+    console.log(`  ${k.padEnd(16)} → ${v === null ? 'NO ENCONTRADA' : `índice ${v} ("${headerRow[v]}")`}`);
+  }
 
   // 4. Parsear filas
   const filas = DATA.map(r => ({
@@ -407,13 +489,21 @@ async function main() {
     etapa:           String(r[C.Etapa]           || '').trim(),
     polizaTR:        String(r[C.PolizaTR]        || ''),
     vencTR:          excelDate(r[C.VencTR]),
+    vencRenovTR:     DCOL.vencRenovTR    !== null ? excelDate(r[DCOL.vencRenovTR])  : null,
+    solicRenovTR:    DCOL.solicRenovTR   !== null ? excelDate(r[DCOL.solicRenovTR]) : null,
+    numProrrogasTR:  DCOL.numProrrogasTR !== null ? (Number(r[DCOL.numProrrogasTR]) || 0) : 0,
     polizaRC:        String(r[C.PolizaRC]        || ''),
     vencRC:          excelDate(r[C.VencRC]),
+    vencRenovRC:     DCOL.vencRenovRC    !== null ? excelDate(r[DCOL.vencRenovRC])  : null,
+    solicRenovRC:    DCOL.solicRenovRC   !== null ? excelDate(r[DCOL.solicRenovRC]) : null,
+    numProrrogasRC:  DCOL.numProrrogasRC !== null ? (Number(r[DCOL.numProrrogasRC]) || 0) : 0,
     ventasProy:      r[C.VentasProy]      || 0,
     entidadCredito:  String(r[C.EntidadCredito]  || ''),
     montoCredito:    r[C.MontoCredito]    || 0,
     fechaVencCred:   excelDate(r[C.FechaVencCred]),
     fechaVencProrr:  excelDate(r[C.FechaVencProrr]),
+    numProrrogas:    Number(r[C.NumProrrogas]) || 0,
+    solicProrrCred:  DCOL.solicProrrCred !== null ? excelDate(r[DCOL.solicProrrCred]) : null,
     entidadFiducia:  String(r[C.EntidadFiducia]  || ''),
     responsable:     String(r[C.Responsable]     || ''),
     licUrbanismo:    String(r[C.LicUrbanismo]    || ''),

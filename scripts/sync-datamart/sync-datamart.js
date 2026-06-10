@@ -249,11 +249,31 @@ if (!fs.existsSync(DATAMART_PATH)) {
   process.exit(1);
 }
 
+// ─── Resolución de columnas por nombre de cabecera ───────────────────────────
+// Las columnas de renovación/solicitud/prórrogas se ubican por nombre en la fila
+// de cabeceras (fila 5), NO por índice fijo. Si no existe, la señal no se aplica.
+function norm(s) {
+  return String(s ?? '')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase().replace(/\s+/g, ' ').trim();
+}
+function resolveCol(headerRow, targets) {
+  const list = Array.isArray(targets) ? targets : [targets];
+  for (const target of list) {
+    const t = norm(target);
+    let idx = headerRow.findIndex(h => norm(h) === t);
+    if (idx < 0) idx = headerRow.findIndex(h => norm(h).includes(t));
+    if (idx >= 0) return idx;
+  }
+  return null;
+}
+
 const wb  = xlsx.readFile(DATAMART_PATH, { sheetStubs: false });
 const ws  = wb.Sheets['Proyectos'];
 const raw = xlsx.utils.sheet_to_json(ws, { header: 1, defval: '' });
 
 // Fila 5 (índice 4) = cabeceras; datos desde fila 6 (índice 5)
+const headerRow = raw[4] || [];
 const DATA = raw.slice(5).filter(r => r[0] !== '');
 console.log(`Etapas encontradas: ${DATA.length}`);
 
@@ -285,6 +305,21 @@ const C = {
   ProxTramite:    116,
 };
 
+// Resolver por nombre las columnas de renovación/solicitud/prórrogas (índices no fijos).
+const DCOL = {
+  vencRenovTR:    resolveCol(headerRow, 'Poliza Vencimiento Renovacion Todo Riesgo'),
+  solicRenovTR:   resolveCol(headerRow, 'Poliza Solicitud Renovacion Todo Riesgo'),
+  numProrrogasTR: resolveCol(headerRow, 'Poliza Numero Prorrogas Todo Riesgo'),
+  vencRenovRC:    resolveCol(headerRow, 'Poliza Vencimiento Renovacion RC'),
+  solicRenovRC:   resolveCol(headerRow, 'Poliza Solicitud Renovacion RC'),
+  numProrrogasRC: resolveCol(headerRow, 'Poliza Numero Prorrogas RC'),
+  solicProrrCred: resolveCol(headerRow, ['Credito Solicitud Prorroga', 'Solicitud Prorroga Credito', 'Fecha Solicitud Prorroga Credito', 'Fecha Solicitud Prorroga']),
+};
+console.log('Columnas de renovación resueltas por cabecera:');
+for (const [k, v] of Object.entries(DCOL)) {
+  console.log(`  ${k.padEnd(16)} → ${v === null ? 'NO ENCONTRADA' : `índice ${v} ("${headerRow[v]}")`}`);
+}
+
 const filas = DATA.map(r => ({
   estado:          r[C.Estado]          || '',
   codSinco:        r[C.CodSinco],
@@ -293,14 +328,21 @@ const filas = DATA.map(r => ({
   torres:          r[C.Torres]          || '',
   polizaTR:        r[C.PolizaTR]        || '',
   vencTR:          excelDate(r[C.VencTR]),
+  vencRenovTR:     DCOL.vencRenovTR    !== null ? excelDate(r[DCOL.vencRenovTR])  : null,
+  solicRenovTR:    DCOL.solicRenovTR   !== null ? excelDate(r[DCOL.solicRenovTR]) : null,
+  numProrrogasTR:  DCOL.numProrrogasTR !== null ? (Number(r[DCOL.numProrrogasTR]) || 0) : 0,
   polizaRC:        r[C.PolizaRC]        || '',
   vencRC:          excelDate(r[C.VencRC]),
+  vencRenovRC:     DCOL.vencRenovRC    !== null ? excelDate(r[DCOL.vencRenovRC])  : null,
+  solicRenovRC:    DCOL.solicRenovRC   !== null ? excelDate(r[DCOL.solicRenovRC]) : null,
+  numProrrogasRC:  DCOL.numProrrogasRC !== null ? (Number(r[DCOL.numProrrogasRC]) || 0) : 0,
   ventasProy:      r[C.VentasProy]      || 0,
   entidadCredito:  r[C.EntidadCredito]  || '',
   montoCredito:    r[C.MontoCredito]    || 0,
   fechaVencCred:   excelDate(r[C.FechaVencCred]),
   fechaVencProrr:  excelDate(r[C.FechaVencProrr]),
   numProrrogas:    r[C.NumProrrogas]    || 0,
+  solicProrrCred:  DCOL.solicProrrCred !== null ? excelDate(r[DCOL.solicProrrCred]) : null,
   entidadFiducia:  r[C.EntidadFiducia]  || '',
   peFiducia:       r[C.PEFiducia]       || '',
   responsable:     r[C.Responsable]     || '',
@@ -352,10 +394,16 @@ function construirSeccion(slug, etapas) {
 
     if (diasC !== null && diasC < UMBRAL_CREDITO) {
       const nivel = diasC < 0 ? 'VENCIDA' : 'POR VENCER';
+      const notas = [];
+      if (e.solicProrrCred) {
+        notas.push(`prórroga solicitada ${fmtDate(e.solicProrrCred)}${credVenc && e.solicProrrCred > credVenc ? ' (aún no otorgada)' : ''}`);
+      }
+      if (e.numProrrogas > 0) notas.push(`${e.numProrrogas} prórroga${e.numProrrogas !== 1 ? 's' : ''}`);
+      const sufijo = notas.length ? ` · ${notas.join(' · ')}` : '';
       alarmasLocales.push({
         nivel, area: 'Crédito', category: 'credito',
         etapa: String(e.etapa), expires_at: fmtDate(credVenc), dias: diasC,
-        detalle: `E${e.etapa}: ${e.entidadCredito}, vence ${fmtDate(credVenc)} (${diasC} días)`
+        detalle: `E${e.etapa}: ${e.entidadCredito}, vence ${fmtDate(credVenc)} (${diasC} días)${sufijo}`
       });
     }
 
@@ -371,23 +419,33 @@ function construirSeccion(slug, etapas) {
   L.push(`|-------|------------|----------|------------|----------|`);
 
   etapas.forEach(e => {
-    const diasTR = diasRestantes(e.vencTR);
-    const diasRC = diasRestantes(e.vencRC);
+    const vencTRef = e.vencRenovTR || e.vencTR;   // renovación anula original
+    const vencRCef = e.vencRenovRC || e.vencRC;
+    const diasTR = diasRestantes(vencTRef);
+    const diasRC = diasRestantes(vencRCef);
 
-    [{ dias: diasTR, tipo: 'TR', ent: e.polizaTR, venc: fmtDate(e.vencTR), cat: 'poliza_tr' },
-     { dias: diasRC, tipo: 'RC', ent: e.polizaRC, venc: fmtDate(e.vencRC), cat: 'poliza_rc' }]
+    [{ venc: e.vencTR, vencRenov: e.vencRenovTR, solic: e.solicRenovTR, prorrogas: e.numProrrogasTR, tipo: 'TR', ent: e.polizaTR, cat: 'poliza_tr' },
+     { venc: e.vencRC, vencRenov: e.vencRenovRC, solic: e.solicRenovRC, prorrogas: e.numProrrogasRC, tipo: 'RC', ent: e.polizaRC, cat: 'poliza_rc' }]
       .forEach(p => {
-        if (p.dias !== null && p.dias < UMBRAL_POLIZA) {
-          const nivel = p.dias < 0 ? 'VENCIDA' : 'POR VENCER';
-          alarmasLocales.push({
-            nivel, area: `Póliza ${p.tipo}`, category: p.cat,
-            etapa: String(e.etapa), expires_at: p.venc, dias: p.dias,
-            detalle: `E${e.etapa}: ${p.ent}, vence ${p.venc} (${p.dias} días)`
-          });
+        const vencEf = p.vencRenov || p.venc;
+        const dias = diasRestantes(vencEf);
+        if (dias === null || dias >= UMBRAL_POLIZA) return;
+        const notas = [];
+        if (p.solic) {
+          notas.push(vencEf && p.solic > vencEf
+            ? `ampliación solicitada ${fmtDate(p.solic)} (aún no otorgada)`
+            : `renovación solicitada ${fmtDate(p.solic)}`);
         }
+        if (p.prorrogas > 0) notas.push(`${p.prorrogas} prórroga${p.prorrogas !== 1 ? 's' : ''}`);
+        const sufijo = notas.length ? ` · ${notas.join(' · ')}` : '';
+        alarmasLocales.push({
+          nivel: dias < 0 ? 'VENCIDA' : 'POR VENCER', area: `Póliza ${p.tipo}`, category: p.cat,
+          etapa: String(e.etapa), expires_at: fmtDate(vencEf), dias,
+          detalle: `E${e.etapa}: ${p.ent}, vence ${fmtDate(vencEf)} (${dias} días)${sufijo}`
+        });
       });
 
-    L.push(`| E${e.etapa} | ${e.polizaTR || '—'} | ${fmtDate(e.vencTR)}${iconoAlarma(diasTR, UMBRAL_POLIZA)} | ${e.polizaRC || '—'} | ${fmtDate(e.vencRC)}${iconoAlarma(diasRC, UMBRAL_POLIZA)} |`);
+    L.push(`| E${e.etapa} | ${e.polizaTR || '—'} | ${fmtDate(vencTRef)}${iconoAlarma(diasTR, UMBRAL_POLIZA)} | ${e.polizaRC || '—'} | ${fmtDate(vencRCef)}${iconoAlarma(diasRC, UMBRAL_POLIZA)} |`);
   });
 
   L.push('');
