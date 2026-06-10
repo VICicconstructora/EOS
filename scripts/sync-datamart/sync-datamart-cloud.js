@@ -222,6 +222,28 @@ function resolveCol(headerRow, targets) {
   return null;
 }
 
+// Índices confirmados contra la cabecera real (2026-06-10): TR 38/39/40, RC
+// 44/45/46, crédito solicitud prórroga 59. Se resuelven por nombre igualmente
+// para sobrevivir reordenamientos de columnas en el Datamart.
+function buildDCOL(headerRow) {
+  return {
+    vencRenovTR:    resolveCol(headerRow, 'Poliza Vencimiento Renovacion Todo Riesgo'),
+    solicRenovTR:   resolveCol(headerRow, 'Poliza Solicitud Renovacion Todo Riesgo'),
+    numProrrogasTR: resolveCol(headerRow, 'Poliza Numero Prorrogas Todo Riesgo'),
+    vencRenovRC:    resolveCol(headerRow, 'Poliza Vencimiento Renovacion RC'),
+    solicRenovRC:   resolveCol(headerRow, 'Poliza Solicitud Renovacion RC'),
+    numProrrogasRC: resolveCol(headerRow, 'Poliza Numero Prorrogas RC'),
+    solicProrrCred: resolveCol(headerRow, 'Fecha Solicitud Prorroga'),
+  };
+}
+
+function logDCOL(dcol, headerRow) {
+  console.log('[cols] Columnas de renovación resueltas por cabecera:');
+  for (const [k, v] of Object.entries(dcol)) {
+    console.log(`  ${k.padEnd(16)} → ${v === null ? 'NO ENCONTRADA' : `índice ${v} ("${headerRow[v]}")`}`);
+  }
+}
+
 // ─── Supabase ─────────────────────────────────────────────────────────────────
 
 async function supabaseUpsert(table, rows, conflictColumn) {
@@ -451,6 +473,8 @@ async function main() {
     hdr.forEach((h, i) => {
       if (h !== '' && h !== null) console.log(`  [${i}] ${h}`);
     });
+    console.log('');
+    logDCOL(buildDCOL(hdr), hdr);
     return;
   }
 
@@ -466,21 +490,8 @@ async function main() {
 
   // Resolver por nombre las columnas de renovación/solicitud/prórrogas (índices
   // no fijos). Si no se encuentran, quedan en null y su señal no se aplica.
-  const DCOL = {
-    vencRenovTR:    resolveCol(headerRow, 'Poliza Vencimiento Renovacion Todo Riesgo'),
-    solicRenovTR:   resolveCol(headerRow, 'Poliza Solicitud Renovacion Todo Riesgo'),
-    numProrrogasTR: resolveCol(headerRow, 'Poliza Numero Prorrogas Todo Riesgo'),
-    vencRenovRC:    resolveCol(headerRow, 'Poliza Vencimiento Renovacion RC'),
-    solicRenovRC:   resolveCol(headerRow, 'Poliza Solicitud Renovacion RC'),
-    numProrrogasRC: resolveCol(headerRow, 'Poliza Numero Prorrogas RC'),
-    // Crédito: el nº de prórrogas ya está en C.NumProrrogas (índice confirmado).
-    // La fecha de solicitud de prórroga se busca por nombre (varios candidatos).
-    solicProrrCred: resolveCol(headerRow, ['Credito Solicitud Prorroga', 'Solicitud Prorroga Credito', 'Fecha Solicitud Prorroga Credito', 'Fecha Solicitud Prorroga']),
-  };
-  console.log('[cols] Columnas de renovación resueltas por cabecera:');
-  for (const [k, v] of Object.entries(DCOL)) {
-    console.log(`  ${k.padEnd(16)} → ${v === null ? 'NO ENCONTRADA' : `índice ${v} ("${headerRow[v]}")`}`);
-  }
+  const DCOL = buildDCOL(headerRow);
+  logDCOL(DCOL, headerRow);
 
   // 4. Parsear filas
   const filas = DATA.map(r => ({

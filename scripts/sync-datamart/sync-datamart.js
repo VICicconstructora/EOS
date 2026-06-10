@@ -313,7 +313,7 @@ const DCOL = {
   vencRenovRC:    resolveCol(headerRow, 'Poliza Vencimiento Renovacion RC'),
   solicRenovRC:   resolveCol(headerRow, 'Poliza Solicitud Renovacion RC'),
   numProrrogasRC: resolveCol(headerRow, 'Poliza Numero Prorrogas RC'),
-  solicProrrCred: resolveCol(headerRow, ['Credito Solicitud Prorroga', 'Solicitud Prorroga Credito', 'Fecha Solicitud Prorroga Credito', 'Fecha Solicitud Prorroga']),
+  solicProrrCred: resolveCol(headerRow, 'Fecha Solicitud Prorroga'),
 };
 console.log('Columnas de renovación resueltas por cabecera:');
 for (const [k, v] of Object.entries(DCOL)) {
