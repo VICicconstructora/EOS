@@ -365,6 +365,10 @@ function buildAlarms(slug, etapas) {
   const alarmas = [];
 
   etapas.forEach(e => {
+    // Solo alarmar etapas activas. Las entregadas/cerradas conservan fechas
+    // viejas que generaban alarmas fantasma (créditos/pólizas vencidos 2021-2023).
+    if (String(e.estado).trim().toUpperCase() !== 'ACTIVO') return;
+
     // Crédito. La fecha de vencimiento prorrogada anula la original
     // (fechaVencProrr || fechaVencCred). La solicitud de prórroga avisa pero no
     // silencia; el nº de prórrogas (columna aparte) se anota como control.

@@ -268,6 +268,11 @@ function resolveCol(headerRow, targets) {
   return null;
 }
 
+// Solo se alarma sobre etapas activas; las entregadas/cerradas no generan ruido.
+function esActiva(e) {
+  return String(e.estado).trim().toUpperCase() === 'ACTIVO';
+}
+
 const wb  = xlsx.readFile(DATAMART_PATH, { sheetStubs: false });
 const ws  = wb.Sheets['Proyectos'];
 const raw = xlsx.utils.sheet_to_json(ws, { header: 1, defval: '' });
@@ -392,7 +397,7 @@ function construirSeccion(slug, etapas) {
     const diasC    = diasRestantes(credVenc);
     const icoC     = iconoAlarma(diasC, UMBRAL_CREDITO);
 
-    if (diasC !== null && diasC < UMBRAL_CREDITO) {
+    if (esActiva(e) && diasC !== null && diasC < UMBRAL_CREDITO) {
       const nivel = diasC < 0 ? 'VENCIDA' : 'POR VENCER';
       const notas = [];
       if (e.solicProrrCred) {
@@ -429,7 +434,7 @@ function construirSeccion(slug, etapas) {
       .forEach(p => {
         const vencEf = p.vencRenov || p.venc;
         const dias = diasRestantes(vencEf);
-        if (dias === null || dias >= UMBRAL_POLIZA) return;
+        if (!esActiva(e) || dias === null || dias >= UMBRAL_POLIZA) return;
         const notas = [];
         if (p.solic) {
           notas.push(vencEf && p.solic > vencEf
@@ -459,7 +464,7 @@ function construirSeccion(slug, etapas) {
   etapas.forEach(e => {
     const diasL = diasRestantes(e.vencLicConst);
 
-    if (diasL !== null && diasL < UMBRAL_LICENCIA) {
+    if (esActiva(e) && diasL !== null && diasL < UMBRAL_LICENCIA) {
       const nivel = diasL < 0 ? 'VENCIDA' : 'POR VENCER';
       alarmasLocales.push({
         nivel, area: 'Licencia Construcción', category: 'licencia',
