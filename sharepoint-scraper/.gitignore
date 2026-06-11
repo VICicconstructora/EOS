@@ -5,7 +5,7 @@ __pycache__/
 *.pyc
 
 # Salida de corridas locales
-mirror.log
+*.log
 
 # Caché de Azure Functions Core Tools
 azure-mirror/.python_packages/

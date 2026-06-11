@@ -451,8 +451,18 @@ class SharePointScraper:
             for sid in list(found.keys()):
                 await self.discover_subsites(client, headers, sid, found)
 
-        print(f"Sitios a procesar (incl. subsitios): {len(found)}")
-        return list(found.values())
+        result = list(found.values())
+
+        # Orden inverso opcional: permite correr un segundo proceso (cron local)
+        # que barre los sitios de atrás hacia adelante mientras el job de Azure
+        # los barre de adelante hacia atrás. Comparten el estado por-drive en
+        # `scraping_state`, así que se cruzan en el medio y no se repisan.
+        if os.getenv("SCRAPE_REVERSE", "").strip().lower() in ("1", "true", "yes", "si"):
+            result.reverse()
+            print("Orden INVERSO activado (SCRAPE_REVERSE=1).")
+
+        print(f"Sitios a procesar (incl. subsitios): {len(result)}")
+        return result
 
     async def run(self):
         print("Iniciando scraper...")
