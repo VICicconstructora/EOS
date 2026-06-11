@@ -1,0 +1,8 @@
+azure-identity
+aiohttp
+httpx
+markitdown[all]
+supabase
+python-dotenv
+openai
+tiktoken

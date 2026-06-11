@@ -1,0 +1,14 @@
+# Secretos y entorno local — NUNCA versionar
+.env
+venv/
+__pycache__/
+*.pyc
+
+# Salida de corridas locales
+mirror.log
+
+# Caché de Azure Functions Core Tools
+azure-mirror/.python_packages/
+azure-mirror/bin/
+azure-mirror/obj/
+local.settings.json
