@@ -33,5 +33,5 @@ set "SHAREPOINT_SITES= "
 set "MAX_FILES_PER_RUN=2000"
 set "SLEEP_BETWEEN_FILES=0.3"
 
-"%VPY%" "%~dp0sharepoint_scraper.py" >> "%~dp0scraper-reverse.log" 2>&1
+"%VPY%" -u "%~dp0sharepoint_scraper.py" >> "%~dp0scraper-reverse.log" 2>&1
 endlocal
