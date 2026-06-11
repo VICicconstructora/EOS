@@ -1,4 +1,5 @@
 import os
+import sys
 import asyncio
 import tempfile
 from datetime import datetime, timezone
@@ -10,6 +11,15 @@ from azure.identity.aio import ClientSecretCredential
 from supabase import create_client, Client
 from markitdown import MarkItDown
 from openai import AzureOpenAI
+
+# En Windows la consola/redirección usa cp1252 y revienta al imprimir nombres
+# de archivo con tildes (UnicodeEncodeError -> mata toda la corrida). Forzamos
+# UTF-8 en la salida para que un nombre acentuado nunca tumbe el scraper.
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
 
 load_dotenv()
 
