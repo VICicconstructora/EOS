@@ -5,7 +5,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '..', '..', '.env'))
 
 # Alert Thresholds (Example)
 ALERT_THRESHOLD_SALES = 1000000  # $1M

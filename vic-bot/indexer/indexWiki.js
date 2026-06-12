@@ -9,7 +9,7 @@
  * en Supabase para búsqueda full-text. Ejecutar cada vez que cambie el wiki.
  */
 
-require('dotenv').config()
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') })
 const fs = require('fs')
 const path = require('path')
 const { createClient } = require('@supabase/supabase-js')

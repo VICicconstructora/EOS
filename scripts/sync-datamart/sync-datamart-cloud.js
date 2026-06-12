@@ -20,6 +20,23 @@
 
 'use strict';
 
+// ─── .env centralizado (raíz del repo) ────────────────────────────────────────
+// Carga sin dependencias. No pisa variables ya definidas (en CI llegan por
+// GitHub Secrets y el archivo no existe → no-op).
+(() => {
+  const fs = require('fs'), path = require('path');
+  const envPath = path.resolve(__dirname, '../../.env');
+  if (!fs.existsSync(envPath)) return;
+  for (const line of fs.readFileSync(envPath, 'utf8').split(/\r?\n/)) {
+    const m = line.match(/^\s*([\w.-]+)\s*=\s*(.*)$/);
+    if (!m) continue;
+    let v = m[2];
+    const c = v.indexOf(' #'); if (c !== -1) v = v.slice(0, c);
+    v = v.trim().replace(/^["']|["']$/g, '');
+    if (process.env[m[1]] === undefined) process.env[m[1]] = v;
+  }
+})();
+
 // ─── Configuración SharePoint ─────────────────────────────────────────────────
 
 const SHAREPOINT_HOST      = 'icconstructora.sharepoint.com';

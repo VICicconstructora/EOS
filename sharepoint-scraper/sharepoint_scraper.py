@@ -21,11 +21,16 @@ try:
 except Exception:
     pass
 
-load_dotenv()
+# .env centralizado en la raíz del repo. override=False (default) para que las
+# variables que inyecta el .cmd del cron inverso (SCRAPE_REVERSE, SHAREPOINT_SITES)
+# no sean pisadas por el archivo.
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 
-CLIENT_ID = os.getenv("AZURE_CLIENT_ID")
+# Registro Azure propio del scraper ('Claude-SharePoint-Actas'), distinto al de
+# app/datamart. Por eso va con prefijo SP_ en el .env centralizado.
+CLIENT_ID = os.getenv("SP_AZURE_CLIENT_ID")
 TENANT_ID = os.getenv("AZURE_TENANT_ID")
-CLIENT_SECRET = os.getenv("AZURE_CLIENT_SECRET")
+CLIENT_SECRET = os.getenv("SP_AZURE_CLIENT_SECRET")
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 

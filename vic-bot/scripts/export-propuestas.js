@@ -13,7 +13,7 @@
 //   node scripts/export-propuestas.js [carpeta-destino]
 // Si no se pasa carpeta, usa la carpeta de Ingesta por defecto de la skill.
 
-require('dotenv').config()
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') })
 const fs = require('fs')
 const path = require('path')
 const { createClient } = require('@supabase/supabase-js')

@@ -6,8 +6,8 @@ import pandas as pd
 from io import BytesIO
 from dotenv import load_dotenv
 
-# Load configuration from .env in the project root
-load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
+# Load configuration from the centralized root .env
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '..', '..', '.env'))
 
 CLIENT_ID = os.getenv("SHAREPOINT_CLIENT_ID")
 TENANT_ID = os.getenv("SHAREPOINT_TENANT_ID", "common")

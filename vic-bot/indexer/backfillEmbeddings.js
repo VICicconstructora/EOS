@@ -13,7 +13,7 @@
  * y baja SECONDS_PER_BATCH y termina en ~1-2 min.
  */
 
-require('dotenv').config()
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') })
 const { createClient } = require('@supabase/supabase-js')
 const { embedDocuments } = require('../src/lib/embeddings')
 

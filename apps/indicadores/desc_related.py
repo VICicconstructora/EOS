@@ -1,6 +1,6 @@
 import psycopg2, os
 from dotenv import load_dotenv
-load_dotenv(override=True)
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '..', '.env'), override=True)
 conn = psycopg2.connect(os.getenv('SUPABASE_DB_URI'))
 curs = conn.cursor()
 tables = ['adi_dtm_venta', 'adi_dtm_tramites', 'adi_dtm_tramitespredet', 'adi_dtm_desistimientostramites']

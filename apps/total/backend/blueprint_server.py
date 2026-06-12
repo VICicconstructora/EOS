@@ -28,7 +28,7 @@ try:
 except ImportError:
     PYMUPDF_AVAILABLE = False
 
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '..', '..', '.env'))
 
 # Force UTF-8 mode on Windows
 os.environ.setdefault('PYTHONUTF8', '1')

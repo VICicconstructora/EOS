@@ -28,6 +28,22 @@ const fs        = require('fs');
 const path      = require('path');
 const nodemailer = require('nodemailer');
 
+// ─── .env centralizado (raíz del repo) ────────────────────────────────────────
+// Carga sin dependencias (no hay 'dotenv' en este paquete). No pisa variables ya
+// definidas, así el cron/Task Scheduler puede sobrescribir lo que necesite.
+(() => {
+  const envPath = path.resolve(__dirname, '../../.env');
+  if (!fs.existsSync(envPath)) return;
+  for (const line of fs.readFileSync(envPath, 'utf8').split(/\r?\n/)) {
+    const m = line.match(/^\s*([\w.-]+)\s*=\s*(.*)$/);
+    if (!m) continue;
+    let v = m[2];
+    const c = v.indexOf(' #'); if (c !== -1) v = v.slice(0, c);   // comentario inline
+    v = v.trim().replace(/^["']|["']$/g, '');
+    if (process.env[m[1]] === undefined) process.env[m[1]] = v;
+  }
+})();
+
 // ─── Guardia de 8 días ────────────────────────────────────────────────────────
 // Cuando se ejecuta desde Task Scheduler (diario), solo procede si han pasado
 // ≥8 días desde la última ejecución. Saltar con --force para ignorar.

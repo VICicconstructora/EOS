@@ -7,7 +7,7 @@ import re
 from dotenv import load_dotenv
 
 # 1. Configuración inicial
-load_dotenv(override=True)
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '..', '.env'), override=True)
 # Asegúrate de que tu archivo .env tiene la clave GEMINI_API_KEY
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 # Usamos Gemini 1.5 Pro por su gran capacidad de razonamiento lógico y SQL

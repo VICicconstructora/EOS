@@ -13,7 +13,7 @@ import re
 from dotenv import load_dotenv
 from supabase import create_client
 
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 # Destino portable: cada equipo/usuario tiene la biblioteca de SharePoint
 # sincronizada bajo su propio perfil. Se deriva de %USERPROFILE% para no clavar

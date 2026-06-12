@@ -10,7 +10,7 @@
  * datos nuevos apenas termina esta sincronización.
  */
 
-require('dotenv').config()
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') })
 const { spawn } = require('child_process')
 const fs = require('fs')
 const path = require('path')
