@@ -50,6 +50,11 @@ CHUNK_OVERLAP = 50
 MAX_FILES_PER_RUN = int(os.getenv("MAX_FILES_PER_RUN", "50"))
 # Pausa (segundos) entre cada archivo procesado, para espaciar las llamadas.
 SLEEP_BETWEEN_FILES = float(os.getenv("SLEEP_BETWEEN_FILES", "1.5"))
+# Archivos procesados en paralelo. Cada uno descarga, convierte y embebe; el
+# tiempo dominante es espera de red (SharePoint + embeddings), así que procesar
+# varios a la vez sube el throughput sin saturar la CPU. Las partes bloqueantes
+# (MarkItDown, embeddings, Supabase) se ejecutan en hilos vía asyncio.to_thread.
+MAX_CONCURRENCY = int(os.getenv("MAX_CONCURRENCY", "4"))
 
 # Extensiones que MarkItDown sabe convertir a texto. El resto se omite.
 SUPPORTED_EXTS = {
@@ -76,10 +81,52 @@ class SharePointScraper:
         self.encoder = tiktoken.get_encoding("cl100k_base")
         self.files_processed = 0
         self.limit_reached = False
+        # Caché en memoria de file_path -> updated_at (primeros 19 chars) de lo ya
+        # indexado. Se carga una vez al arrancar para que omitir un archivo sin
+        # cambios no cueste una consulta a Supabase por archivo.
+        self.index_cache = {}
+        # Se crea dentro del event loop, en run().
+        self.semaphore = None
 
     async def get_token(self):
         token = await self.credential.get_token("https://graph.microsoft.com/.default")
         return token.token
+
+    # ----- Caché de lo ya indexado --------------------------------------------
+
+    def load_index_cache(self):
+        """Carga file_path -> updated_at de todo lo ya indexado en un dict.
+
+        Lee solo el chunk 0 de cada archivo (uno por documento) y pagina en
+        bloques de 1000 (límite por defecto de PostgREST). Reemplaza miles de
+        consultas por-archivo en already_up_to_date() por una sola pasada.
+        """
+        page = 0
+        page_size = 1000
+        loaded = 0
+        while True:
+            try:
+                resp = (
+                    self.supabase.table("wiki_documents")
+                    .select("file_path,updated_at")
+                    .eq("chunk_index", 0)
+                    .range(page * page_size, page * page_size + page_size - 1)
+                    .execute()
+                )
+            except Exception as e:
+                print(f"No se pudo cargar el caché de indexado (pág {page}): {e}")
+                break
+            rows = resp.data or []
+            for r in rows:
+                fp = r.get("file_path")
+                up = r.get("updated_at")
+                if fp:
+                    self.index_cache[fp] = (up or "")[:19]
+            loaded += len(rows)
+            if len(rows) < page_size:
+                break
+            page += 1
+        print(f"Caché de indexado cargado: {loaded} archivos.")
 
     # ----- Estado incremental (delta link) ------------------------------------
 
@@ -202,27 +249,16 @@ class SharePointScraper:
     # ----- Procesamiento de un archivo ----------------------------------------
 
     def already_up_to_date(self, file_path, last_modified):
-        """True si ya tenemos este archivo con la misma fecha de modificación."""
+        """True si ya tenemos este archivo con la misma fecha de modificación.
+
+        Consulta el caché en memoria (cargado en load_index_cache), sin tocar la
+        base. Guardamos updated_at = lastModifiedDateTime del archivo, así que si
+        coinciden los primeros 19 chars no hay nada que reprocesar.
+        """
         if not last_modified:
             return False
-        try:
-            response = (
-                self.supabase.table("wiki_documents")
-                .select("updated_at")
-                .eq("file_path", file_path)
-                .order("updated_at", desc=True)
-                .limit(1)
-                .execute()
-            )
-            if response.data:
-                stored = response.data[0].get("updated_at")
-                # Guardamos updated_at = lastModifiedDateTime del archivo, así que
-                # si coinciden, no hay nada que reprocesar.
-                if stored and stored[:19] == last_modified[:19]:
-                    return True
-        except Exception as e:
-            print(f"Error revisando estado de {file_path}: {e}")
-        return False
+        stored = self.index_cache.get(file_path)
+        return bool(stored and stored == last_modified[:19])
 
     def delete_existing_chunks(self, file_path):
         try:
@@ -267,7 +303,7 @@ class SharePointScraper:
                 tmp_file.write(content)
                 tmp_file_path = tmp_file.name
 
-            result = self.md.convert(tmp_file_path)
+            result = await asyncio.to_thread(self.md.convert, tmp_file_path)
             markdown_text = (result.text_content or "").strip()
         except Exception as e:
             print(f"  Error convirtiendo {name} a Markdown: {e}")
@@ -285,13 +321,13 @@ class SharePointScraper:
             return
 
         try:
-            embeddings = self.embed(chunks)
+            embeddings = await asyncio.to_thread(self.embed, chunks)
         except Exception as e:
             print(f"  Error generando embeddings para {name}: {e}")
             return
 
         # Reemplazo limpio: borrar los chunks antiguos y reinsertar.
-        self.delete_existing_chunks(file_path)
+        await asyncio.to_thread(self.delete_existing_chunks, file_path)
 
         title = item.get("title") or name
         rows = []
@@ -308,9 +344,13 @@ class SharePointScraper:
             )
 
         try:
-            self.supabase.table("wiki_documents").upsert(
-                rows, on_conflict="file_path,chunk_index"
-            ).execute()
+            await asyncio.to_thread(
+                lambda: self.supabase.table("wiki_documents")
+                .upsert(rows, on_conflict="file_path,chunk_index")
+                .execute()
+            )
+            # Mantener el caché al día para no reprocesar si se vuelve a ver.
+            self.index_cache[file_path] = (last_modified or "")[:19]
             print(f"  Guardado: {len(rows)} chunks de {name}")
             return True
         except Exception as e:
@@ -336,6 +376,45 @@ class SharePointScraper:
             print(f"  No se pudo obtener downloadUrl de {item_id}: {e}")
             return None
 
+    async def _handle_item(self, client, drive_id, site_name, item, headers):
+        """Procesa un archivo del delta, acotado por el semáforo de concurrencia.
+
+        El descarte de extensiones no soportadas y de archivos sin cambios se
+        hace ANTES de tomar el semáforo y ANTES de pedir el downloadUrl, así un
+        archivo ya indexado no gasta ni una llamada a Graph ni un cupo de
+        concurrencia.
+        """
+        if self.limit_reached:
+            return
+        name = item.get("name", "")
+        ext = os.path.splitext(name)[1].lower()
+        if ext not in SUPPORTED_EXTS:
+            return
+        file_path = self.build_file_path(site_name, item)
+        if self.already_up_to_date(file_path, item.get("lastModifiedDateTime")):
+            return
+
+        async with self.semaphore:
+            if self.limit_reached:
+                return
+            download_url = item.get("@microsoft.graph.downloadUrl")
+            if not download_url:
+                download_url = await self.fetch_download_url(
+                    client, drive_id, item.get("id"), headers
+                )
+            processed = await self.process_file(site_name, item, download_url)
+            if processed:
+                self.files_processed += 1
+                if MAX_FILES_PER_RUN and self.files_processed >= MAX_FILES_PER_RUN:
+                    if not self.limit_reached:
+                        print(
+                            f"Límite de {MAX_FILES_PER_RUN} archivos por corrida "
+                            "alcanzado; se continuará en la próxima."
+                        )
+                    self.limit_reached = True
+                elif SLEEP_BETWEEN_FILES:
+                    await asyncio.sleep(SLEEP_BETWEEN_FILES)
+
     async def process_drive(self, drive_id, site_name):
         print(f"Procesando Drive {drive_id} ({site_name})...")
         delta_link = self.get_saved_delta_link(drive_id)
@@ -354,32 +433,18 @@ class SharePointScraper:
                     print(f"Error procesando drive {drive_id}: {e}")
                     return
 
-                for item in data.get("value", []):
-                    if self.limit_reached:
-                        break
-                    if "file" in item and not item.get("deleted"):
-                        download_url = item.get("@microsoft.graph.downloadUrl")
-                        if not download_url:
-                            download_url = await self.fetch_download_url(
-                                client, drive_id, item.get("id"), headers
-                            )
-                        processed = await self.process_file(
-                            site_name, item, download_url
-                        )
-                        if processed:
-                            self.files_processed += 1
-                            if (
-                                MAX_FILES_PER_RUN
-                                and self.files_processed >= MAX_FILES_PER_RUN
-                            ):
-                                print(
-                                    f"Límite de {MAX_FILES_PER_RUN} archivos por "
-                                    "corrida alcanzado; se continuará en la próxima."
-                                )
-                                self.limit_reached = True
-                                break
-                            if SLEEP_BETWEEN_FILES:
-                                await asyncio.sleep(SLEEP_BETWEEN_FILES)
+                # Procesa los archivos de esta página en paralelo (acotado por el
+                # semáforo dentro de _handle_item). Los skips por "sin cambios" se
+                # resuelven en memoria, así que las tareas triviales fluyen rápido.
+                tasks = [
+                    asyncio.create_task(
+                        self._handle_item(client, drive_id, site_name, item, headers)
+                    )
+                    for item in data.get("value", [])
+                    if "file" in item and not item.get("deleted")
+                ]
+                if tasks:
+                    await asyncio.gather(*tasks)
 
                 if self.limit_reached:
                     # Corte parcial: NO guardamos deltaLink para no saltar lo
@@ -481,9 +546,10 @@ class SharePointScraper:
 
     async def run(self):
         print("Iniciando scraper...")
+        self.semaphore = asyncio.Semaphore(MAX_CONCURRENCY)
+        print(f"Concurrencia: {MAX_CONCURRENCY} archivos en paralelo.")
+        self.load_index_cache()
         sites = await self.discover_all_sites()
-        token = await self.get_token()
-        headers = {"Authorization": f"Bearer {token}"}
 
         async with httpx.AsyncClient() as client:
             for site in sites:
@@ -492,6 +558,12 @@ class SharePointScraper:
                 site_name = site.get("name") or site.get("displayName") or "sitio"
                 print(f"\n--- Sitio: {site_name} ({site.get('id')}) ---")
                 try:
+                    # Token fresco por sitio: una corrida larga (cientos de sitios)
+                    # cruza el vencimiento (~60-75 min) del token de Graph. get_token()
+                    # cachea y solo renueva cerca de expirar, así que esto es barato y
+                    # evita los 401 en bloque que sufrían los sitios del final.
+                    token = await self.get_token()
+                    headers = {"Authorization": f"Bearer {token}"}
                     resp = await client.get(
                         f"{self.base_url}/sites/{site.get('id')}/drives",
                         headers=headers,
