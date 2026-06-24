@@ -127,7 +127,12 @@ def load_index_cache(supabase, prefix):
 
 
 def write_mirror(mirror_root, src_root, full_path, markdown_text):
-    """Escribe el .md espejo manteniendo la estructura de carpetas."""
+    r"""Escribe el .md espejo manteniendo la estructura de carpetas.
+
+    Rutas normales (sin prefijo \\?\): ese prefijo saltea el filtro de OneDrive
+    y rompe la hidratación de los archivos 'solo en la nube'. Las rutas >260 se
+    resuelven habilitando LongPathsEnabled en Windows, no en el código.
+    """
     rel = os.path.relpath(full_path, src_root)
     dest = os.path.join(mirror_root, rel) + ".md"
     os.makedirs(os.path.dirname(dest), exist_ok=True)
