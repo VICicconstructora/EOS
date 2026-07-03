@@ -1,10 +1,10 @@
-// Contexto CBR embebido — usado como contexto en el prompt de la entrevista de onboarding.
-// Extracto de los documentos CBR más relevantes para que la IA haga preguntas contextualizadas.
+// Contexto de empresa embebido — usado como contexto en el prompt de la entrevista de onboarding.
+// Extracto de los documentos de empresa más relevantes para que la IA haga preguntas contextualizadas.
 
-export const CBR_CONTEXT = `
+export const EMPRESA_CONTEXT = `
 ## BASE DE DATOS IC CONSTRUCTORA (Contexto para preguntas contextualizadas)
 
-### Portafolio activo — proyectos propios (datos en CRM/Sinco)
+### Portafolio activo — proyectos propios (datos en el CRM / ERP)
 Bosque Central (3 etapas, 545 ventas), Castilla Imperial (2A/2B/Parqueaderos, 271 ventas),
 Castilla Living (2 etapas, 503 ventas), Gaia (2 etapas, 24 ventas),
 La Hacienda Jamundí E1 (147 ventas), Praia Natura (E1/E2/E3, 265 ventas),
@@ -109,7 +109,7 @@ BIM, ANALITICA Y TI (Director: Luis Miguel Serrano)
   - Mary Torres Sánchez — Asistente TI
 
 ### Stack tecnológico
-Microsoft 365 (Teams, SharePoint, Outlook, Excel, Power BI, Fabric) + Supabase IC + ERP Sinco.
+Microsoft 365 (Teams, SharePoint, Outlook, Excel, Power BI, Fabric) + Supabase IC + ERP corporativo.
 `;
 
 export const INTERVIEW_SECTIONS = [
