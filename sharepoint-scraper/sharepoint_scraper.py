@@ -260,11 +260,39 @@ class SharePointScraper:
         stored = self.index_cache.get(file_path)
         return bool(stored and stored == last_modified[:19])
 
+    def _db_write_with_retry(self, fn, desc, max_retries=5):
+        """Ejecuta una escritura a Supabase reintentando ante errores transitorios.
+
+        Los 520/5xx de Cloudflare (Supabase saturado o payload grande) y los cortes
+        de red llegaban al `except` de arriba, imprimían el error y BOTABAN los
+        embeddings ya generados (el paso caro). Como estas escrituras son
+        idempotentes (upsert on_conflict / delete por file_path), reintentar con
+        backoff exponencial es seguro y evita perder el trabajo pagado.
+        """
+        import time
+
+        for attempt in range(max_retries):
+            try:
+                return fn()
+            except Exception as e:
+                if attempt == max_retries - 1:
+                    raise
+                wait = min(60, 3 * (2 ** attempt))  # 3, 6, 12, 24, 48 s
+                print(
+                    f"  {desc}: error transitorio ({str(e)[:120]}); "
+                    f"reintento en {wait}s ({attempt + 1}/{max_retries})..."
+                )
+                time.sleep(wait)
+
     def delete_existing_chunks(self, file_path):
         try:
-            self.supabase.table("wiki_documents").delete().eq(
-                "file_path", file_path
-            ).execute()
+            self._db_write_with_retry(
+                lambda: self.supabase.table("wiki_documents")
+                .delete()
+                .eq("file_path", file_path)
+                .execute(),
+                f"borrado de {file_path}",
+            )
         except Exception as e:
             print(f"Error borrando chunks previos de {file_path}: {e}")
 
@@ -345,9 +373,12 @@ class SharePointScraper:
 
         try:
             await asyncio.to_thread(
-                lambda: self.supabase.table("wiki_documents")
-                .upsert(rows, on_conflict="file_path,chunk_index")
-                .execute()
+                lambda: self._db_write_with_retry(
+                    lambda: self.supabase.table("wiki_documents")
+                    .upsert(rows, on_conflict="file_path,chunk_index")
+                    .execute(),
+                    f"guardado de {name}",
+                )
             )
             # Mantener el caché al día para no reprocesar si se vuelve a ver.
             self.index_cache[file_path] = (last_modified or "")[:19]
