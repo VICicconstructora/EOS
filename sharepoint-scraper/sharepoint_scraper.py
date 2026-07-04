@@ -44,6 +44,11 @@ EMBEDDING_DIMENSIONS = int(os.getenv("EMBEDDING_DIMENSIONS", "512"))
 CHUNK_TOKENS = 500
 CHUNK_OVERLAP = 50
 
+# Filas por request de upsert a Supabase. Un xlsx grande genera cientos de chunks;
+# un solo upsert gigante dispara el statement_timeout (57014) de Postgres. Partir
+# la escritura en lotes chicos mantiene cada request bajo el límite.
+UPSERT_BATCH_ROWS = int(os.getenv("UPSERT_BATCH_ROWS", "50"))
+
 # Control de ritmo para no saturar la cuota de Azure OpenAI ni el costo.
 # Máximo de archivos a procesar por corrida (0 = sin límite). El delta hace que
 # la siguiente corrida continúe donde quedó.
@@ -371,15 +376,22 @@ class SharePointScraper:
                 }
             )
 
-        try:
-            await asyncio.to_thread(
-                lambda: self._db_write_with_retry(
-                    lambda: self.supabase.table("wiki_documents")
-                    .upsert(rows, on_conflict="file_path,chunk_index")
+        def _write_all():
+            # Upsert por lotes: un solo request con cientos de filas dispara el
+            # statement_timeout de Postgres. Cada lote reintenta por su cuenta.
+            total_batches = (len(rows) + UPSERT_BATCH_ROWS - 1) // UPSERT_BATCH_ROWS
+            for i in range(0, len(rows), UPSERT_BATCH_ROWS):
+                batch = rows[i : i + UPSERT_BATCH_ROWS]
+                n = i // UPSERT_BATCH_ROWS + 1
+                self._db_write_with_retry(
+                    lambda b=batch: self.supabase.table("wiki_documents")
+                    .upsert(b, on_conflict="file_path,chunk_index")
                     .execute(),
-                    f"guardado de {name}",
+                    f"guardado de {name} (lote {n}/{total_batches})",
                 )
-            )
+
+        try:
+            await asyncio.to_thread(_write_all)
             # Mantener el caché al día para no reprocesar si se vuelve a ver.
             self.index_cache[file_path] = (last_modified or "")[:19]
             print(f"  Guardado: {len(rows)} chunks de {name}")
