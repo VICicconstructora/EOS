@@ -1,27 +1,51 @@
-"""RETIRADO (2026-08-20). Indexaba SharePoint -> Supabase (wiki_documents),
-que ya no existe: VIC dejó de leer un índice en Supabase y pasó a leer
-SharePoint EN VIVO vía Graph Search (ver vic-bot/src/lib/sharepointSearch.js).
-El consumidor de esta tabla (azure-mirror, espejo curado en SharePoint) se
-retiró también. `main()` no crawlea nada, solo imprime un aviso.
+"""Recorre TODOS los sitios de SharePoint (+ subsitios), convierte cada
+documento a Markdown con MarkItDown, y sube ese .md al mismo SharePoint del
+wiki — no a Supabase. Hermano de `local_ingest.py`/`local_ocr_ingest.py`
+(que hacen lo mismo mas artesanalmente, partiendo de carpetas locales u OCR):
+este es el que cubre TODO el tenant vía Microsoft Graph.
 
-Se deja el código intacto por si se necesita para otro propósito (el crawl y
-la conversión en sí no dependían de Supabase). NO reactivar el cron del
-Container App Job 'ic-scraper-job' sin un destino real de escritura.
+Reescrito 2026-08-21 (antes escribía a `wiki_documents`/`scraping_state` en
+Supabase, que dejaron de existir el 2026-08-20). VIC lee SharePoint EN VIVO
+(Graph Search) — el .md subido aquí no es un índice aparte, es contenido real
+en la biblioteca del wiki, así que Graph Search lo encuentra igual que
+cualquier otro documento. Ya no hace falta chunking ni embeddings (eso era
+para búsqueda vectorial contra Supabase); se sube el documento completo.
+
+Destino: `sharepoint_upload.upload_markdown` — biblioteca 'AA General
+Edicion', carpeta `.AI/_local-ingest/sharepoint/<sitio>/<ruta original>.md`.
+
+Estado (delta link por drive, para no re-crawlear el tenant completo en cada
+corrida): antes vivía en `scraping_state` (Supabase); ahora es un único JSON
+subido al MISMO SharePoint (`.AI/_local-ingest/_state/scraping_state.json`,
+ver STATE_PATH) — así el estado no depende de Supabase ni de que corra
+siempre en la misma máquina/contenedor. Se descarga una vez al arrancar y se
+vuelve a subir después de cada drive.
+
+Pensado para correr LOCAL (tarea programada), como el resto de la migración
+de esta semana — no en el Container App Job 'ic-scraper-job' (que quedó con
+el cron pausado). Si se quiere volver a correr en la nube, este mismo código
+sirve igual: el estado ya no está atado a la máquina, vive en SharePoint.
+
+Uso:
+  python sharepoint_scraper.py
+  (todo por variables de entorno del .env raíz: SHAREPOINT_SITES,
+  SHAREPOINT_LIBRARIES, SCRAPE_REVERSE, MAX_FILES_PER_RUN, MAX_CONCURRENCY,
+  SLEEP_BETWEEN_FILES — ver abajo)
 """
 
 import os
 import sys
+import json
 import asyncio
 import tempfile
 from datetime import datetime, timezone
 
 import httpx
-import tiktoken
 from dotenv import load_dotenv
 from azure.identity.aio import ClientSecretCredential
-from supabase import create_client, Client
 from markitdown import MarkItDown
-from openai import AzureOpenAI
+
+from sharepoint_upload import upload_markdown, download_bytes, upload_bytes, TARGET_ROOT
 
 # En Windows la consola/redirección usa cp1252 y revienta al imprimir nombres
 # de archivo con tildes (UnicodeEncodeError -> mata toda la corrida). Forzamos
@@ -38,38 +62,28 @@ except Exception:
 load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 # Registro Azure propio del scraper ('Claude-SharePoint-Actas'), distinto al de
-# app/datamart. Por eso va con prefijo SP_ en el .env centralizado.
+# app/datamart. Por eso va con prefijo SP_ en el .env centralizado. Mismo
+# registro que usa sharepoint_upload.py para subir.
 CLIENT_ID = os.getenv("SP_AZURE_CLIENT_ID")
 TENANT_ID = os.getenv("AZURE_TENANT_ID")
 CLIENT_SECRET = os.getenv("SP_AZURE_CLIENT_SECRET")
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
-AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
-AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
-AZURE_OPENAI_DEPLOYMENT = os.getenv("AZURE_OPENAI_DEPLOYMENT", "text-embedding-3-small")
-AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION", "2024-10-21")
-EMBEDDING_DIMENSIONS = int(os.getenv("EMBEDDING_DIMENSIONS", "512"))
+# Dónde vive el JSON de estado (delta links por drive), en el mismo drive que
+# usa sharepoint_upload.py para el contenido.
+STATE_PATH = f"{TARGET_ROOT}/_state/scraping_state.json"
 
-# Tamaño objetivo de cada chunk en tokens y solape entre chunks contiguos.
-CHUNK_TOKENS = 500
-CHUNK_OVERLAP = 50
-
-# Filas por request de upsert a Supabase. Un xlsx grande genera cientos de chunks;
-# un solo upsert gigante dispara el statement_timeout (57014) de Postgres. Partir
-# la escritura en lotes chicos mantiene cada request bajo el límite.
-UPSERT_BATCH_ROWS = int(os.getenv("UPSERT_BATCH_ROWS", "50"))
-
-# Control de ritmo para no saturar la cuota de Azure OpenAI ni el costo.
-# Máximo de archivos a procesar por corrida (0 = sin límite). El delta hace que
-# la siguiente corrida continúe donde quedó.
-MAX_FILES_PER_RUN = int(os.getenv("MAX_FILES_PER_RUN", "50"))
-# Pausa (segundos) entre cada archivo procesado, para espaciar las llamadas.
-SLEEP_BETWEEN_FILES = float(os.getenv("SLEEP_BETWEEN_FILES", "1.5"))
-# Archivos procesados en paralelo. Cada uno descarga, convierte y embebe; el
-# tiempo dominante es espera de red (SharePoint + embeddings), así que procesar
-# varios a la vez sube el throughput sin saturar la CPU. Las partes bloqueantes
-# (MarkItDown, embeddings, Supabase) se ejecutan en hilos vía asyncio.to_thread.
+# Máx. archivos por corrida (0 = sin límite). Antes acotaba el gasto de
+# embeddings de Azure OpenAI; ya no hay ese costo, así que por defecto corre
+# sin tope y confía en el reintento con backoff ante 429 de Graph. Sigue
+# disponible por si se quiere una primera corrida controlada.
+MAX_FILES_PER_RUN = int(os.getenv("MAX_FILES_PER_RUN", "0"))
+# Pausa (segundos) entre archivo y archivo, por cortesía con Graph. Ya no hay
+# cuota de OpenAI que cuidar, así que 0 por defecto.
+SLEEP_BETWEEN_FILES = float(os.getenv("SLEEP_BETWEEN_FILES", "0"))
+# Archivos procesados en paralelo. Cada uno descarga, convierte y sube; el
+# tiempo dominante es espera de red, así que varios a la vez suben el
+# throughput sin saturar la CPU. Las partes bloqueantes (MarkItDown, subida a
+# SharePoint) corren en hilos vía asyncio.to_thread.
 MAX_CONCURRENCY = int(os.getenv("MAX_CONCURRENCY", "4"))
 
 # Extensiones que MarkItDown sabe convertir a texto. El resto se omite.
@@ -81,7 +95,6 @@ SUPPORTED_EXTS = {
 
 class SharePointScraper:
     def __init__(self):
-        self.supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
         self.credential = ClientSecretCredential(
             tenant_id=TENANT_ID,
             client_id=CLIENT_ID,
@@ -89,18 +102,12 @@ class SharePointScraper:
         )
         self.md = MarkItDown()
         self.base_url = "https://graph.microsoft.com/v1.0"
-        self.openai = AzureOpenAI(
-            azure_endpoint=AZURE_OPENAI_ENDPOINT,
-            api_key=AZURE_OPENAI_API_KEY,
-            api_version=AZURE_OPENAI_API_VERSION,
-        )
-        self.encoder = tiktoken.get_encoding("cl100k_base")
         self.files_processed = 0
         self.limit_reached = False
-        # Caché en memoria de file_path -> updated_at (primeros 19 chars) de lo ya
-        # indexado. Se carga una vez al arrancar para que omitir un archivo sin
-        # cambios no cueste una consulta a Supabase por archivo.
-        self.index_cache = {}
+        # {"drives": {drive_id: {"delta_link": ..., "last_processed_at": ...}},
+        #  "notify": {"status": "notified" | "pending"}}
+        # Cargado de SharePoint en run(), persistido ahí mismo tras cada drive.
+        self.state = {"drives": {}, "notify": {}}
         # Se crea dentro del event loop, en run().
         self.semaphore = None
 
@@ -108,149 +115,48 @@ class SharePointScraper:
         token = await self.credential.get_token("https://graph.microsoft.com/.default")
         return token.token
 
-    # ----- Caché de lo ya indexado --------------------------------------------
+    # ----- Estado (delta links), persistido como JSON en SharePoint -----------
 
-    def load_index_cache(self):
-        """Carga file_path -> updated_at de todo lo ya indexado en un dict.
+    async def load_state(self):
+        try:
+            raw = await asyncio.to_thread(download_bytes, STATE_PATH)
+        except Exception as e:
+            print(f"No se pudo leer el estado ({STATE_PATH}): {e}. Se arranca de cero.")
+            return
+        if not raw:
+            print("Sin estado previo en SharePoint; primera corrida (o tabula rasa).")
+            return
+        try:
+            self.state = json.loads(raw.decode("utf-8"))
+            self.state.setdefault("drives", {})
+            self.state.setdefault("notify", {})
+            print(f"Estado cargado: {len(self.state['drives'])} drives con progreso previo.")
+        except Exception as e:
+            print(f"Estado en SharePoint corrupto, se ignora: {e}")
 
-        Lee solo el chunk 0 de cada archivo (uno por documento) y pagina en
-        bloques de 1000 (límite por defecto de PostgREST). Reemplaza miles de
-        consultas por-archivo en already_up_to_date() por una sola pasada.
-        """
-        page = 0
-        page_size = 1000
-        loaded = 0
-        while True:
-            try:
-                resp = (
-                    self.supabase.table("wiki_documents")
-                    .select("file_path,updated_at")
-                    .eq("chunk_index", 0)
-                    .range(page * page_size, page * page_size + page_size - 1)
-                    .execute()
-                )
-            except Exception as e:
-                print(f"No se pudo cargar el caché de indexado (pág {page}): {e}")
-                break
-            rows = resp.data or []
-            for r in rows:
-                fp = r.get("file_path")
-                up = r.get("updated_at")
-                if fp:
-                    self.index_cache[fp] = (up or "")[:19]
-            loaded += len(rows)
-            if len(rows) < page_size:
-                break
-            page += 1
-        print(f"Caché de indexado cargado: {loaded} archivos.")
-
-    # ----- Estado incremental (delta link) ------------------------------------
+    async def save_state(self):
+        try:
+            data = json.dumps(self.state, ensure_ascii=False, indent=2).encode("utf-8")
+            ok, detail = await asyncio.to_thread(upload_bytes, STATE_PATH, data, "application/json")
+            if not ok:
+                print(f"No se pudo guardar el estado: {detail}")
+        except Exception as e:
+            print(f"Error guardando estado: {e}")
 
     def get_saved_delta_link(self, drive_id):
-        try:
-            response = (
-                self.supabase.table("scraping_state")
-                .select("next_link")
-                .eq("resource_id", drive_id)
-                .execute()
-            )
-            if response.data and response.data[0].get("next_link"):
-                return response.data[0]["next_link"]
-        except Exception as e:
-            print(f"No se pudo obtener el estado guardado para {drive_id}: {e}")
-        return None
+        return self.state.get("drives", {}).get(drive_id, {}).get("delta_link")
 
-    def save_delta_link(self, drive_id, delta_link):
-        try:
-            self.supabase.table("scraping_state").upsert(
-                {
-                    "resource_type": "drive",
-                    "resource_id": drive_id,
-                    "status": "completed",
-                    "next_link": delta_link,
-                    "last_processed_at": datetime.now(timezone.utc).isoformat(),
-                },
-                on_conflict="resource_id",
-            ).execute()
-        except Exception as e:
-            print(f"Error al guardar delta link para {drive_id}: {e}")
-
-    # ----- Texto -> chunks -> embeddings --------------------------------------
-
-    def chunk_text(self, text):
-        """Trocea el texto en fragmentos de ~CHUNK_TOKENS tokens con solape."""
-        tokens = self.encoder.encode(text)
-        if not tokens:
-            return []
-        chunks = []
-        step = CHUNK_TOKENS - CHUNK_OVERLAP
-        for start in range(0, len(tokens), step):
-            window = tokens[start : start + CHUNK_TOKENS]
-            if not window:
-                break
-            chunk = self.encoder.decode(window).strip()
-            if chunk:
-                chunks.append(chunk)
-            if start + CHUNK_TOKENS >= len(tokens):
-                break
-        return chunks
-
-    def embed(self, texts):
-        """Genera embeddings de EMBEDDING_DIMENSIONS para una lista de textos.
-
-        Procesa en lotes que respetan el máximo de 300.000 tokens por request
-        de Azure OpenAI, y reintenta ante rate limit (429).
-        """
-        max_tokens_per_request = 280000  # margen bajo el límite de 300.000
-        results = []
-        batch = []
-        batch_tokens = 0
-        for text in texts:
-            t = len(self.encoder.encode(text))
-            if batch and batch_tokens + t > max_tokens_per_request:
-                results.extend(self._embed_batch(batch))
-                batch = []
-                batch_tokens = 0
-            batch.append(text)
-            batch_tokens += t
-        if batch:
-            results.extend(self._embed_batch(batch))
-        return results
-
-    def _embed_batch(self, texts):
-        """Una sola llamada de embeddings con reintento ante rate limit."""
-        import time
-        from openai import RateLimitError
-
-        max_retries = 6
-        for attempt in range(max_retries):
-            try:
-                response = self.openai.embeddings.create(
-                    model=AZURE_OPENAI_DEPLOYMENT,
-                    input=texts,
-                    dimensions=EMBEDDING_DIMENSIONS,
-                )
-                return [item.embedding for item in response.data]
-            except RateLimitError as e:
-                wait = 60
-                retry_after = getattr(e, "response", None)
-                if retry_after is not None:
-                    hdr = e.response.headers.get("retry-after")
-                    if hdr and hdr.isdigit():
-                        wait = int(hdr)
-                if attempt == max_retries - 1:
-                    raise
-                print(f"  Rate limit; esperando {wait}s (intento {attempt + 1}/{max_retries})...")
-                time.sleep(wait)
+    async def save_delta_link(self, drive_id, delta_link):
+        self.state.setdefault("drives", {})[drive_id] = {
+            "delta_link": delta_link,
+            "last_processed_at": datetime.now(timezone.utc).isoformat(),
+        }
+        await self.save_state()
 
     # ----- file_path estable y consistente con la convención wiki/ ------------
 
-    def build_file_path(self, site_name, item):
-        """Construye 'sharepoint/<sitio>/<ruta relativa del archivo>'.
-
-        Prefijo 'sharepoint/' para mantener este volcado crudo separado de la
-        wiki curada (que vive bajo 'wiki/') y nunca pisarla.
-        """
+    def build_rel_path(self, item):
+        """Ruta relativa DENTRO del sitio: '<carpeta>/<archivo>'."""
         parent = item.get("parentReference", {}) or {}
         # parentReference.path es algo como '/drive/root:/Documentos/Subcarpeta'
         raw_path = parent.get("path", "") or ""
@@ -259,86 +165,35 @@ class SharePointScraper:
         raw_path = raw_path.strip("/")
         name = item.get("name", "")
         rel = f"{raw_path}/{name}" if raw_path else name
-        site_slug = (site_name or "sitio").strip().strip("/")
-        return f"sharepoint/{site_slug}/{rel}".replace("//", "/")
+        return rel
 
     # ----- Procesamiento de un archivo ----------------------------------------
-
-    def already_up_to_date(self, file_path, last_modified):
-        """True si ya tenemos este archivo con la misma fecha de modificación.
-
-        Consulta el caché en memoria (cargado en load_index_cache), sin tocar la
-        base. Guardamos updated_at = lastModifiedDateTime del archivo, así que si
-        coinciden los primeros 19 chars no hay nada que reprocesar.
-        """
-        if not last_modified:
-            return False
-        stored = self.index_cache.get(file_path)
-        return bool(stored and stored == last_modified[:19])
-
-    def _db_write_with_retry(self, fn, desc, max_retries=5):
-        """Ejecuta una escritura a Supabase reintentando ante errores transitorios.
-
-        Los 520/5xx de Cloudflare (Supabase saturado o payload grande) y los cortes
-        de red llegaban al `except` de arriba, imprimían el error y BOTABAN los
-        embeddings ya generados (el paso caro). Como estas escrituras son
-        idempotentes (upsert on_conflict / delete por file_path), reintentar con
-        backoff exponencial es seguro y evita perder el trabajo pagado.
-        """
-        import time
-
-        for attempt in range(max_retries):
-            try:
-                return fn()
-            except Exception as e:
-                if attempt == max_retries - 1:
-                    raise
-                wait = min(60, 3 * (2 ** attempt))  # 3, 6, 12, 24, 48 s
-                print(
-                    f"  {desc}: error transitorio ({str(e)[:120]}); "
-                    f"reintento en {wait}s ({attempt + 1}/{max_retries})..."
-                )
-                time.sleep(wait)
-
-    def delete_existing_chunks(self, file_path):
-        try:
-            self._db_write_with_retry(
-                lambda: self.supabase.table("wiki_documents")
-                .delete()
-                .eq("file_path", file_path)
-                .execute(),
-                f"borrado de {file_path}",
-            )
-        except Exception as e:
-            print(f"Error borrando chunks previos de {file_path}: {e}")
 
     async def process_file(self, site_name, item, download_url):
         name = item.get("name", "")
         ext = os.path.splitext(name)[1].lower()
         if ext not in SUPPORTED_EXTS:
-            return
+            return False
         if not download_url:
-            return
+            return False
 
-        file_path = self.build_file_path(site_name, item)
-        last_modified = item.get("lastModifiedDateTime")
+        site_slug = (site_name or "sitio").strip().strip("/")
+        prefix = f"sharepoint/{site_slug}"
+        rel = self.build_rel_path(item)
+        display_path = f"{prefix}/{rel}"
 
-        if self.already_up_to_date(file_path, last_modified):
-            print(f"Sin cambios, omitido: {file_path}")
-            return
-
-        print(f"Procesando: {file_path}")
+        print(f"Procesando: {display_path}")
 
         try:
             async with httpx.AsyncClient() as client:
                 resp = await client.get(download_url, timeout=120)
             if resp.status_code != 200:
                 print(f"  Descarga fallida ({resp.status_code}) para {name}")
-                return
+                return False
             content = resp.content
         except Exception as e:
             print(f"  Error descargando {name}: {e}")
-            return
+            return False
 
         suffix = ext or ""
         tmp_file_path = None
@@ -351,65 +206,29 @@ class SharePointScraper:
             markdown_text = (result.text_content or "").strip()
         except Exception as e:
             print(f"  Error convirtiendo {name} a Markdown: {e}")
-            return
+            return False
         finally:
             if tmp_file_path and os.path.exists(tmp_file_path):
                 os.remove(tmp_file_path)
 
         if not markdown_text:
             print(f"  Documento vacío tras conversión: {name}")
-            return
-
-        chunks = self.chunk_text(markdown_text)
-        if not chunks:
-            return
-
-        try:
-            embeddings = await asyncio.to_thread(self.embed, chunks)
-        except Exception as e:
-            print(f"  Error generando embeddings para {name}: {e}")
-            return
-
-        # Reemplazo limpio: borrar los chunks antiguos y reinsertar.
-        await asyncio.to_thread(self.delete_existing_chunks, file_path)
+            return False
 
         title = item.get("title") or name
-        rows = []
-        for idx, (chunk, vector) in enumerate(zip(chunks, embeddings)):
-            rows.append(
-                {
-                    "file_path": file_path,
-                    "title": title,
-                    "content": chunk,
-                    "chunk_index": idx,
-                    "embedding": vector,
-                    "updated_at": last_modified,
-                }
-            )
-
-        def _write_all():
-            # Upsert por lotes: un solo request con cientos de filas dispara el
-            # statement_timeout de Postgres. Cada lote reintenta por su cuenta.
-            total_batches = (len(rows) + UPSERT_BATCH_ROWS - 1) // UPSERT_BATCH_ROWS
-            for i in range(0, len(rows), UPSERT_BATCH_ROWS):
-                batch = rows[i : i + UPSERT_BATCH_ROWS]
-                n = i // UPSERT_BATCH_ROWS + 1
-                self._db_write_with_retry(
-                    lambda b=batch: self.supabase.table("wiki_documents")
-                    .upsert(b, on_conflict="file_path,chunk_index")
-                    .execute(),
-                    f"guardado de {name} (lote {n}/{total_batches})",
-                )
+        body = f"# {title}\n\n{markdown_text}"
 
         try:
-            await asyncio.to_thread(_write_all)
-            # Mantener el caché al día para no reprocesar si se vuelve a ver.
-            self.index_cache[file_path] = (last_modified or "")[:19]
-            print(f"  Guardado: {len(rows)} chunks de {name}")
-            return True
+            ok, detail = await asyncio.to_thread(upload_markdown, prefix, rel, body)
         except Exception as e:
-            print(f"  Error guardando chunks de {name}: {e}")
+            print(f"  Error subiendo {name} a SharePoint: {e}")
             return False
+
+        if ok:
+            print(f"  Subido ← {detail}")
+            return True
+        print(f"  Error subiendo {name} a SharePoint: {detail}")
+        return False
 
     # ----- Recorrido de drives -------------------------------------------------
 
@@ -433,19 +252,16 @@ class SharePointScraper:
     async def _handle_item(self, client, drive_id, site_name, item, headers):
         """Procesa un archivo del delta, acotado por el semáforo de concurrencia.
 
-        El descarte de extensiones no soportadas y de archivos sin cambios se
-        hace ANTES de tomar el semáforo y ANTES de pedir el downloadUrl, así un
-        archivo ya indexado no gasta ni una llamada a Graph ni un cupo de
-        concurrencia.
+        El descarte de extensiones no soportadas se hace ANTES de tomar el
+        semáforo y ANTES de pedir el downloadUrl. El delta ya trae solo lo
+        nuevo/cambiado desde la última corrida (o todo, en la primera), así
+        que no hace falta un chequeo de "ya está" aparte.
         """
         if self.limit_reached:
             return
         name = item.get("name", "")
         ext = os.path.splitext(name)[1].lower()
         if ext not in SUPPORTED_EXTS:
-            return
-        file_path = self.build_file_path(site_name, item)
-        if self.already_up_to_date(file_path, item.get("lastModifiedDateTime")):
             return
 
         async with self.semaphore:
@@ -487,9 +303,6 @@ class SharePointScraper:
                     print(f"Error procesando drive {drive_id}: {e}")
                     return
 
-                # Procesa los archivos de esta página en paralelo (acotado por el
-                # semáforo dentro de _handle_item). Los skips por "sin cambios" se
-                # resuelven en memoria, así que las tareas triviales fluyen rápido.
                 tasks = [
                     asyncio.create_task(
                         self._handle_item(client, drive_id, site_name, item, headers)
@@ -512,7 +325,7 @@ class SharePointScraper:
                     url = next_page
                 else:
                     if delta:
-                        self.save_delta_link(drive_id, delta)
+                        await self.save_delta_link(drive_id, delta)
                     url = None
 
     async def discover_subsites(self, client, headers, site_id, found):
@@ -588,9 +401,10 @@ class SharePointScraper:
         result = list(found.values())
 
         # Orden inverso opcional: permite correr un segundo proceso (cron local)
-        # que barre los sitios de atrás hacia adelante mientras el job de Azure
-        # los barre de adelante hacia atrás. Comparten el estado por-drive en
-        # `scraping_state`, así que se cruzan en el medio y no se repisan.
+        # que barre los sitios de atrás hacia adelante mientras el otro los
+        # barre de adelante hacia atrás. Comparten el estado por-drive en
+        # SharePoint (STATE_PATH), así que se cruzan en el medio y no se repisan
+        # siempre que no corran los dos a la vez (el JSON no tiene locking).
         if os.getenv("SCRAPE_REVERSE", "").strip().lower() in ("1", "true", "yes", "si"):
             result.reverse()
             print("Orden INVERSO activado (SCRAPE_REVERSE=1).")
@@ -602,7 +416,7 @@ class SharePointScraper:
         print("Iniciando scraper...")
         self.semaphore = asyncio.Semaphore(MAX_CONCURRENCY)
         print(f"Concurrencia: {MAX_CONCURRENCY} archivos en paralelo.")
-        self.load_index_cache()
+        await self.load_state()
         sites = await self.discover_all_sites()
 
         async with httpx.AsyncClient() as client:
@@ -646,9 +460,9 @@ class SharePointScraper:
         else:
             # Recorrió todo sin cortar por límite. Si no hubo archivos nuevos,
             # el indexado está al día → avisar una sola vez.
-            self.maybe_notify_completion()
+            await self.maybe_notify_completion()
 
-    def maybe_notify_completion(self):
+    async def maybe_notify_completion(self):
         """Avisa por VIC (Teams) cuando el indexado queda al día. Una sola vez."""
         notify_url = os.getenv("VIC_PUSH_URL", "").strip()
         notify_secret = os.getenv("VIC_PUSH_SECRET", "").strip()
@@ -656,44 +470,18 @@ class SharePointScraper:
         if not (notify_url and notify_secret and notify_email):
             return
 
-        # Estado de la última notificación, guardado en scraping_state.
-        try:
-            resp = (
-                self.supabase.table("scraping_state")
-                .select("status")
-                .eq("resource_id", "__notify__")
-                .execute()
-            )
-            already_notified = bool(resp.data and resp.data[0].get("status") == "notified")
-        except Exception:
-            already_notified = False
+        already_notified = self.state.get("notify", {}).get("status") == "notified"
 
         if self.files_processed > 0:
             # Hubo trabajo: rearmar el aviso para la próxima vez que quede al día.
             if already_notified:
-                self._set_notify_state("pending")
+                await self._set_notify_state("pending")
             return
 
         if already_notified:
             return  # ya avisamos y sigue al día; no repetir
 
-        total = 0
-        try:
-            r = (
-                self.supabase.table("wiki_documents")
-                .select("file_path", count="exact")
-                .like("file_path", "sharepoint/%")
-                .limit(1)
-                .execute()
-            )
-            total = r.count or 0
-        except Exception:
-            pass
-
-        text = (
-            "✅ Indexado de SharePoint al día. "
-            f"No hay archivos nuevos por procesar. Documentos indexados: {total}."
-        )
+        text = "✅ Indexado de SharePoint al día. No hay archivos nuevos por procesar."
         try:
             r = httpx.post(
                 notify_url,
@@ -703,38 +491,20 @@ class SharePointScraper:
             )
             if r.status_code == 200:
                 print(f"Aviso enviado a VIC para {notify_email}.")
-                self._set_notify_state("notified")
+                await self._set_notify_state("notified")
             else:
                 print(f"VIC push respondió {r.status_code}: {r.text[:200]}")
         except Exception as e:
             print(f"No se pudo enviar aviso a VIC: {e}")
 
-    def _set_notify_state(self, status):
-        try:
-            self.supabase.table("scraping_state").upsert(
-                {
-                    "resource_type": "notify",
-                    "resource_id": "__notify__",
-                    "status": status,
-                    "last_processed_at": datetime.now(timezone.utc).isoformat(),
-                },
-                on_conflict="resource_id",
-            ).execute()
-        except Exception as e:
-            print(f"No se pudo guardar estado de notificación: {e}")
+    async def _set_notify_state(self, status):
+        self.state.setdefault("notify", {})["status"] = status
+        self.state["notify"]["last_processed_at"] = datetime.now(timezone.utc).isoformat()
+        await self.save_state()
 
 
 async def main():
-    print(
-        "RETIRADO (2026-08-20): este script indexaba SharePoint en la tabla "
-        "wiki_documents de Supabase, que ya no existe. VIC lee SharePoint EN "
-        "VIVO (Graph Search) y el espejo curado que consumía esta tabla "
-        "(azure-mirror) también se retiró. Nada corriente depende de esto — "
-        "no hay nada que hacer. El Container App Job 'ic-scraper-job' quedó "
-        "con el cron pausado (era '0,30 * * * *'; restaurar si se revive)."
-    )
-    return
-    scraper = SharePointScraper()  # noqa: dejado para referencia, no se ejecuta.
+    scraper = SharePointScraper()
     await scraper.run()
 
 

@@ -33,7 +33,6 @@ from pebble import ProcessPool, ProcessExpired
 
 import logging
 
-import tiktoken
 from dotenv import load_dotenv
 from markitdown import MarkItDown
 
@@ -57,8 +56,6 @@ SUPPORTED_EXTS = {
     ".pdf", ".docx", ".doc", ".pptx", ".ppt", ".xlsx", ".xls",
     ".md", ".txt", ".html", ".htm", ".csv", ".json", ".xml",
 }
-
-encoder = tiktoken.get_encoding("cl100k_base")
 
 # MarkItDown por hilo (evita compartir estado entre conversiones concurrentes).
 _tl = threading.local()

@@ -5,5 +5,4 @@ markitdown[all]
 supabase
 python-dotenv
 openai
-tiktoken
 pebble

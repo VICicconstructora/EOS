@@ -22,9 +22,11 @@ import time
 import httpx
 from azure.identity import ClientSecretCredential
 
-TENANT_ID = os.getenv("AZURE_TENANT_ID")
-CLIENT_ID = os.getenv("SP_AZURE_CLIENT_ID")
-CLIENT_SECRET = os.getenv("SP_AZURE_CLIENT_SECRET")
+# Leídas en _get_token(), no acá arriba: los módulos que importan este
+# archivo (local_ingest.py, sharepoint_scraper.py) llaman a load_dotenv()
+# DESPUÉS del import, así que una lectura a nivel de módulo siempre capturaba
+# vacío. Nunca se disparó en producción porque el único caller que ya corrió
+# de verdad (local_ingest.py --mirror-only) no llega a pedir un token.
 
 # Drive de 'AA General Edicion', verificado vía Graph (mismo que usaba
 # azure-mirror para el espejo, ahora retirado).
@@ -47,9 +49,12 @@ def _get_token():
     now = time.time()
     if _token_cache["value"] and now < _token_cache["exp"] - 60:
         return _token_cache["value"]
-    if not TENANT_ID or not CLIENT_ID or not CLIENT_SECRET:
+    tenant_id = os.getenv("AZURE_TENANT_ID")
+    client_id = os.getenv("SP_AZURE_CLIENT_ID")
+    client_secret = os.getenv("SP_AZURE_CLIENT_SECRET")
+    if not tenant_id or not client_id or not client_secret:
         raise RuntimeError("Faltan AZURE_TENANT_ID / SP_AZURE_CLIENT_ID / SP_AZURE_CLIENT_SECRET.")
-    cred = ClientSecretCredential(tenant_id=TENANT_ID, client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
+    cred = ClientSecretCredential(tenant_id=tenant_id, client_id=client_id, client_secret=client_secret)
     token = cred.get_token("https://graph.microsoft.com/.default")
     _token_cache["value"] = token.token
     _token_cache["exp"] = now + (token.expires_on - time.time())
@@ -66,6 +71,50 @@ def safe_rel_path(rel_path):
         if seg:
             parts.append(seg)
     return "/".join(parts) if parts else "sin_nombre"
+
+
+def download_bytes(full_path):
+    """Descarga un archivo del drive destino vía Graph. None si no existe (404)."""
+    full_path = safe_rel_path(full_path)
+    url = f"{GRAPH}/drives/{TARGET_DRIVE_ID}/root:/{full_path}:/content"
+    token = _get_token()
+    with httpx.Client() as client:
+        r = client.get(url, headers={"Authorization": f"Bearer {token}"}, timeout=60)
+        if r.status_code == 404:
+            return None
+        r.raise_for_status()
+        return r.content
+
+
+def upload_bytes(full_path, data, content_type="application/octet-stream"):
+    """Sube/reemplaza un archivo en <full_path> (ya bajo TARGET_ROOT si aplica)
+    vía Graph PUT. Reintenta ante 429/5xx. Devuelve (ok: bool, detail: str).
+
+    A diferencia de upload_markdown, no fuerza extensión ni antepone un
+    prefijo de contenido: se usa para archivos de estado/metadata (JSON), no
+    para los documentos ingeridos.
+    """
+    full_path = safe_rel_path(full_path)
+    if len(data) > SIMPLE_UPLOAD_LIMIT:
+        return False, f"archivo > 4MB ({len(data)} bytes), subida simple no alcanza"
+    url = f"{GRAPH}/drives/{TARGET_DRIVE_ID}/root:/{full_path}:/content"
+    with httpx.Client() as client:
+        for attempt in range(5):
+            token = _get_token()
+            r = client.put(
+                url,
+                headers={"Authorization": f"Bearer {token}", "Content-Type": content_type},
+                content=data,
+                timeout=120,
+            )
+            if r.status_code in (200, 201):
+                return True, full_path
+            if r.status_code == 429 or r.status_code >= 500:
+                wait = int(r.headers.get("Retry-After", "0") or "0") or (2 ** attempt)
+                time.sleep(min(wait, 30))
+                continue
+            return False, f"{r.status_code}: {r.text[:200]}"
+        return False, "reintentos agotados"
 
 
 def upload_markdown(prefix, rel_path, markdown_text, client=None):
