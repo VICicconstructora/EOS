@@ -76,7 +76,17 @@ def _convert_worker(full_path):
     matarla por timeout — un archivo patológico que hace *spin* de CPU no se puede
     interrumpir desde un hilo (el GIL queda tomado). El resto (espejo, subida a
     SharePoint) se maneja en el proceso principal, donde vive el estado compartido."""
-    text = (get_md().convert(full_path).text_content or "").strip()
+    try:
+        text = (get_md().convert(full_path).text_content or "").strip()
+    except Exception as e:
+        # Pebble serializa la excepcion completa (con su cadena __cause__/
+        # __context__) para devolverla al proceso principal. Si algo en esa
+        # cadena trae un traceback no picklable, el pickle mismo revienta con
+        # "cannot pickle 'traceback' object" y se pierde el motivo real del
+        # fallo. Se relanza plana y sin cadena (`from None`) para que el
+        # mensaje de verdad llegue al `except Exception as e` que lo imprime
+        # en el bucle principal.
+        raise RuntimeError(f"{type(e).__name__}: {e}") from None
     # Postgres/Graph rechazan el byte nulo; MarkItDown lo deja en algunos PDFs.
     return text.replace("\x00", "")
 
