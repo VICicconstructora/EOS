@@ -1,4 +1,4 @@
-"""Scraping 2 — ingesta de una carpeta LOCAL a wiki_documents.
+"""Scraping 2 — ingesta de una carpeta LOCAL a SharePoint.
 
 Independiente del scraper de SharePoint (`sharepoint_scraper.py`), que se deja
 intacto. Aquí:
@@ -6,17 +6,18 @@ intacto. Aquí:
   1. Recorre una carpeta local (recursivo).
   2. Convierte cada archivo soportado a Markdown con MarkItDown.
   3. Escribe un espejo .md en una carpeta local aparte (no sincronizada a la nube).
-  4. "Empata" con el proceso primario: inserta los chunks en la MISMA tabla
-     `wiki_documents` de Supabase, con un prefijo propio (`local/<algo>/...`)
-     para quedar identificable y separado de `sharepoint/` y `wiki/`.
+  4. Sube ese .md a SharePoint (biblioteca 'AA General Edicion', carpeta
+     `.AI/_local-ingest/<prefix>/...`) vía Microsoft Graph, para que VIC lo
+     encuentre con su búsqueda en vivo (Graph Search) igual que cualquier otro
+     documento del wiki.
 
-SIN embeddings (solo texto): la columna `search_vector` se genera sola en
-Postgres, así que la búsqueda léxica de VIC funciona de inmediato sin pasar por
-la cuota de ninguna API. Lo semántico se puede añadir después con un modelo local.
+Antes escribía a la tabla `wiki_documents` de Supabase — esa tabla ya no
+existe (VIC dejó de indexar el wiki en Supabase, lee SharePoint en vivo).
+Ver `sharepoint_upload.py` para el detalle de la subida.
 
 Uso:
   python local_ingest.py --src "C:\\...\\Juridico - Documentos" \
-      --prefix local/juridico --mirror C:\\scraping2\\juridico --workers 5
+      --prefix juridico --mirror C:\\scraping2\\juridico --workers 5
 """
 
 import os
@@ -25,14 +26,18 @@ import csv
 import argparse
 import threading
 from datetime import datetime, timezone
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import as_completed
+from concurrent.futures import TimeoutError as FuturesTimeoutError
+
+from pebble import ProcessPool, ProcessExpired
 
 import logging
 
 import tiktoken
 from dotenv import load_dotenv
-from supabase import create_client
 from markitdown import MarkItDown
+
+from sharepoint_upload import upload_markdown
 
 # pdfminer escupe miles de "Could not get FontBBox" al parsear PDFs; ruido puro.
 logging.getLogger("pdfminer").setLevel(logging.ERROR)
@@ -46,12 +51,6 @@ except Exception:
 
 # .env centralizado en la raíz del repo (mismo que el scraper primario).
 load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
-
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-
-CHUNK_TOKENS = 500
-CHUNK_OVERLAP = 50
 
 # Mismas extensiones que el scraper primario: lo que MarkItDown sabe convertir.
 SUPPORTED_EXTS = {
@@ -71,59 +70,21 @@ def get_md():
     return _tl.md
 
 
-def chunk_text(text):
-    """Trocea en fragmentos de ~CHUNK_TOKENS tokens con solape (igual al primario)."""
-    tokens = encoder.encode(text)
-    if not tokens:
-        return []
-    chunks = []
-    step = CHUNK_TOKENS - CHUNK_OVERLAP
-    for start in range(0, len(tokens), step):
-        window = tokens[start : start + CHUNK_TOKENS]
-        if not window:
-            break
-        chunk = encoder.decode(window).strip()
-        if chunk:
-            chunks.append(chunk)
-        if start + CHUNK_TOKENS >= len(tokens):
-            break
-    return chunks
+def _convert_worker(full_path):
+    """Corre en un proceso worker de pebble: SOLO convierte y devuelve el texto
+    (o '' si vacío/escaneado). Aislar la conversión en un proceso aparte permite
+    matarla por timeout — un archivo patológico que hace *spin* de CPU no se puede
+    interrumpir desde un hilo (el GIL queda tomado). El resto (espejo, subida a
+    SharePoint) se maneja en el proceso principal, donde vive el estado compartido."""
+    text = (get_md().convert(full_path).text_content or "").strip()
+    # Postgres/Graph rechazan el byte nulo; MarkItDown lo deja en algunos PDFs.
+    return text.replace("\x00", "")
 
 
 def build_file_path(prefix, src_root, full_path):
     """prefix + ruta relativa del archivo, con separadores POSIX."""
     rel = os.path.relpath(full_path, src_root).replace("\\", "/")
     return f"{prefix.rstrip('/')}/{rel}"
-
-
-def load_index_cache(supabase, prefix):
-    """file_path -> updated_at[:19] de lo ya ingestado bajo este prefijo."""
-    cache = {}
-    page, size = 0, 1000
-    like = f"{prefix.rstrip('/')}/%"
-    while True:
-        try:
-            resp = (
-                supabase.table("wiki_documents")
-                .select("file_path,updated_at")
-                .eq("chunk_index", 0)
-                .like("file_path", like)
-                .range(page * size, page * size + size - 1)
-                .execute()
-            )
-        except Exception as e:
-            print(f"No se pudo cargar el caché (pág {page}): {e}")
-            break
-        rows = resp.data or []
-        for r in rows:
-            fp = r.get("file_path")
-            if fp:
-                cache[fp] = (r.get("updated_at") or "")[:19]
-        if len(rows) < size:
-            break
-        page += 1
-    print(f"Caché de ya-ingestado bajo '{prefix}': {len(cache)} archivos.")
-    return cache
 
 
 def write_mirror(mirror_root, src_root, full_path, markdown_text):
@@ -138,6 +99,7 @@ def write_mirror(mirror_root, src_root, full_path, markdown_text):
     os.makedirs(os.path.dirname(dest), exist_ok=True)
     with open(dest, "w", encoding="utf-8") as f:
         f.write(markdown_text)
+    return dest
 
 
 # Contadores globales protegidos por lock.
@@ -160,32 +122,33 @@ def record(status, src_path, file_path, chars, chunks):
         _manifest_fh.flush()
 
 
-def process_file(supabase, prefix, src_root, mirror_root, cache, full_path):
-    file_path = build_file_path(prefix, src_root, full_path)
-    try:
-        mtime = datetime.fromtimestamp(
-            os.path.getmtime(full_path), tz=timezone.utc
-        ).isoformat()
-    except Exception:
-        mtime = datetime.now(timezone.utc).isoformat()
+def precheck(src_root, mirror_root, full_path):
+    """Decide si el archivo se omite (ya-hecho) antes de gastar un worker en él.
 
-    # Omitir si ya está y no cambió.
-    if cache.get(file_path) == mtime[:19]:
+    Idempotencia por el espejo LOCAL: si ya existe el .md y su fecha de
+    modificación es >= a la del origen, no hay nada que reprocesar. (Ya no hay
+    tabla remota que consultar; el espejo local ES el caché.)
+    Devuelve (skip, file_path, mtime).
+    """
+    file_path = build_file_path("", src_root, full_path)
+    try:
+        src_mtime = os.path.getmtime(full_path)
+    except Exception:
+        src_mtime = 0
+
+    dest = os.path.join(mirror_root, os.path.relpath(full_path, src_root)) + ".md"
+    if os.path.exists(dest) and os.path.getmtime(dest) >= src_mtime:
         with _lock:
             _stats["skip"] += 1
         record("omitido", full_path, file_path, "", "")
-        return
+        return True, file_path
 
-    try:
-        result = get_md().convert(full_path)
-        markdown_text = (result.text_content or "").strip()
-    except Exception as e:
-        with _lock:
-            _stats["error"] += 1
-        record("error", full_path, file_path, "", "")
-        print(f"  ERROR convirtiendo {file_path}: {str(e)[:120]}")
-        return
+    return False, file_path
 
+
+def finish_file(prefix, src_root, mirror_root, full_path, file_path, markdown_text):
+    """Maneja el resultado de la conversión (ya hecha en un worker): escribe el
+    espejo local y sube el .md a SharePoint. Corre en el proceso principal."""
     if not markdown_text:
         with _lock:
             _stats["empty"] += 1
@@ -193,70 +156,49 @@ def process_file(supabase, prefix, src_root, mirror_root, cache, full_path):
         print(f"  Vacío (¿escaneado?), omitido: {file_path}")
         return
 
-    # Espejo local del .md.
     try:
         write_mirror(mirror_root, src_root, full_path, markdown_text)
     except Exception as e:
         print(f"  Aviso: no se pudo escribir espejo de {file_path}: {str(e)[:80]}")
 
-    chunks = chunk_text(markdown_text)
-    if not chunks:
-        with _lock:
-            _stats["empty"] += 1
-        record("vacio_escaneado", full_path, file_path, len(markdown_text), 0)
-        return
-
     title = os.path.basename(full_path)
-    rows = [
-        {
-            "file_path": file_path,
-            "title": title,
-            "content": chunk,
-            "chunk_index": idx,
-            "updated_at": mtime,  # SIN embedding: solo texto.
-        }
-        for idx, chunk in enumerate(chunks)
-    ]
+    content = f"# {title}\n\n{markdown_text}"
+    rel = os.path.relpath(full_path, src_root).replace("\\", "/")
 
-    try:
-        # Reemplazo limpio: borrar chunks previos y reinsertar.
-        supabase.table("wiki_documents").delete().eq("file_path", file_path).execute()
-        supabase.table("wiki_documents").upsert(
-            rows, on_conflict="file_path,chunk_index"
-        ).execute()
+    ok, detail = upload_markdown(prefix, rel, content)
+    if ok:
         with _lock:
             _stats["ok"] += 1
             n = _stats["ok"]
-        cache[file_path] = mtime[:19]
-        record("convertido", full_path, file_path, len(markdown_text), len(rows))
-        print(f"  [{n}] {len(rows)} chunks ← {file_path}")
-    except Exception as e:
+        record("convertido", full_path, file_path, len(markdown_text), 1)
+        print(f"  [{n}] SharePoint: {detail} ← {file_path}")
+    else:
         with _lock:
             _stats["error"] += 1
         record("error", full_path, file_path, len(markdown_text), 0)
-        print(f"  ERROR guardando {file_path}: {str(e)[:120]}")
+        print(f"  ERROR subiendo a SharePoint {file_path}: {detail[:150]}")
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Ingesta local → wiki_documents (sin embeddings).")
+    ap = argparse.ArgumentParser(description="Ingesta local → SharePoint (biblioteca AA General Edicion).")
     ap.add_argument("--src", required=True, help="Carpeta local a ingestar (recursivo).")
-    ap.add_argument("--prefix", default="local/juridico", help="Prefijo de file_path en la tabla.")
-    ap.add_argument("--mirror", default=r"C:\scraping2\juridico", help="Carpeta del espejo .md.")
-    ap.add_argument("--workers", type=int, default=5, help="Hilos en paralelo.")
+    ap.add_argument("--prefix", default="juridico", help="Subcarpeta destino en SharePoint bajo .AI/_local-ingest/.")
+    ap.add_argument("--mirror", default=r"C:\scraping2\juridico", help="Carpeta del espejo .md local.")
+    ap.add_argument("--workers", type=int, default=5, help="Procesos worker en paralelo.")
     ap.add_argument("--limit", type=int, default=0, help="Máx. archivos (0 = sin límite).")
+    ap.add_argument("--convert-timeout", type=int, default=180,
+                    help="Segundos máx. por archivo; si se pasa, se mata el worker "
+                         "colgado, se marca 'timeout' y se sigue (0 = sin límite).")
+    ap.add_argument("--mirror-only", action="store_true",
+                    help="Solo escribe el espejo .md en disco; NO sube nada a SharePoint.")
     args = ap.parse_args()
 
-    if not SUPABASE_URL or not SUPABASE_KEY:
-        print("Faltan SUPABASE_URL / SUPABASE_KEY en el .env raíz.")
-        sys.exit(1)
     if not os.path.isdir(args.src):
         print(f"No existe la carpeta: {args.src}")
         sys.exit(1)
 
-    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-
     print(f"Origen: {args.src}")
-    print(f"Prefijo en tabla: {args.prefix}/")
+    print(f"Modo: {'MIRROR-ONLY (sin SharePoint)' if args.mirror_only else 'ingesta a SharePoint (.AI/_local-ingest/' + args.prefix + '/)'}")
     print(f"Espejo .md: {args.mirror}")
     print(f"Hilos: {args.workers}")
 
@@ -280,15 +222,60 @@ def main():
     _manifest.writerow(["status", "chars", "chunks", "file_path", "src_path"])
     print(f"Índice: {index_path}")
 
-    cache = load_index_cache(supabase, args.prefix)
+    timeout = args.convert_timeout or None
+    with ProcessPool(max_workers=args.workers) as pool:
+        fmap = {}
+        for p in files:
+            skip, fp = precheck(args.src, args.mirror, p)
+            if skip:
+                continue
+            fut = pool.schedule(_convert_worker, args=(p,), timeout=timeout)
+            fmap[fut] = (p, fp)
 
-    with ThreadPoolExecutor(max_workers=args.workers) as ex:
-        futs = [
-            ex.submit(process_file, supabase, args.prefix, args.src, args.mirror, cache, p)
-            for p in files
-        ]
-        for _ in as_completed(futs):
-            pass
+        for fut in as_completed(fmap):
+            full_path, file_path = fmap[fut]
+            try:
+                text = fut.result()
+            except FuturesTimeoutError:
+                with _lock:
+                    _stats["error"] += 1
+                record("timeout", full_path, file_path, "", "")
+                print(f"  TIMEOUT (>{args.convert_timeout}s) — worker reiniciado, "
+                      f"omitido: {file_path}")
+                continue
+            except ProcessExpired as e:
+                with _lock:
+                    _stats["error"] += 1
+                record("error", full_path, file_path, "", "")
+                print(f"  Worker murió ({e}) convirtiendo: {file_path}")
+                continue
+            except Exception as e:
+                with _lock:
+                    _stats["error"] += 1
+                record("error", full_path, file_path, "", "")
+                print(f"  ERROR convirtiendo {file_path}: {str(e)[:120]}")
+                continue
+
+            if args.mirror_only:
+                if not text:
+                    with _lock:
+                        _stats["empty"] += 1
+                    record("vacio_escaneado", full_path, file_path, 0, 0)
+                    continue
+                try:
+                    write_mirror(args.mirror, args.src, full_path, text)
+                    with _lock:
+                        _stats["ok"] += 1
+                        n = _stats["ok"]
+                    record("convertido", full_path, file_path, len(text), 1)
+                    print(f"  [{n}] (.md local) ← {file_path}")
+                except Exception as e:
+                    with _lock:
+                        _stats["error"] += 1
+                    print(f"  ERROR escribiendo espejo de {file_path}: {str(e)[:120]}")
+                continue
+
+            finish_file(args.prefix, args.src, args.mirror, full_path, file_path, text)
 
     if _manifest_fh is not None:
         _manifest_fh.close()

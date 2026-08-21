@@ -1,3 +1,14 @@
+"""RETIRADO (2026-08-20). Indexaba SharePoint -> Supabase (wiki_documents),
+que ya no existe: VIC dejó de leer un índice en Supabase y pasó a leer
+SharePoint EN VIVO vía Graph Search (ver vic-bot/src/lib/sharepointSearch.js).
+El consumidor de esta tabla (azure-mirror, espejo curado en SharePoint) se
+retiró también. `main()` no crawlea nada, solo imprime un aviso.
+
+Se deja el código intacto por si se necesita para otro propósito (el crawl y
+la conversión en sí no dependían de Supabase). NO reactivar el cron del
+Container App Job 'ic-scraper-job' sin un destino real de escritura.
+"""
+
 import os
 import sys
 import asyncio
@@ -714,7 +725,16 @@ class SharePointScraper:
 
 
 async def main():
-    scraper = SharePointScraper()
+    print(
+        "RETIRADO (2026-08-20): este script indexaba SharePoint en la tabla "
+        "wiki_documents de Supabase, que ya no existe. VIC lee SharePoint EN "
+        "VIVO (Graph Search) y el espejo curado que consumía esta tabla "
+        "(azure-mirror) también se retiró. Nada corriente depende de esto — "
+        "no hay nada que hacer. El Container App Job 'ic-scraper-job' quedó "
+        "con el cron pausado (era '0,30 * * * *'; restaurar si se revive)."
+    )
+    return
+    scraper = SharePointScraper()  # noqa: dejado para referencia, no se ejecuta.
     await scraper.run()
 
 
