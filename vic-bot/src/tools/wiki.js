@@ -1,145 +1,117 @@
-const { createClient } = require('@supabase/supabase-js')
-const { embedQuery } = require('../lib/embeddings')
-
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-)
+const { searchDriveItems, fetchItemContent } = require('../lib/sharepointSearch')
 
 const EXTRACT_CHARS = 1500
 
-// Busca en el wiki combinando ranking léxico tolerante (OR + stemming) y
-// similitud semántica por embeddings. Resuelve el caso clásico donde la
-// pregunta usa una palabra ("apartamentos") distinta a la de la ficha
-// ("unidades"): el embedding las acerca, y el léxico OR no exige que todas
-// las palabras de la pregunta estén presentes.
-async function searchWiki(query) {
-  if (!query?.trim()) return 'Query vacía.'
+// Rutas a excluir del primer paso de búsqueda (actas/minutas, ruido de
+// volumen que domina el ranking y tapa las fichas reales). Ajustable por env.
+const NOISE_PATHS = (process.env.VIC_WIKI_NOISE_PATHS || '/actas/,/Actas/,/papelera/,/Recycle')
+  .split(',').map(s => s.trim()).filter(Boolean)
 
-  // Embedding de la consulta (null si no hay VOYAGE_API_KEY → degrada a solo-léxico).
-  let queryEmbedding = null
-  try {
-    queryEmbedding = await embedQuery(query)
-  } catch (e) {
-    console.error('[wiki] embedQuery falló, uso solo-léxico:', e.message)
-  }
-
-  // Paso 1: búsqueda híbrida sobre páginas estructuradas (sin actas/raw, que
-  // dominan por volumen de texto y ocultan las fichas reales).
-  const structured = await runHybrid(query, queryEmbedding, true, 8)
-  if (structured.length) return formatResults(structured)
-
-  // Paso 2: si no hubo nada estructurado, ampliar a todo el wiki (incluye actas/raw).
-  const all = await runHybrid(query, queryEmbedding, false, 5)
-  if (all.length) return formatResults(all)
-
-  // Paso 3 (último recurso): ilike por palabras sueltas, por si el FTS no tokenizó nada.
-  return await ilikeFallback(query)
-}
-
-async function runHybrid(query, queryEmbedding, excludeNoise, matchCount) {
-  const { data, error } = await supabase.rpc('search_wiki_hybrid', {
-    query_text: query,
-    query_embedding: queryEmbedding,
-    exclude_noise: excludeNoise,
-    match_count: matchCount
+// Gobierno de acceso: prefijos de ruta restringidos a ciertos alcances.
+// Formato env: "substring1|scope1,substring2|scope2". Vacío = todo abierto
+// (comportamiento real actual: la ingesta de buzones .pst con scope nunca
+// se corrió, así que hoy no hay contenido restringido de verdad).
+const RESTRICTED = (process.env.VIC_RESTRICTED_PATHS || '')
+  .split(',').map(s => s.trim()).filter(Boolean)
+  .map(entry => {
+    const [substring, scope] = entry.split('|')
+    return { substring, scope: scope || 'restricted' }
   })
 
-  if (error) {
-    console.error('[wiki] Error search_wiki_hybrid:', error.message)
-    // Si la función aún no existe (migración no aplicada), caer a léxico simple.
-    return await legacyTextSearch(query, excludeNoise, matchCount)
+function isAllowed(webUrl, allowedScopes) {
+  for (const r of RESTRICTED) {
+    if (webUrl.includes(r.substring) && !allowedScopes.includes(r.scope)) return false
   }
-  return data || []
+  return true
 }
 
-// Fallback para entornos donde la migración híbrida todavía no se aplicó.
-async function legacyTextSearch(query, excludeNoise, matchCount) {
-  let q = supabase
-    .from('wiki_documents')
-    .select('title, content, file_path, chunk_index')
-    .textSearch('search_vector', query, { type: 'websearch', config: 'spanish' })
-    .limit(matchCount)
+function filterByScope(items, allowedScopes) {
+  return items.filter(it => isAllowed(it.webUrl, allowedScopes))
+}
 
-  if (excludeNoise) {
-    q = q.not('file_path', 'like', 'wiki/actas/%').not('file_path', 'like', 'wiki/raw/%')
+// Busca en SharePoint (índice nativo) en 3 pasadas cada vez más amplias:
+// 1) sitios de equipo, sin ruido (actas/papelera) — el caso normal.
+// 2) sitios de equipo, sin filtrar ruido — por si el ruido tapaba el dato.
+// 3) último recurso: incluye OneDrive personal de cada empleado (mucho más
+//    ruidoso: escritorios duplicados, hasta node_modules de repos propios).
+async function searchWiki(query, allowedScopes = ['all']) {
+  if (!query?.trim()) return 'Query vacía.'
+
+  try {
+    const clean = filterByScope(
+      await searchDriveItems(query, { size: 8, excludePaths: NOISE_PATHS }),
+      allowedScopes
+    )
+    if (clean.length) return formatResults(clean)
+
+    const teamSites = filterByScope(
+      await searchDriveItems(query, { size: 8 }),
+      allowedScopes
+    )
+    if (teamSites.length) return formatResults(teamSites)
+
+    const withPersonal = filterByScope(
+      await searchDriveItems(query, { size: 8, includePersonal: true }),
+      allowedScopes
+    )
+    if (withPersonal.length) return formatResults(withPersonal)
+
+    return 'No se encontraron resultados en el wiki (SharePoint).'
+  } catch (e) {
+    console.error('[wiki] Error search_wiki (SharePoint):', e.message)
+    return `Error buscando en SharePoint: ${e.message}`
   }
-  const { data, error } = await q
-  if (error || !data) return []
-  return data
 }
 
-async function ilikeFallback(query) {
-  const words = query.split(/\s+/).filter(w => w.length > 3)
-  if (!words.length) return 'No se encontraron resultados en el wiki.'
-
-  const filter = words.map(w => `content.ilike.%${w}%`).join(',')
-  const { data, error } = await supabase
-    .from('wiki_documents')
-    .select('title, content, file_path')
-    .or(filter)
-    .not('file_path', 'like', 'wiki/raw/%')
-    .limit(5)
-
-  if (error || !data?.length) return 'No se encontraron resultados en el wiki.'
-  return formatResults(data)
-}
-
-function formatResults(rows) {
-  return rows.map(d => ({
-    title: d.title,
-    archivo: d.file_path,
-    extracto: (d.content || '').slice(0, EXTRACT_CHARS)
+function formatResults(items) {
+  return items.map(it => ({
+    title: it.name,
+    archivo: it.webUrl, // get_wiki_page recibe esta URL tal cual
   }))
 }
 
-// Devuelve el contenido completo de una página del wiki (todos sus chunks en orden).
-// Usar cuando search_wiki identifica un archivo relevante: ahí está el dato exacto.
-async function getWikiPage(filePath) {
-  if (!filePath?.trim()) return 'file_path requerido.'
+// Devuelve el contenido completo de un archivo del wiki dado su webUrl
+// (el campo "archivo" que devuelve search_wiki/list_wiki_pages).
+async function getWikiPage(webUrl, allowedScopes = ['all']) {
+  if (!webUrl?.trim()) return 'archivo (URL) requerido.'
+  if (!isAllowed(webUrl, allowedScopes)) return 'No tienes acceso a este documento.'
 
-  const { data, error } = await supabase
-    .from('wiki_documents')
-    .select('title, content, chunk_index')
-    .eq('file_path', filePath)
-    .order('chunk_index', { ascending: true })
-
-  if (error) {
-    console.error('[wiki] Error get_wiki_page:', error.message)
-    return `Error al leer página: ${error.message}`
-  }
-
-  if (!data?.length) return `Página no encontrada en el wiki: ${filePath}`
-
-  const fullContent = data.map(d => d.content).join('\n\n')
-  return {
-    title: data[0].title,
-    archivo: filePath,
-    chunks: data.length,
-    contenido: fullContent
+  try {
+    const result = await fetchItemContent(webUrl)
+    if (!result.convertible) {
+      return {
+        title: result.name,
+        archivo: webUrl,
+        contenido: `No puedo leer el contenido completo de este tipo de archivo. Ábrelo directamente: ${webUrl}`,
+      }
+    }
+    return {
+      title: result.name,
+      archivo: webUrl,
+      contenido: result.contenido,
+    }
+  } catch (e) {
+    console.error('[wiki] Error get_wiki_page (SharePoint):', e.message)
+    return `Error al leer página: ${e.message}`
   }
 }
 
-// Lista todas las páginas del wiki bajo un prefijo de ruta (ej: "wiki/proyectos/reserva-de-oporto").
-// Útil para descubrir qué fichas existen de un proyecto/persona antes de leerlas.
-async function listWikiPages(pathPrefix) {
+// Lista archivos relacionados con un prefijo/tema (ya no es un path literal
+// de un índice propio; se resuelve como término de búsqueda sobre SharePoint).
+async function listWikiPages(pathPrefix, allowedScopes = ['all']) {
   if (!pathPrefix?.trim()) return 'pathPrefix requerido.'
 
-  const { data, error } = await supabase
-    .from('wiki_documents')
-    .select('file_path, title')
-    .ilike('file_path', `%${pathPrefix}%`)
-    .order('file_path')
-
-  if (error) return `Error al listar páginas: ${error.message}`
-  if (!data?.length) return `No hay páginas que coincidan con: ${pathPrefix}`
-
-  // Deduplicar por file_path (hay múltiples chunks por página).
-  const seen = new Map()
-  for (const d of data) {
-    if (!seen.has(d.file_path)) seen.set(d.file_path, d.title)
+  try {
+    const items = filterByScope(
+      await searchDriveItems(pathPrefix, { size: 15 }),
+      allowedScopes
+    )
+    if (!items.length) return `No hay páginas que coincidan con: ${pathPrefix}`
+    return items.map(it => ({ archivo: it.webUrl, title: it.name }))
+  } catch (e) {
+    console.error('[wiki] Error list_wiki_pages (SharePoint):', e.message)
+    return `Error al listar páginas: ${e.message}`
   }
-  return Array.from(seen, ([archivo, title]) => ({ archivo, title }))
 }
 
 module.exports = { searchWiki, getWikiPage, listWikiPages }

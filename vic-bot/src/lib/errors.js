@@ -58,9 +58,12 @@ function userMessageForChatError(err) {
     return 'Los servidores de Anthropic están sobrecargados ahora mismo. Intenta de nuevo en un momento.'
   }
 
-  // Timeout / red.
-  if (blob.includes('timeout') || blob.includes('timed out') || blob.includes('econnreset') || blob.includes('fetch failed')) {
-    return 'La solicitud tardó demasiado o falló la conexión con Anthropic. Intenta de nuevo.'
+  // Timeout / red. Puede ser Anthropic o el proveedor por defecto (NVIDIA), así
+  // que el texto es neutral y sugiere registrar la key propia (el tier gratuito
+  // compartido de NVIDIA a veces se congestiona).
+  if (status === 504 || blob.includes('timeout') || blob.includes('timed out') || blob.includes('econnreset') || blob.includes('fetch failed') || blob.includes('aborted')) {
+    return 'El servicio de IA tardó demasiado o falló la conexión. Intenta de nuevo en un momento.\n\n' +
+      'Si sigue fallando, registra tu propia API de NVIDIA (gratis) para no depender de la cuota compartida: escribe `/nvidia` y te doy los pasos.'
   }
 
   // No reconocido: mostramos el detalle (entorno interno) para no ocultar la causa.
@@ -68,4 +71,47 @@ function userMessageForChatError(err) {
   return `Ocurrió un error al procesar tu solicitud. Detalle técnico: ${detalle}`
 }
 
-module.exports = { userMessageForChatError, anthropicDetails }
+// ── Respuestas incompletas (NO son errores de la API) ────────────────
+// Antes, tanto una respuesta cortada por límite de tokens como un loop de tools
+// agotado devolvían "hubo un problema inesperado de la API", descartando el
+// texto ya generado. Eran diagnósticos falsos: la API respondió bien. Estos dos
+// mensajes conservan lo escrito y dicen qué pasó de verdad.
+
+// El modelo llegó al tope de max_tokens a mitad de la respuesta.
+function truncatedMessage(partialText) {
+  const aviso =
+    'La respuesta se cortó por longitud, no por un error. Pídeme "sigue" para el resto, ' +
+    'o acota la consulta (un proyecto o un concepto a la vez) para que quepa completa.'
+  const t = (partialText || '').trim()
+  return t
+    ? `${t}
+
+---
+${aviso}`
+    : `No alcancé a escribir nada: se agotó el espacio de respuesta antes del primer párrafo. ${aviso}`
+}
+
+// Se agotaron las iteraciones del agentic loop (demasiadas llamadas a tools).
+function exhaustedMessage(partialText, maxIter) {
+  const aviso =
+    `Me quedé sin pasos (${maxIter}) antes de cerrar la respuesta: la consulta necesitó ` +
+    'demasiadas búsquedas encadenadas. No es un error de la API. Divídela en partes ' +
+    '(por ejemplo un proyecto a la vez) y la respondo completa.'
+  const t = (partialText || '').trim()
+  return t ? `${t}
+
+---
+${aviso}` : aviso
+}
+
+// El modelo paró por una razón que no esperamos (refusal, pause_turn, etc.).
+function unexpectedStopMessage(partialText, stopReason) {
+  const t = (partialText || '').trim()
+  const aviso = `El modelo detuvo la respuesta (motivo: ${stopReason || 'desconocido'}). Reformula la pregunta.`
+  return t ? `${t}
+
+---
+${aviso}` : aviso
+}
+
+module.exports = { userMessageForChatError, anthropicDetails, truncatedMessage, exhaustedMessage, unexpectedStopMessage }

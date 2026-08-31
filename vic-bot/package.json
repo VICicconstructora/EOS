@@ -9,14 +9,18 @@
     "index-wiki": "node indexer/indexWiki.js",
     "embed-wiki": "node indexer/backfillEmbeddings.js",
     "daily-sync": "node indexer/dailySync.js",
-    "export-propuestas": "node scripts/export-propuestas.js"
+    "export-propuestas": "node scripts/export-propuestas.js",
+    "regresion": "node scripts/regresion-cartera.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "latest",
     "@supabase/supabase-js": "^2.47.0",
     "botbuilder": "^4.23.0",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "mammoth": "^1.12.1",
+    "pdf-parse": "^1.1.4",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "nodemon": "^3.1.7"

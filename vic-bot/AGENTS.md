@@ -1,7 +1,7 @@
 # CLAUDE.md — VIC Bot
 
 > [!IMPORTANT]
-> **Archivo espejo:** `CLAUDE.md` y `AGENTS.md` son idénticos en contenido.
+> **Archivo espejo:** `AGENTS.md` y `CLAUDE.md` son idénticos en contenido.
 > Cada vez que modifiques uno, debes aplicar **los mismos cambios** en el otro
 > para mantenerlos sincronizados. Nunca dejes ambos archivos desincronizados.
 

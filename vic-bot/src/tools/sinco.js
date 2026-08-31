@@ -14,7 +14,10 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-const ESQUEMAS = ['sinco_ic_raw', 'sinco_ic_targets', 'sinco_ic_historico', 'sinco_ic_calc']
+const ESQUEMAS = [
+  'sinco_ic_raw', 'sinco_ic_model', 'sinco_ic_calc', 'sinco_ic_targets',
+  'sinco_ic_historico', 'sinco_ic_export', 'sinco_ic_meta'
+]
 
 // Lista tablas/vistas de un esquema SINCO. Filtro opcional por subcadena del
 // nombre (útil para acotar por módulo: 'adi_'=CBR, 'adp_'=ADPRO, 'fin_'=AyF).
@@ -46,6 +49,31 @@ async function describeSincoTable({ schema = 'sinco_ic_raw', table } = {}) {
   return data
 }
 
+// ── Señal de truncamiento ────────────────────────────────────────────
+// Las RPC cortan en silencio con LIMIT (eff_limit = min(max(row_limit,1),1000)).
+// Antes VIC recibía las filas sin saber si estaban completas y totalizaba sobre
+// un subconjunto: así reportó "los 500 registros mostrados" como si fueran todos.
+// Ahora el resultado viaja envuelto con el aviso explícito.
+const LIMITE_DEFECTO = 200
+const LIMITE_MAXIMO = 1000
+
+function limiteEfectivo(limit) {
+  return Math.min(Math.max(Number(limit) || LIMITE_DEFECTO, 1), LIMITE_MAXIMO)
+}
+
+function empaquetar(data, limit) {
+  const limite = limiteEfectivo(limit)
+  const truncado = data.length >= limite
+  const out = { filas: data, n_filas: data.length, limite, truncado }
+  if (truncado) {
+    out.aviso =
+      `RESULTADO TRUNCADO en ${limite} filas: hay más filas que no estás viendo. ` +
+      'PROHIBIDO sumar, contar o totalizar sobre estas filas — el total saldría mal. ' +
+      'Vuelve a consultar agregando en SQL (SUM / COUNT / GROUP BY) para obtener la cifra real.'
+  }
+  return out
+}
+
 // Ejecuta un SELECT de solo-lectura sobre los esquemas curados de SINCO.
 // Postgres rechaza cualquier escritura. Devuelve filas (máx row_limit) o el
 // mensaje de error para que VIC corrija el SQL e intente de nuevo.
@@ -58,7 +86,7 @@ async function querySinco({ sql, limit = 200 } = {}) {
   })
   if (error) return `Error en la consulta: ${error.message}`
   if (!data?.length) return 'La consulta no devolvió filas.'
-  return data
+  return empaquetar(data, limit)
 }
 
 // ── Acceso total de SOLO LECTURA a Supabase ─────────────────────────
@@ -103,7 +131,7 @@ async function queryDb({ sql, limit = 200 } = {}) {
   })
   if (error) return `Error en la consulta: ${error.message}`
   if (!data?.length) return 'La consulta no devolvió filas.'
-  return data
+  return empaquetar(data, limit)
 }
 
 // Alarma de negocio: etapas activas cuya última lista de precios se creó hace
