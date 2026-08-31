@@ -79,6 +79,18 @@ interface Fila {
   fechaVencCred: Date | null; fechaVencProrr: Date | null
   entidadFiducia: string; responsable: string
   licUrbanismo: string; licConstruccion: string; vencLicConst: Date | null
+  // Licencia de Construcción: cascada Original → Prórroga → Revalidación → Prórroga Revalidación.
+  // Cada etapa aprobada llena su propia columna "Vencimiento"; la "Solicitud" de la
+  // etapa siguiente sin vencimiento otorgado indica trámite en curso, aún no aprobado.
+  solicLicProrr: Date | null; vencLicProrr: Date | null
+  solicLicRevalida: Date | null; vencLicRevalida: Date | null
+  solicLicProrrRevalida: Date | null; vencLicProrrRevalida: Date | null
+}
+
+interface DCol {
+  solicLicProrr: number | null; vencLicProrr: number | null
+  solicLicRevalida: number | null; vencLicRevalida: number | null
+  solicLicProrrRevalida: number | null; vencLicProrrRevalida: number | null
 }
 
 interface Alarma {
@@ -211,8 +223,41 @@ function diasRestantes(d: Date | null, hoy: Date): number | null {
   return Math.ceil((d.getTime() - hoy.getTime()) / 86400000)
 }
 
+// ── Resolución de columnas por nombre de cabecera ────────────────────────────
+// Las columnas de prórroga/revalidación de licencia se ubican por su nombre en
+// la fila de cabeceras (fila 5), no por índice fijo, porque el Datamart puede
+// reordenar columnas. Si la cabecera no existe, la señal simplemente no se aplica.
+
+function norm(s: unknown): string {
+  return String(s ?? '')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase().replace(/\s+/g, ' ').trim()
+}
+
+function resolveCol(headerRow: unknown[], target: string): number | null {
+  const t = norm(target)
+  let idx = headerRow.findIndex(h => norm(h) === t)
+  if (idx < 0) idx = headerRow.findIndex(h => norm(h).includes(t))
+  return idx >= 0 ? idx : null
+}
+
+function buildDCol(headerRow: unknown[]): DCol {
+  return {
+    solicLicProrr:          resolveCol(headerRow, 'Licencia Construccion Solicitud Prorroga'),
+    vencLicProrr:            resolveCol(headerRow, 'Licencia Construccion Vencimiento Prorroga'),
+    solicLicRevalida:       resolveCol(headerRow, 'Licencia Construccion Solicitud Revalidacion'),
+    vencLicRevalida:         resolveCol(headerRow, 'Licencia Construccion Vencimiento Revalidacion'),
+    solicLicProrrRevalida:  resolveCol(headerRow, 'Licencia Construccion Solicitud Prorroga Revalidacion'),
+    vencLicProrrRevalida:    resolveCol(headerRow, 'Licencia Construccion Vencimiento Prorroga Revalidacion'),
+  }
+}
+
 function parseProyectos(raw: unknown[][]): Fila[] {
   // Fila 5 (índice 4) = cabeceras; datos desde índice 5
+  const headerRow = raw[4] ?? []
+  const dcol = buildDCol(headerRow)
+  const at = (r: unknown[], idx: number | null) => idx !== null ? excelDate(r[idx]) : null
+
   return raw.slice(5)
     .filter(r => r[C.Proyecto] !== '' && r[C.Proyecto] != null)
     .map(r => ({
@@ -233,7 +278,32 @@ function parseProyectos(raw: unknown[][]): Fila[] {
       licUrbanismo:    String(r[C.LicUrbanismo]    ?? ''),
       licConstruccion: String(r[C.LicConstruccion] ?? ''),
       vencLicConst:    excelDate(r[C.VencLicConst]),
+      solicLicProrr:         at(r, dcol.solicLicProrr),
+      vencLicProrr:           at(r, dcol.vencLicProrr),
+      solicLicRevalida:      at(r, dcol.solicLicRevalida),
+      vencLicRevalida:        at(r, dcol.vencLicRevalida),
+      solicLicProrrRevalida: at(r, dcol.solicLicProrrRevalida),
+      vencLicProrrRevalida:   at(r, dcol.vencLicProrrRevalida),
     }))
+}
+
+// Fecha de vencimiento vigente de la licencia de construcción: la última etapa
+// (Original → Prórroga → Revalidación → Prórroga Revalidación) con "Vencimiento"
+// aprobado. Si hay una "Solicitud" para la etapa siguiente sin vencimiento aún,
+// queda registrado como trámite pendiente (no silencia la alarma).
+function licenciaVigente(e: Fila): { vencEf: Date | null; numRenovaciones: number; solicPendiente: Date | null } {
+  const etapas = [
+    { venc: e.vencLicConst,        solic: null as Date | null },
+    { venc: e.vencLicProrr,         solic: e.solicLicProrr },
+    { venc: e.vencLicRevalida,      solic: e.solicLicRevalida },
+    { venc: e.vencLicProrrRevalida, solic: e.solicLicProrrRevalida },
+  ]
+  let idxVigente = -1
+  etapas.forEach((et, i) => { if (et.venc) idxVigente = i })
+  const vencEf = idxVigente >= 0 ? etapas[idxVigente].venc : null
+  const siguiente = etapas[idxVigente + 1]
+  const solicPendiente = siguiente && siguiente.solic && !siguiente.venc ? siguiente.solic : null
+  return { vencEf, numRenovaciones: Math.max(idxVigente, 0), solicPendiente }
 }
 
 // ── Alarmas ───────────────────────────────────────────────────────────────────
@@ -263,9 +333,18 @@ function generarAlarmas(filas: Fila[], hoy: Date): Alarma[] {
       if (diasRC !== null && diasRC < UMBRAL_POLIZA)
         alarmas.push({ nivel: diasRC < 0 ? 'VENCIDA' : 'POR VENCER', area: 'Póliza RC', category: 'poliza_rc', slug, etapa: `E${e.etapa}`, expires_at: fmtDate(e.vencRC), dias: diasRC, detalle: `E${e.etapa}: ${e.polizaRC}, vence ${fmtDate(e.vencRC)} (${diasRC} días)` })
 
-      const diasL = diasRestantes(e.vencLicConst, hoy)
-      if (diasL !== null && diasL < UMBRAL_LICENCIA)
-        alarmas.push({ nivel: diasL < 0 ? 'VENCIDA' : 'POR VENCER', area: 'Licencia Construcción', category: 'licencia', slug, etapa: `E${e.etapa}`, expires_at: fmtDate(e.vencLicConst), dias: diasL, detalle: `E${e.etapa}: venció ${fmtDate(e.vencLicConst)} (${diasL} días)` })
+      const { vencEf: vencLicEf, numRenovaciones: numRenovLic, solicPendiente: solicLicPendiente } = licenciaVigente(e)
+      const diasL = diasRestantes(vencLicEf, hoy)
+      if (diasL !== null && diasL < UMBRAL_LICENCIA) {
+        const notasL: string[] = []
+        if (solicLicPendiente)
+          notasL.push(vencLicEf && solicLicPendiente > vencLicEf
+            ? `renovación solicitada ${fmtDate(solicLicPendiente)} (aún no otorgada)`
+            : `renovación solicitada ${fmtDate(solicLicPendiente)}`)
+        if (numRenovLic > 0) notasL.push(`${numRenovLic} renovación${numRenovLic !== 1 ? 'es' : ''}`)
+        const sufijoL = notasL.length ? ` · ${notasL.join(' · ')}` : ''
+        alarmas.push({ nivel: diasL < 0 ? 'VENCIDA' : 'POR VENCER', area: 'Licencia Construcción', category: 'licencia', slug, etapa: `E${e.etapa}`, expires_at: fmtDate(vencLicEf), dias: diasL, detalle: `E${e.etapa}: venció ${fmtDate(vencLicEf)} (${diasL} días)${sufijoL}` })
+      }
     }
   }
   return alarmas

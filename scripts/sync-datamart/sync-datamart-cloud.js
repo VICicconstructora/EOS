@@ -251,7 +251,34 @@ function buildDCOL(headerRow) {
     solicRenovRC:   resolveCol(headerRow, 'Poliza Solicitud Renovacion RC'),
     numProrrogasRC: resolveCol(headerRow, 'Poliza Numero Prorrogas RC'),
     solicProrrCred: resolveCol(headerRow, 'Fecha Solicitud Prorroga'),
+    // Licencia de Construcción: cascada Original → Prórroga → Revalidación → Prórroga Revalidación.
+    // Cada etapa aprobada llena su propia columna "Vencimiento"; sin contador propio en
+    // el Datamart, se deriva contando cuántas etapas de vencimiento están llenas.
+    solicLicProrr:         resolveCol(headerRow, 'Licencia Construccion Solicitud Prorroga'),
+    vencLicProrr:           resolveCol(headerRow, 'Licencia Construccion Vencimiento Prorroga'),
+    solicLicRevalida:      resolveCol(headerRow, 'Licencia Construccion Solicitud Revalidacion'),
+    vencLicRevalida:        resolveCol(headerRow, 'Licencia Construccion Vencimiento Revalidacion'),
+    solicLicProrrRevalida: resolveCol(headerRow, 'Licencia Construccion Solicitud Prorroga Revalidacion'),
+    vencLicProrrRevalida:   resolveCol(headerRow, 'Licencia Construccion Vencimiento Prorroga Revalidacion'),
   };
+}
+
+// Fecha de vencimiento vigente de la licencia: la última etapa con "Vencimiento"
+// aprobado. Si la etapa siguiente tiene "Solicitud" pero no "Vencimiento" aún,
+// hay un trámite en curso (se anota, no silencia la alarma).
+function licenciaVigente(e) {
+  const etapas = [
+    { venc: e.vencLicConst,        solic: null },
+    { venc: e.vencLicProrr,         solic: e.solicLicProrr },
+    { venc: e.vencLicRevalida,      solic: e.solicLicRevalida },
+    { venc: e.vencLicProrrRevalida, solic: e.solicLicProrrRevalida },
+  ];
+  let idxVigente = -1;
+  etapas.forEach((et, i) => { if (et.venc) idxVigente = i; });
+  const vencEf = idxVigente >= 0 ? etapas[idxVigente].venc : null;
+  const siguiente = etapas[idxVigente + 1];
+  const solicPendiente = siguiente && siguiente.solic && !siguiente.venc ? siguiente.solic : null;
+  return { vencEf, numRenovaciones: Math.max(idxVigente, 0), solicPendiente };
 }
 
 function logDCOL(dcol, headerRow) {
@@ -442,14 +469,27 @@ function buildAlarms(slug, etapas) {
       });
     });
 
-    // Licencia
-    const diasL = diasRestantes(e.vencLicConst);
+    // Licencia de Construcción. La etapa aprobada más reciente (Prórroga Revalidación
+    // → Revalidación → Prórroga → Original) anula las anteriores, igual que crédito y
+    // pólizas. La solicitud de la siguiente etapa avisa pero no silencia la alarma.
+    const { vencEf: vencLicEf, numRenovaciones: numRenovLic, solicPendiente: solicLicPendiente } = licenciaVigente(e);
+    const diasL = diasRestantes(vencLicEf);
     if (diasL !== null && diasL < UMBRAL_LICENCIA) {
+      const notas = [];
+      if (solicLicPendiente) {
+        notas.push(vencLicEf && solicLicPendiente > vencLicEf
+          ? `renovación solicitada ${fmtDate(solicLicPendiente)} (aún no otorgada)`
+          : `renovación solicitada ${fmtDate(solicLicPendiente)}`);
+      }
+      if (numRenovLic > 0) {
+        notas.push(`${numRenovLic} renovación${numRenovLic !== 1 ? 'es' : ''}`);
+      }
+      const sufijo = notas.length ? ` · ${notas.join(' · ')}` : '';
       alarmas.push({
         slug, nivel: diasL < 0 ? 'VENCIDA' : 'POR VENCER',
         area: 'Licencia Construcción', category: 'licencia',
-        etapa: String(e.etapa), expires_at: fmtDate(e.vencLicConst), dias: diasL,
-        detalle: `E${e.etapa}: venció ${fmtDate(e.vencLicConst)} (${diasL} días)`,
+        etapa: String(e.etapa), expires_at: fmtDate(vencLicEf), dias: diasL,
+        detalle: `E${e.etapa}: venció ${fmtDate(vencLicEf)} (${diasL} días)${sufijo}`,
       });
     }
   });
@@ -542,6 +582,12 @@ async function main() {
     licConstruccion: String(r[C.LicConstruccion] || ''),
     vencLicConst:    excelDate(r[C.VencLicConst]),
     proxTramite:     typeof r[C.ProxTramite] === 'number' ? excelDate(r[C.ProxTramite]) : null,
+    solicLicProrr:         DCOL.solicLicProrr         !== null ? excelDate(r[DCOL.solicLicProrr])         : null,
+    vencLicProrr:           DCOL.vencLicProrr           !== null ? excelDate(r[DCOL.vencLicProrr])           : null,
+    solicLicRevalida:      DCOL.solicLicRevalida      !== null ? excelDate(r[DCOL.solicLicRevalida])      : null,
+    vencLicRevalida:        DCOL.vencLicRevalida        !== null ? excelDate(r[DCOL.vencLicRevalida])        : null,
+    solicLicProrrRevalida: DCOL.solicLicProrrRevalida !== null ? excelDate(r[DCOL.solicLicProrrRevalida]) : null,
+    vencLicProrrRevalida:   DCOL.vencLicProrrRevalida   !== null ? excelDate(r[DCOL.vencLicProrrRevalida])   : null,
   }));
 
   // 5. Agrupar y generar alarmas
