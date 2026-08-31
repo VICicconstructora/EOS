@@ -163,27 +163,34 @@ def finish_file(prefix, src_root, mirror_root, full_path, file_path, markdown_te
         print(f"  Vacío (¿escaneado?), omitido: {file_path}")
         return
 
-    try:
-        write_mirror(mirror_root, src_root, full_path, markdown_text)
-    except Exception as e:
-        print(f"  Aviso: no se pudo escribir espejo de {file_path}: {str(e)[:80]}")
-
     title = os.path.basename(full_path)
     content = f"# {title}\n\n{markdown_text}"
     rel = os.path.relpath(full_path, src_root).replace("\\", "/")
 
     ok, detail = upload_markdown(prefix, rel, content)
-    if ok:
-        with _lock:
-            _stats["ok"] += 1
-            n = _stats["ok"]
-        record("convertido", full_path, file_path, len(markdown_text), 1)
-        print(f"  [{n}] SharePoint: {detail} ← {file_path}")
-    else:
+    if not ok:
         with _lock:
             _stats["error"] += 1
         record("error", full_path, file_path, len(markdown_text), 0)
         print(f"  ERROR subiendo a SharePoint {file_path}: {detail[:150]}")
+        return
+
+    # El espejo se escribe SOLO si la subida tuvo éxito: precheck() usa su
+    # existencia + mtime como caché de "ya hecho". Escribirlo antes dejaría un
+    # .md en disco con mtime fresco aunque un 429/5xx transitorio tumbara la
+    # subida — la próxima corrida lo saltaría para siempre y el documento
+    # desaparecería en silencio del índice de VIC (el _index.csv no rescata
+    # esto: main() lo trunca en cada arranque).
+    try:
+        write_mirror(mirror_root, src_root, full_path, markdown_text)
+    except Exception as e:
+        print(f"  Aviso: no se pudo escribir espejo de {file_path}: {str(e)[:80]}")
+
+    with _lock:
+        _stats["ok"] += 1
+        n = _stats["ok"]
+    record("convertido", full_path, file_path, len(markdown_text), 1)
+    print(f"  [{n}] SharePoint: {detail} ← {file_path}")
 
 
 def main():
