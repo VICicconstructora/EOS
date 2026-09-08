@@ -362,7 +362,7 @@ Al 2026-09-08:
 | Lista | Quién |
 |---|---|
 | `ALERT_TO_EMAILS` (alarmas) | Juan Paulo McAllister, José Darío Martínez |
-| `REPORTE_TO_EMAILS` (este) | los dos anteriores + Mayerly Cavanzo (Experiencia) + los directores de proyectos: Alida Ruiz y Óscar Julián Español |
+| `REPORTE_TO_EMAILS` (este) | los dos anteriores + Mayerly Cavanzo (Experiencia), los directores de proyectos (Alida Ruiz, Óscar Julián Español) y los coordinadores (Diego Benavides, Belén Villamizar, Luciana Zambrano) |
 
 Para cambiar la lista:
 
