@@ -1,0 +1,57 @@
+name: Reporte Semanal — Productividad
+
+on:
+  schedule:
+    # Lunes 07:30 Bogotá (UTC-5) = lunes 12:30 UTC. Media hora después del
+    # Datamart Sync para que los dos correos no lleguen al mismo tiempo.
+    - cron: '30 12 * * 1'
+  workflow_dispatch:
+    inputs:
+      semana:
+        description: 'Lunes de la semana a reportar (YYYY-MM-DD). Vacío = semana anterior completa.'
+        required: false
+        default: ''
+        type: string
+      dry_run:
+        description: 'Generar el HTML sin enviar el correo'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['false', 'true']
+
+jobs:
+  reporte:
+    name: Generar y enviar el reporte semanal
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generar y enviar
+        working-directory: scripts/reporte-semanal
+        env:
+          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          AZURE_TENANT_ID:      ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID:      ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET:  ${{ secrets.AZURE_CLIENT_SECRET }}
+          ALERT_FROM_EMAIL:     ${{ secrets.ALERT_FROM_EMAIL }}
+          ALERT_TO_EMAILS:      ${{ secrets.ALERT_TO_EMAILS }}
+        run: |
+          node reporte-semanal.js \
+            ${{ github.event.inputs.semana != '' && format('--semana={0}', github.event.inputs.semana) || '' }} \
+            ${{ github.event.inputs.dry_run == 'true' && '--dry-run' || '' }}
+
+      - name: Publicar el HTML como artefacto (solo en dry-run)
+        if: ${{ github.event.inputs.dry_run == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-semanal-html
+          path: scripts/reporte-semanal/reporte.html

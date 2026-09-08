@@ -1,0 +1,3 @@
+# Salidas generadas por --dry-run, no van al repo.
+reporte.html
+*.xlsx
