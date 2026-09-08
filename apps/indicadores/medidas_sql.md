@@ -8,35 +8,7 @@
 
 ## Convenciones SQL
 
-```sql
--- Schema obligatorio para todas las tablas
-schema: sinco_ic_raw
-
--- Nombres de tabla: siempre minúsculas, sin espacios
-sinco_ic_raw.adi_dtm_venta
-sinco_ic_raw.adi_dtm_tramites
-sinco_ic_raw.adi_dtm_acuerdos_pago
-sinco_ic_raw.adi_dtm_relacion_pagos
-sinco_ic_raw.adi_dtm_desistimientosventa
-sinco_ic_raw.adi_dtm_inventarios
-sinco_ic_raw.adi_dtm_proyectos
-sinco_ic_raw.adi_dtm_macroproyectos
-sinco_ic_raw.adi_dtm_comprador
-sinco_ic_raw.adi_dtm_conceptospp
-sinco_ic_raw.adi_dtm_tiposventa
-```
-
-**Reglas críticas que aplican a TODAS las medidas:**
-
-| Regla | Aplicación |
-|-------|-----------|
-| Valor de venta = `valorneto` | Nunca usar `subtotal`, `escrituravalor` ni sumas de acuerdos |
-| Fecha oficial de cierre = `fechaventa` | No `fechaseparacion` ni `vtafechareal` para asignación mes/año |
-| Ventas activas = `adi_dtm_venta` | Ignorar desistimientos salvo que se pida Venta Bruta |
-| Venta Bruta = `adi_dtm_venta` UNION `adi_dtm_desistimientosventa` | Solo si el usuario pide histórico o brutas |
-| Cartera: solo conceptos que afectan = `afectaconceptopp = 1` | Al cruzar con `adi_dtm_conceptospp` |
-| Filtro por proyecto: usar `prycodigoproyecto` (código numérico) | Más fiable que nombre |
-| VIS (`pryvis = 'S'`): permite subsidios | Non-VIS no puede tener subsidios en cartera |
+Este archivo NO se carga en el contexto en vivo del asistente (`App.py` solo concatena `esquema.md` + `estructuras md/`); es referencia manual de las 306 medidas DAX→SQL. El esquema obligatorio para todas las tablas es `sinco_ic_raw` (11 tablas `adi_dtm_*`, listadas y documentadas columna a columna en [`estructuras md/README.md`](estructuras%20md/README.md)) y las **reglas críticas de negocio** (valor de venta, fecha oficial, netas vs. brutas, cartera, filtro por proyecto, VIS) son las mismas de [`esquema.md`](esquema.md) — no se repiten aquí para evitar que las dos copias diverjan; si cambian, actualízalas solo en `esquema.md`.
 
 ---
 
@@ -255,30 +227,17 @@ FROM mensual
 ORDER BY mes;
 ```
 
-### McCoInventarioDisponible
-Unidades del inventario sin venta asignada.
-```sql
-SELECT
-    i.invnombreproyecto,
-    COUNT(*) AS inventario_disponible
-FROM sinco_ic_raw.adi_dtm_inventarios i
-WHERE i.codventa IS NULL
-  AND i.invundppalventa = 1   -- solo unidades principales
-GROUP BY i.invnombreproyecto;
-```
+### McCoInventarioDisponible · RETIRADA
 
-### McCoInventarioPrecioPromedio
-Precio promedio de lista del inventario disponible.
-```sql
-SELECT
-    invnombreproyecto,
-    AVG(invvalorunidadlistavigente) AS precio_promedio_lista
-FROM sinco_ic_raw.adi_dtm_inventarios
-WHERE codventa IS NULL AND invundppalventa = 1
-GROUP BY invnombreproyecto;
-```
+> [!CAUTION]
+> Retirada el 2026-09-08 porque devolvía cifras falsas. Ver
+> [Inventario: por qué se retiraron estas medidas](#inventario-por-qué-se-retiraron-estas-medidas).
 
----
+### McCoInventarioPrecioPromedio · RETIRADA
+
+> [!CAUTION]
+> Retirada el 2026-09-08 porque devolvía cifras falsas. Ver
+> [Inventario: por qué se retiraron estas medidas](#inventario-por-qué-se-retiraron-estas-medidas).
 
 ## 2. McGn — General (≈ 15 medidas)
 
@@ -339,76 +298,29 @@ FROM sinco_ic_raw.adi_dtm_desistimientosventa
 GROUP BY nombreproyecto;
 ```
 
-### McGnVentasInventario
-Vista combinada: valor vendido + valor de inventario disponible (potencial total del proyecto).
-```sql
-WITH vendido AS (
-    SELECT
-        v.vtanombreproyecto AS proyecto,
-        SUM(v.valorneto)    AS valor_vendido,
-        COUNT(DISTINCT v.idventa) AS unidades_vendidas
-    FROM sinco_ic_raw.adi_dtm_venta v
-    WHERE v.unidadppal = 1
-    GROUP BY 1
-),
-disponible AS (
-    SELECT
-        i.invnombreproyecto AS proyecto,
-        SUM(i.invvalorunidadlistavigente) AS valor_inventario,
-        COUNT(*)                          AS unidades_disponibles
-    FROM sinco_ic_raw.adi_dtm_inventarios i
-    WHERE i.codventa IS NULL AND i.invundppalventa = 1
-    GROUP BY 1
-)
-SELECT
-    COALESCE(v.proyecto, d.proyecto)   AS proyecto,
-    COALESCE(v.valor_vendido, 0)       AS valor_vendido,
-    COALESCE(d.valor_inventario, 0)    AS valor_inventario,
-    COALESCE(v.unidades_vendidas, 0)   AS unidades_vendidas,
-    COALESCE(d.unidades_disponibles,0) AS unidades_disponibles
-FROM vendido v
-FULL OUTER JOIN disponible d USING (proyecto);
-```
+### McGnVentasInventario · RETIRADA
 
-### McGnInventarioUnidadesPrincipales
-Conteo de unidades principales (sin anexos) en el inventario total.
-```sql
-SELECT
-    invnombreproyecto,
-    COUNT(*) FILTER (WHERE codventa IS NULL)     AS disponibles,
-    COUNT(*) FILTER (WHERE codventa IS NOT NULL) AS vendidas,
-    COUNT(*)                                     AS total
-FROM sinco_ic_raw.adi_dtm_inventarios
-WHERE invundppalventa = 1
-GROUP BY invnombreproyecto;
-```
+> [!CAUTION]
+> Retirada el 2026-09-08 porque devolvía cifras falsas. Ver
+> [Inventario: por qué se retiraron estas medidas](#inventario-por-qué-se-retiraron-estas-medidas).
 
-### McGnValorTotalProyecto
-Valor total de cada proyecto (vendido + inventario disponible).
-```sql
-SELECT
-    i.invnombreproyecto                                                AS proyecto,
-    SUM(CASE WHEN i.codventa IS NOT NULL THEN i.invvalorunidad
-             ELSE i.invvalorunidadlistavigente END)                    AS valor_total_proyecto
-FROM sinco_ic_raw.adi_dtm_inventarios i
-WHERE i.invundppalventa = 1
-GROUP BY i.invnombreproyecto;
-```
+### McGnInventarioUnidadesPrincipales · RETIRADA
 
-### McGnPorcentajeVendido
-Porcentaje de unidades vendidas sobre total del proyecto.
-```sql
-SELECT
-    invnombreproyecto,
-    ROUND(
-        100.0 * COUNT(*) FILTER (WHERE codventa IS NOT NULL) / NULLIF(COUNT(*), 0),
-    1) AS pct_vendido
-FROM sinco_ic_raw.adi_dtm_inventarios
-WHERE invundppalventa = 1
-GROUP BY invnombreproyecto;
-```
+> [!CAUTION]
+> Retirada el 2026-09-08 porque devolvía cifras falsas. Ver
+> [Inventario: por qué se retiraron estas medidas](#inventario-por-qué-se-retiraron-estas-medidas).
 
----
+### McGnValorTotalProyecto · RETIRADA
+
+> [!CAUTION]
+> Retirada el 2026-09-08 porque devolvía cifras falsas. Ver
+> [Inventario: por qué se retiraron estas medidas](#inventario-por-qué-se-retiraron-estas-medidas).
+
+### McGnPorcentajeVendido · RETIRADA
+
+> [!CAUTION]
+> Retirada el 2026-09-08 porque devolvía cifras falsas. Ver
+> [Inventario: por qué se retiraron estas medidas](#inventario-por-qué-se-retiraron-estas-medidas).
 
 ## 3. McCa — Cartera (≈ 27 medidas)
 
@@ -744,16 +656,11 @@ WHERE DATE_TRUNC('month', fechaventa) = DATE_TRUNC('month', CURRENT_DATE)
 GROUP BY vtanombreproyecto;
 ```
 
-### McIsInventario
-Inventario disponible en el momento del informe.
-```sql
-SELECT
-    invnombreproyecto,
-    COUNT(*) AS mcis_inventario
-FROM sinco_ic_raw.adi_dtm_inventarios
-WHERE codventa IS NULL AND invundppalventa = 1
-GROUP BY invnombreproyecto;
-```
+### McIsInventario · RETIRADA
+
+> [!CAUTION]
+> Retirada el 2026-09-08 porque devolvía cifras falsas. Ver
+> [Inventario: por qué se retiraron estas medidas](#inventario-por-qué-se-retiraron-estas-medidas).
 
 ### McIsUnidadesPresupuestoMesCorriente
 Unidades presupuestadas para el mes (requiere tabla de presupuesto Mc1_Presupuesto; si no está disponible en sinco_ic_raw, usar vista o valor manual).
@@ -934,59 +841,23 @@ GROUP BY 1, 2
 ORDER BY 1, 2;
 ```
 
-### McPrPrecioPromedioInventario
-Precio promedio del inventario aún no vendido.
-```sql
-SELECT
-    invnombreproyecto,
-    AVG(invvalorunidadlistavigente) AS precio_prom_inventario
-FROM sinco_ic_raw.adi_dtm_inventarios
-WHERE codventa IS NULL AND invundppalventa = 1
-GROUP BY invnombreproyecto;
-```
+### McPrPrecioPromedioInventario · RETIRADA
 
-### McPrUnidadesSeparadasProyectadas
-Unidades vendidas + proyección por velocidad de ventas (últimos 3 meses).
-```sql
-WITH hist AS (
-    SELECT
-        vtanombreproyecto,
-        DATE_TRUNC('month', fechaventa) AS mes,
-        COUNT(DISTINCT idventa) AS unidades
-    FROM sinco_ic_raw.adi_dtm_venta
-    WHERE unidadppal = 1
-      AND fechaventa >= CURRENT_DATE - INTERVAL '3 months'
-    GROUP BY 1, 2
-),
-velocidad AS (
-    SELECT vtanombreproyecto, AVG(unidades) AS vel_mensual
-    FROM hist GROUP BY 1
-),
-inventario AS (
-    SELECT invnombreproyecto, COUNT(*) AS inv_disponible
-    FROM sinco_ic_raw.adi_dtm_inventarios
-    WHERE codventa IS NULL AND invundppalventa = 1
-    GROUP BY 1
-)
-SELECT
-    i.invnombreproyecto                              AS proyecto,
-    i.inv_disponible,
-    v.vel_mensual,
-    ROUND(i.inv_disponible / NULLIF(v.vel_mensual,0), 1) AS meses_para_agotar
-FROM inventario i
-LEFT JOIN velocidad v ON v.vtanombreproyecto = i.invnombreproyecto;
-```
+> [!CAUTION]
+> Retirada el 2026-09-08 porque devolvía cifras falsas. Ver
+> [Inventario: por qué se retiraron estas medidas](#inventario-por-qué-se-retiraron-estas-medidas).
 
-### McPrAreasProyectadas
-Área total de unidades proyectadas a venderse.
-```sql
-SELECT
-    invnombreproyecto,
-    SUM(invarprivada) AS area_proyectada
-FROM sinco_ic_raw.adi_dtm_inventarios
-WHERE codventa IS NULL AND invundppalventa = 1
-GROUP BY invnombreproyecto;
-```
+### McPrUnidadesSeparadasProyectadas · RETIRADA
+
+> [!CAUTION]
+> Retirada el 2026-09-08 porque devolvía cifras falsas. Ver
+> [Inventario: por qué se retiraron estas medidas](#inventario-por-qué-se-retiraron-estas-medidas).
+
+### McPrAreasProyectadas · RETIRADA
+
+> [!CAUTION]
+> Retirada el 2026-09-08 porque devolvía cifras falsas. Ver
+> [Inventario: por qué se retiraron estas medidas](#inventario-por-qué-se-retiraron-estas-medidas).
 
 ### McPrDuracionVenta
 Días promedio entre separación y escrituración.
@@ -1359,23 +1230,11 @@ SELECT SESSION_USER AS usuario_actual;
 
 Tooltips para la visualización 3D con Revit/Speckle. Son medidas de presentación, no de análisis.
 
-### Mc3DTooltipVenta
-Texto descriptivo del estado comercial de una unidad para el tooltip 3D.
-```sql
-SELECT
-    i.invcodunidad,
-    i.invdescunidad,
-    CASE
-        WHEN i.codventa IS NOT NULL THEN 'Vendida'
-        ELSE 'Disponible'
-    END                          AS estado_comercial,
-    v.nombrecomprador,
-    v.valorneto,
-    v.fechaventa
-FROM sinco_ic_raw.adi_dtm_inventarios i
-LEFT JOIN sinco_ic_raw.adi_dtm_venta v ON v.idventa = i.codventa
-WHERE i.invnombreproyecto = :proyecto;
-```
+### Mc3DTooltipVenta · RETIRADA
+
+> [!CAUTION]
+> Retirada el 2026-09-08 porque devolvía cifras falsas. Ver
+> [Inventario: por qué se retiraron estas medidas](#inventario-por-qué-se-retiraron-estas-medidas).
 
 ### Mc3DTooltipCartera
 Estado de cartera de la unidad en la visualización 3D.
@@ -1393,20 +1252,11 @@ WHERE i.invnombreproyecto = :proyecto
 GROUP BY i.invcodunidad, i.invdescunidad, ap.estadocartera;
 ```
 
-### Mc3DTooltipEstado
-Estado general de la unidad (comercial + trámites + cartera combinado).
-```sql
-SELECT
-    i.invcodunidad,
-    CASE WHEN i.codventa IS NULL THEN 'Disponible'
-         WHEN v.escriturafecha IS NOT NULL THEN 'Escriturada'
-         WHEN v.fechaseparacion IS NOT NULL THEN 'Prometida'
-         ELSE 'Separada'
-    END AS estado_unidad
-FROM sinco_ic_raw.adi_dtm_inventarios i
-LEFT JOIN sinco_ic_raw.adi_dtm_venta v ON v.idventa = i.codventa
-WHERE i.invnombreproyecto = :proyecto;
-```
+### Mc3DTooltipEstado · RETIRADA
+
+> [!CAUTION]
+> Retirada el 2026-09-08 porque devolvía cifras falsas. Ver
+> [Inventario: por qué se retiraron estas medidas](#inventario-por-qué-se-retiraron-estas-medidas).
 
 ### Mc3DTooltipUnidad
 Ficha técnica de la unidad.
@@ -1462,3 +1312,65 @@ Estas medidas dependen de tablas calculadas dentro del modelo Power BI que no ti
 ---
 
 *Documento generado con base en `Analisis_ModeloSemantico_CBR.docx` + schemas CBR `estructuras md/` — IC Constructora — Mayo 2026*
+
+---
+
+## Inventario: por qué se retiraron estas medidas
+
+El 2026-09-08 se retiraron doce medidas de este catálogo. Todas contaban el
+inventario con dos filtros que **no** hacen lo que su nombre sugiere, y por eso
+devolvían cifras falsas. Cualquier tablero que las siguiera está subcontando el
+inventario y reportando cero disponibles.
+
+**1. `codventa IS NULL` no identifica lo disponible.** Hoy devuelve **cero filas
+en toda la tabla**: las 3.378 unidades traen `codventa` lleno, disponibles
+incluidas. El estado real vive en `investunidad`, con los valores `Vendida`,
+`Disponible` y `Reservada`. Una reservada no es ni lo uno ni lo otro, así que
+vendidas + disponibles no siempre suman el total.
+
+Usar `codventa` como **llave de join** contra `adi_dtm_venta` sigue siendo
+correcto — eso no es lo que estaba mal, y por eso `Mc3DTooltipCartera` y
+`Mc3DTooltipUnidad` se conservan.
+
+**2. `invundppalventa` no marca las unidades principales.** Hay dos columnas
+parecidas con significados distintos:
+
+| Columna | Qué marca de verdad |
+|---|---|
+| `invundppalventa` | La unidad es el ítem principal de **su venta**. Un garaje vendido junto a un apartamento va en 0 — y un apartamento todavía sin vender también puede ir en 0. |
+| `invundppaltipounidad` | La unidad es de un **tipo** principal: apartamento, casa, local, frente a los anexos. |
+
+Para contar inventario la buena es la segunda. Con la primera, Castilla Living
+daba 534 unidades en vez de **615**: se perdían 81 apartamentos disponibles. En
+el portafolio CBR la diferencia es 2.982 contra 3.209 unidades y, sobre todo,
+292 contra **507 disponibles**.
+
+**3. Los proyectos cuyo producto son los anexos.** Filtrar por tipo principal a
+secas deja en cero a Castilla Imperial Parqueaderos, cuyas 78 unidades son
+garajes y que tiene meta de ventas propia. Hay que contar las unidades de tipo
+principal salvo en los proyectos que no tienen ninguna, donde se cuentan todas.
+
+### La forma correcta
+
+```sql
+WITH inv AS (
+    SELECT
+        i.invcodproyecto,
+        i.investunidad,
+        i.invundppaltipounidad,
+        MAX(i.invundppaltipounidad) OVER (PARTITION BY i.invcodproyecto) AS tiene_ppal
+    FROM sinco_ic_raw.adi_dtm_inventarios i
+)
+SELECT
+    invcodproyecto,
+    COUNT(*)                                            AS inventario_total,
+    COUNT(*) FILTER (WHERE investunidad = 'Vendida')    AS vendidas,
+    COUNT(*) FILTER (WHERE investunidad = 'Disponible') AS disponibles
+FROM inv
+WHERE invundppaltipounidad = 1 OR COALESCE(tiene_ppal, 0) = 0
+GROUP BY 1;
+```
+
+Implementación viva y comentada en `scripts/reporte-semanal/queries.js` (CTE
+`inv_base` / `inventario` de la consulta `VENTAS`), que es la que alimenta la
+sección de ventas del reporte semanal de productividad.
