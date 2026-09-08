@@ -37,7 +37,7 @@ y el `.xlsx` de soporte. Ambos están en el `.gitignore` de la carpeta.
 | Sección | "Debía" | "Hizo" | Grano |
 |---------|---------|--------|-------|
 | Tendencia | Meta semanal de ventas y trámites programados | Ventas, trámites y cartera de cada semana | 8 semanas, portafolio completo |
-| Ventas | `excel_ic_raw.ppto_valores` línea PyG 17.2, repartida por semanas completas | `sinco_ic_raw.adi_dtm_venta` por `fechaventa` (`valorneto`) | Semana + mes + año |
+| Ventas | `excel_ic_raw.ppto_valores` líneas PyG 17.1 (unidades) y 17.2 (pesos), repartidas por semanas completas | `sinco_ic_raw.adi_dtm_venta` por `fechaventa` (`valorneto`) | Inventario + semana + año |
 | Trámites | `Fecha Programada` dentro de la semana | `Fecha Cumplimiento` dentro de la semana | Semana, por categoría y por proyecto |
 | Cartera | Cuotas de `adi_dtm_acuerdos_pago` con `fecha_date` en la semana (`pactado`) | `pagado` de esas cuotas | Semana + mora acumulada a hoy |
 | Recaudo (tarjeta y tendencia) | Igual, pero solo conceptos iniciales | Igual | Semana + año |
@@ -66,6 +66,21 @@ Las metas de mes y de año son **devengadas**: suman solo las semanas ya
 cerradas. Comparar los 6 días transcurridos de septiembre contra el presupuesto
 de septiembre entero pintaba 0% en rojo en todos los proyectos cada primera
 semana de mes.
+
+## Inventario: no usar `codventa`
+
+La sección de ventas abre con el inventario de unidades principales
+(`invundppalventa = 1`, sin parqueaderos ni depósitos).
+
+**La medida certificada en `apps/indicadores/medidas_sql.md` está rota.** Define
+el inventario disponible como `codventa IS NULL` y al 2026-09-08 eso devuelve
+**cero filas en toda la tabla**: las 3.378 unidades principales traen `codventa`
+lleno, disponibles incluidas. Cualquier tablero que use esa definición está
+reportando inventario cero.
+
+El estado real vive en `investunidad`: `Vendida` (2.695), `Disponible` (682) y
+`Reservada` (1). Una reservada no es ni vendida ni disponible, así que las tres
+columnas no siempre suman el total.
 
 ## Recaudo: solo conceptos iniciales
 

@@ -493,10 +493,29 @@ with p as (
 ), proy as (
   select distinct proyecto_ppto from erp
 ), ${SEMANAS_POR_MES}
-, ppto_proy as (
+, inventario as (
+  -- Estado de las unidades principales (sin anexos: parqueaderos, depósitos).
+  --
+  -- OJO con la fuente: la medida certificada en apps/indicadores/medidas_sql.md
+  -- usa \`codventa is null\` para el inventario disponible y hoy eso devuelve
+  -- CERO filas en toda la tabla: codventa viene lleno en las 3.378 unidades,
+  -- incluidas las disponibles. El estado real vive en \`investunidad\`
+  -- ('Vendida' 2.695, 'Disponible' 682, 'Reservada' 1 al 2026-09-08). Una
+  -- reservada no es ni vendida ni disponible, así que las columnas no siempre
+  -- suman el total.
+  select e.proyecto_ppto,
+         count(*)                                              as total,
+         count(*) filter (where i.investunidad = 'Vendida')    as vendidas,
+         count(*) filter (where i.investunidad = 'Disponible') as disponibles
+  from sinco_ic_raw.adi_dtm_inventarios i
+  join erp e on e.idproyecto = i.invcodproyecto
+  where i.invundppalventa = 1
+  group by 1
+), ppto_proy as (
   select pv.proyecto_ppto,
          date_trunc('month', pv.fecha_periodo)::date as mes,
-         sum(pv.valor) filter (where pv.pyg_codigo = '17.2') as pesos
+         sum(pv.valor) filter (where pv.pyg_codigo = '17.2') as pesos,
+         sum(pv.valor) filter (where pv.pyg_codigo = '17.1') as unidades
   from excel_ic_raw.ppto_valores pv
   join proy using (proyecto_ppto)
   cross join p
@@ -508,7 +527,8 @@ with p as (
   -- las semanas completas del mes. Antes esta sección prorrateaba por días
   -- (7/30) y daba una meta distinta para la misma semana.
   select pp.proyecto_ppto, pp.mes,
-         pp.pesos / nullif(sm.n_sem, 0) as meta_sem
+         pp.pesos    / nullif(sm.n_sem, 0) as meta_sem,
+         pp.unidades / nullif(sm.n_sem, 0) as meta_sem_un
   from ppto_proy pp
   join sem_x_mes sm on sm.mes = pp.mes
 ), meta_ytd as (
@@ -517,17 +537,6 @@ with p as (
   join domingos d on date_trunc('month', d.domingo)::date = mp.mes
   cross join p
   where d.domingo >= date_trunc('year', p.fin)::date
-    and d.domingo <= p.fin
-  group by 1
-), meta_mtd as (
-  -- Meta del mes DEVENGADA, no la del mes completo: solo las semanas del mes
-  -- ya cerradas. Comparar 6 días de ventas contra el presupuesto de septiembre
-  -- entero daba 0% en rojo en todos los proyectos cada primera semana de mes.
-  select mp.proyecto_ppto, sum(mp.meta_sem) as pesos
-  from meta_proy mp
-  join domingos d on date_trunc('month', d.domingo)::date = mp.mes
-  cross join p
-  where mp.mes = date_trunc('month', p.fin)::date
     and d.domingo <= p.fin
   group by 1
 ), real_ytd as (
@@ -545,14 +554,6 @@ with p as (
   cross join p
   where v.fechaventa::date between p.ini and p.fin
   group by 1
-), real_mtd as (
-  select e.proyecto_ppto, count(*) as un, sum(v.valorneto) as pesos
-  from erp e
-  join sinco_ic_raw.adi_dtm_venta v on v.idproyecto = e.idproyecto
-  cross join p
-  where v.fechaventa::date >= date_trunc('month', p.fin)::date
-    and v.fechaventa::date <= p.fin
-  group by 1
 ), desist_sem as (
   select e.proyecto_ppto, count(*) as un, sum(d.valorventa) as pesos
   from erp e
@@ -561,29 +562,29 @@ with p as (
   where d.fecha::date between p.ini and p.fin
   group by 1
 )
-select proy.proyecto_ppto                    as proyecto,
-       coalesce(rs.un, 0)                    as un_sem,
-       round(coalesce(rs.pesos, 0) / 1e6)    as mm_sem,
-       round(coalesce(mp.meta_sem, 0) / 1e6) as mm_ppto_sem,
-       coalesce(ds.un, 0)                    as desist_un_sem,
-       round(coalesce(ds.pesos, 0) / 1e6)    as desist_mm_sem,
-       coalesce(rm.un, 0)                    as un_mtd,
-       round(coalesce(rm.pesos, 0) / 1e6)    as mm_mtd,
-       round(coalesce(mm.pesos, 0) / 1e6)    as mm_ppto_mes,
-       coalesce(ry.un, 0)                    as un_ytd,
-       round(coalesce(ry.pesos, 0) / 1e6)    as mm_ytd,
-       round(coalesce(my.pesos, 0) / 1e6)    as mm_ppto_ytd
+select proy.proyecto_ppto                       as proyecto,
+       coalesce(iv.total, 0)                    as inv_total,
+       coalesce(iv.vendidas, 0)                 as inv_vendidas,
+       coalesce(iv.disponibles, 0)              as inv_disponibles,
+       coalesce(rs.un, 0)                       as un_sem,
+       round(coalesce(rs.pesos, 0) / 1e6)       as mm_sem,
+       round(coalesce(mp.meta_sem_un, 0), 1)    as un_ppto_sem,
+       round(coalesce(mp.meta_sem, 0) / 1e6)    as mm_ppto_sem,
+       coalesce(ds.un, 0)                       as desist_un_sem,
+       round(coalesce(ds.pesos, 0) / 1e6)       as desist_mm_sem,
+       coalesce(ry.un, 0)                       as un_ytd,
+       round(coalesce(ry.pesos, 0) / 1e6)       as mm_ytd,
+       round(coalesce(my.pesos, 0) / 1e6)       as mm_ppto_ytd
 from proy
 cross join p
+left join inventario iv on iv.proyecto_ppto = proy.proyecto_ppto
 left join real_sem   rs on rs.proyecto_ppto = proy.proyecto_ppto
-left join real_mtd   rm on rm.proyecto_ppto = proy.proyecto_ppto
 left join real_ytd   ry on ry.proyecto_ppto = proy.proyecto_ppto
 left join desist_sem ds on ds.proyecto_ppto = proy.proyecto_ppto
 left join meta_ytd   my on my.proyecto_ppto = proy.proyecto_ppto
-left join meta_mtd   mm on mm.proyecto_ppto = proy.proyecto_ppto
 left join meta_proy  mp on mp.proyecto_ppto = proy.proyecto_ppto
                        and mp.mes = date_trunc('month', p.fin)::date
-order by mm_ytd desc, mm_sem desc, proyecto`;
+order by inv_disponibles desc, mm_ytd desc, proyecto`;
 
 // ─── 2. Trámites ──────────────────────────────────────────────────────────────
 // "Debían" = trámites con Fecha Programada dentro de la semana.

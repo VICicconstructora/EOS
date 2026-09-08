@@ -179,6 +179,16 @@ const num = v => (v === null || v === undefined ? 0 : Number(v));
 // Todos los valores monetarios del correo pasan por aquí, así que el signo va
 // en un solo sitio. El cero se sigue imprimiendo como raya: "$0" en cincuenta
 // celdas ensucia la tabla y no dice nada que la raya no diga.
+// Unidades. La meta semanal sale de dividir el PPTO mensual de unidades entre
+// las semanas del mes, así que casi nunca es entera: 33 unidades / 5 semanas.
+// Redondear a entero escondería que la meta de un proyecto chico es media
+// unidad por semana.
+function un(v) {
+  const n = num(v);
+  if (n === 0) return '—';
+  return Number.isInteger(n) ? String(n) : n.toFixed(1).replace('.', ',');
+}
+
 function mm(v) {
   const n = num(v);
   if (n === 0) return '—';
@@ -407,34 +417,36 @@ function construirHtml(d) {
 
   // ── 1. Ventas
   const totVentas = ventas.reduce((a, r) => ({
+    inv_total:   a.inv_total   + num(r.inv_total),
+    inv_vend:    a.inv_vend    + num(r.inv_vendidas),
+    inv_disp:    a.inv_disp    + num(r.inv_disponibles),
     un_sem:      a.un_sem      + num(r.un_sem),
     mm_sem:      a.mm_sem      + num(r.mm_sem),
+    un_ppto_sem: a.un_ppto_sem + num(r.un_ppto_sem),
     mm_ppto_sem: a.mm_ppto_sem + num(r.mm_ppto_sem),
     desist_un:   a.desist_un   + num(r.desist_un_sem),
     desist_mm:   a.desist_mm   + num(r.desist_mm_sem),
-    un_mtd:      a.un_mtd      + num(r.un_mtd),
-    mm_mtd:      a.mm_mtd      + num(r.mm_mtd),
-    mm_ppto_mes: a.mm_ppto_mes + num(r.mm_ppto_mes),
     un_ytd:      a.un_ytd      + num(r.un_ytd),
     mm_ytd:      a.mm_ytd      + num(r.mm_ytd),
     mm_ppto_ytd: a.mm_ppto_ytd + num(r.mm_ppto_ytd),
-  }), { un_sem: 0, mm_sem: 0, mm_ppto_sem: 0, desist_un: 0, desist_mm: 0, un_mtd: 0,
-        mm_mtd: 0, mm_ppto_mes: 0, un_ytd: 0, mm_ytd: 0, mm_ppto_ytd: 0 });
+  }), { inv_total: 0, inv_vend: 0, inv_disp: 0, un_sem: 0, mm_sem: 0, un_ppto_sem: 0,
+        mm_ppto_sem: 0, desist_un: 0, desist_mm: 0, un_ytd: 0, mm_ytd: 0, mm_ppto_ytd: 0 });
 
   // Solo se listan proyectos con algo que mirar: venta, desistimiento o meta.
   const ventasFilas = ventas
-    .filter(r => num(r.un_sem) || num(r.desist_un_sem) || num(r.mm_ppto_sem)
-              || num(r.un_mtd) || num(r.mm_ytd) || num(r.mm_ppto_ytd))
+    .filter(r => num(r.inv_total) || num(r.un_sem) || num(r.desist_un_sem)
+              || num(r.mm_ppto_sem) || num(r.mm_ytd) || num(r.mm_ppto_ytd))
     .map(r => `<tr>
       <td style="${TD}">${esc(r.proyecto)}</td>
+      <td style="${TD_N};color:${COLOR.tenue}">${num(r.inv_total) || '—'}</td>
+      <td style="${TD_N}">${num(r.inv_vendidas) || '—'}</td>
+      <td style="${TD_N};font-weight:600;color:${num(r.inv_disponibles) ? '#111' : COLOR.tenue}">${num(r.inv_disponibles) || '—'}</td>
       <td style="${TD_N}">${num(r.un_sem) || '—'}</td>
       <td style="${TD_N}">${mm(r.mm_sem)}</td>
+      <td style="${TD_N};color:${COLOR.tenue}">${un(r.un_ppto_sem)}</td>
       <td style="${TD_N}">${mm(r.mm_ppto_sem)}</td>
       <td style="${TD_N};${fondoCumplimiento(r.mm_sem, r.mm_ppto_sem)}font-weight:600">${pct(r.mm_sem, r.mm_ppto_sem)}</td>
       <td style="${TD_N};color:${num(r.desist_un_sem) ? COLOR.malo : COLOR.tenue}">${num(r.desist_un_sem) ? `${r.desist_un_sem} · ${mm(r.desist_mm_sem)}` : '—'}</td>
-      <td style="${TD_N}">${mm(r.mm_mtd)}</td>
-      <td style="${TD_N}">${mm(r.mm_ppto_mes)}</td>
-      <td style="${TD_N};${fondoCumplimiento(r.mm_mtd, r.mm_ppto_mes)}font-weight:600">${pct(r.mm_mtd, r.mm_ppto_mes)}</td>
       <td style="${TD_N}">${mm(r.mm_ytd)}</td>
       <td style="${TD_N}">${mm(r.mm_ppto_ytd)}</td>
       <td style="${TD_N};${fondoCumplimiento(r.mm_ytd, r.mm_ppto_ytd)}font-weight:600">${pct(r.mm_ytd, r.mm_ppto_ytd)}</td>
@@ -442,22 +454,23 @@ function construirHtml(d) {
 
   ventasFilas.push(`<tr style="background:#fafafa;font-weight:600">
     <td style="${TD}">Total portafolio</td>
+    <td style="${TD_N}">${totVentas.inv_total.toLocaleString('es-CO') || '—'}</td>
+    <td style="${TD_N}">${totVentas.inv_vend.toLocaleString('es-CO') || '—'}</td>
+    <td style="${TD_N}">${totVentas.inv_disp.toLocaleString('es-CO') || '—'}</td>
     <td style="${TD_N}">${totVentas.un_sem || '—'}</td>
     <td style="${TD_N}">${mm(totVentas.mm_sem)}</td>
+    <td style="${TD_N}">${un(totVentas.un_ppto_sem)}</td>
     <td style="${TD_N}">${mm(totVentas.mm_ppto_sem)}</td>
     <td style="${TD_N};${fondoCumplimiento(totVentas.mm_sem, totVentas.mm_ppto_sem)}">${pct(totVentas.mm_sem, totVentas.mm_ppto_sem)}</td>
     <td style="${TD_N};color:${totVentas.desist_un ? COLOR.malo : COLOR.tenue}">${totVentas.desist_un ? `${totVentas.desist_un} · ${mm(totVentas.desist_mm)}` : '—'}</td>
-    <td style="${TD_N}">${mm(totVentas.mm_mtd)}</td>
-    <td style="${TD_N}">${mm(totVentas.mm_ppto_mes)}</td>
-    <td style="${TD_N};${fondoCumplimiento(totVentas.mm_mtd, totVentas.mm_ppto_mes)}">${pct(totVentas.mm_mtd, totVentas.mm_ppto_mes)}</td>
     <td style="${TD_N}">${mm(totVentas.mm_ytd)}</td>
     <td style="${TD_N}">${mm(totVentas.mm_ppto_ytd)}</td>
     <td style="${TD_N};${fondoCumplimiento(totVentas.mm_ytd, totVentas.mm_ppto_ytd)}">${pct(totVentas.mm_ytd, totVentas.mm_ppto_ytd)}</td>
   </tr>`);
 
   const ventasHtml = tabla(
-    ['Proyecto', 'Un.', 'Vendido MM', 'Meta sem.', '%', 'Desistido',
-     'Mes MM', 'Meta a la fecha', '%', 'Año MM', 'Meta año', '%'],
+    ['Proyecto', 'Inventario', 'Vendidas', 'Disponibles', 'Un.', 'Vendido MM',
+     'Meta un.', 'Meta sem.', '%', 'Desistido', 'Año MM', 'Meta año', '%'],
     ventasFilas);
 
   // ── 2. Trámites
@@ -665,7 +678,7 @@ function construirHtml(d) {
         tendenciaHtml)}
 
       ${seccion(1, 'Ventas por proyecto',
-        'Real contra presupuesto en tres cortes: semana, mes y año. La meta semanal es el PPTO del mes dividido entre las semanas completas del mes, la misma regla de las tarjetas. Las metas de mes y año son las devengadas: solo las semanas ya cerradas, no el periodo completo. Desistido resta.',
+        'Inventario de unidades principales (sin parqueaderos ni depósitos), luego la venta de la semana y el acumulado del año. La meta semanal es el PPTO del mes dividido entre las semanas completas del mes, en unidades y en pesos; la del año suma solo las semanas ya cerradas. Una unidad reservada no cuenta ni como vendida ni como disponible. Desistido resta.',
         ventasHtml + soporte('Ventas', 'Desistimientos'))}
 
       ${seccion(2, 'Trámites — lo programado contra lo cumplido',
