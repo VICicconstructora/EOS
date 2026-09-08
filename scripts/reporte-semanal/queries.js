@@ -631,7 +631,7 @@ left join desist_sem ds on ds.proyecto_ppto = proy.proyecto_ppto
 left join meta_ytd   my on my.proyecto_ppto = proy.proyecto_ppto
 left join meta_proy  mp on mp.proyecto_ppto = proy.proyecto_ppto
                        and mp.mes = date_trunc('month', p.fin)::date
-order by inv_disponibles desc, mm_ytd desc, proyecto`;
+order by inv_total desc, mm_ytd desc, proyecto`;
 
 // ─── 2. Trámites ──────────────────────────────────────────────────────────────
 // "Debían" = trámites con Fecha Programada dentro de la semana.

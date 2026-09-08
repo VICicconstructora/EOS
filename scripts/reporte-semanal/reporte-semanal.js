@@ -503,7 +503,7 @@ function construirHtml(d) {
   </tr>`);
 
   const ventasHtml = tabla(
-    ['Proyecto', 'Inventario', 'Vendidas', 'Disponibles', 'Un.', 'Vendido MM',
+    ['Proyecto', 'Inventario total', 'Vendidas', 'Disponibles', 'Un.', 'Vendido MM',
      'Meta un.', 'Meta sem.', '%', 'Desistido', 'Año MM', 'Meta año', '%'],
     ventasFilas);
 
@@ -793,7 +793,7 @@ function construirHtml(d) {
         tendenciaHtml)}
 
       ${seccion(1, 'Ventas por proyecto',
-        'Inventario de unidades principales (sin parqueaderos ni depósitos), luego la venta de la semana y el acumulado del año. La meta semanal es el PPTO del mes dividido entre las semanas completas del mes, en unidades y en pesos; la del año suma solo las semanas ya cerradas. Una unidad reservada no cuenta ni como vendida ni como disponible. Desistido resta.',
+        'Inventario total del proyecto —lo vendido más lo pendiente— y luego la venta de la semana y el acumulado del año. Cuenta unidades principales de vivienda; en los proyectos cuyo producto son los anexos, como Castilla Imperial Parqueaderos, cuenta los garajes. La meta semanal es el PPTO del mes dividido entre las semanas completas del mes, en unidades y en pesos; la del año suma solo las semanas ya cerradas. Una unidad reservada no cuenta ni como vendida ni como disponible. Desistido resta.',
         ventasHtml + soporte('Ventas', 'Desistimientos'))}
 
       ${seccion(2, 'Trámites — lo programado contra lo cumplido',
