@@ -68,7 +68,11 @@ const CATEGORIAS_TRAMITE = `
 // mes recibe 4 o 5, y la suma de las metas semanales del año da exactamente el
 // PPTO del año. Prorratear por días (7/30) repartía el presupuesto de un mes
 // entre dos semanas partidas y ninguna cuadraba contra su mes.
-const SEMANAS_DEL_MES = `
+//
+// SEMANAS_POR_MES es solo el calendario — qué domingos tiene el año y cuántas
+// semanas le tocan a cada mes. Va aparte porque la sección de ventas necesita
+// el mismo reparto abierto por proyecto, no agregado.
+const SEMANAS_POR_MES = `
   domingos as (
     select d::date as domingo
     from p, generate_series(date_trunc('year', p.ini)::date,
@@ -78,7 +82,10 @@ const SEMANAS_DEL_MES = `
   ), sem_x_mes as (
     select date_trunc('month', domingo)::date as mes, count(*) as n_sem
     from domingos group by 1
-  ), ppto_mes as (
+  )`;
+
+const SEMANAS_DEL_MES = `${SEMANAS_POR_MES}
+  , ppto_mes as (
     select date_trunc('month', pv.fecha_periodo)::date as mes,
            sum(pv.valor) filter (where pv.pyg_codigo = '17.2') as pesos,
            sum(pv.valor) filter (where pv.pyg_codigo = '17.1') as unidades
@@ -485,6 +492,52 @@ with p as (
 ), erp as (${PORTAFOLIO_CRM}
 ), proy as (
   select distinct proyecto_ppto from erp
+), ${SEMANAS_POR_MES}
+, ppto_proy as (
+  select pv.proyecto_ppto,
+         date_trunc('month', pv.fecha_periodo)::date as mes,
+         sum(pv.valor) filter (where pv.pyg_codigo = '17.2') as pesos
+  from excel_ic_raw.ppto_valores pv
+  join proy using (proyecto_ppto)
+  cross join p
+  where pv.fecha_snapshot = p.snap
+    and pv.pyg_codigo in ('17.1','17.2')
+  group by 1, 2
+), meta_proy as (
+  -- Mismo reparto que usan las tarjetas y la tendencia: el PPTO del mes entre
+  -- las semanas completas del mes. Antes esta sección prorrateaba por días
+  -- (7/30) y daba una meta distinta para la misma semana.
+  select pp.proyecto_ppto, pp.mes,
+         pp.pesos / nullif(sm.n_sem, 0) as meta_sem
+  from ppto_proy pp
+  join sem_x_mes sm on sm.mes = pp.mes
+), meta_ytd as (
+  select mp.proyecto_ppto, sum(mp.meta_sem) as pesos
+  from meta_proy mp
+  join domingos d on date_trunc('month', d.domingo)::date = mp.mes
+  cross join p
+  where d.domingo >= date_trunc('year', p.fin)::date
+    and d.domingo <= p.fin
+  group by 1
+), meta_mtd as (
+  -- Meta del mes DEVENGADA, no la del mes completo: solo las semanas del mes
+  -- ya cerradas. Comparar 6 días de ventas contra el presupuesto de septiembre
+  -- entero daba 0% en rojo en todos los proyectos cada primera semana de mes.
+  select mp.proyecto_ppto, sum(mp.meta_sem) as pesos
+  from meta_proy mp
+  join domingos d on date_trunc('month', d.domingo)::date = mp.mes
+  cross join p
+  where mp.mes = date_trunc('month', p.fin)::date
+    and d.domingo <= p.fin
+  group by 1
+), real_ytd as (
+  select e.proyecto_ppto, count(*) as un, sum(v.valorneto) as pesos
+  from erp e
+  join sinco_ic_raw.adi_dtm_venta v on v.idproyecto = e.idproyecto
+  cross join p
+  where v.fechaventa::date >= date_trunc('year', p.fin)::date
+    and v.fechaventa::date <= p.fin
+  group by 1
 ), real_sem as (
   select e.proyecto_ppto, count(*) as un, sum(v.valorneto) as pesos
   from erp e
@@ -507,36 +560,30 @@ with p as (
   cross join p
   where d.fecha::date between p.ini and p.fin
   group by 1
-), ppto as (
-  select pv.proyecto_ppto,
-         sum(pv.valor) filter (where pv.pyg_codigo = '17.1') as un,
-         sum(pv.valor) filter (where pv.pyg_codigo = '17.2') as pesos
-  from excel_ic_raw.ppto_valores pv
-  join proy using (proyecto_ppto)
-  cross join p
-  where pv.fecha_snapshot = p.snap
-    and date_trunc('month', pv.fecha_periodo) = date_trunc('month', p.fin)
-    and pv.pyg_codigo in ('17.1','17.2')
-  group by 1
 )
-select proy.proyecto_ppto                                             as proyecto,
-       coalesce(rs.un, 0)                                             as un_sem,
-       round(coalesce(rs.pesos, 0) / 1e6)                             as mm_sem,
-       round(coalesce(po.pesos, 0) / 1e6 * 7.0
-             / extract(day from (date_trunc('month', p.fin)
-                                 + interval '1 month - 1 day')))      as mm_ppto_sem,
-       coalesce(ds.un, 0)                                             as desist_un_sem,
-       round(coalesce(ds.pesos, 0) / 1e6)                             as desist_mm_sem,
-       coalesce(rm.un, 0)                                             as un_mtd,
-       round(coalesce(rm.pesos, 0) / 1e6)                             as mm_mtd,
-       round(coalesce(po.pesos, 0) / 1e6)                             as mm_ppto_mes
+select proy.proyecto_ppto                    as proyecto,
+       coalesce(rs.un, 0)                    as un_sem,
+       round(coalesce(rs.pesos, 0) / 1e6)    as mm_sem,
+       round(coalesce(mp.meta_sem, 0) / 1e6) as mm_ppto_sem,
+       coalesce(ds.un, 0)                    as desist_un_sem,
+       round(coalesce(ds.pesos, 0) / 1e6)    as desist_mm_sem,
+       coalesce(rm.un, 0)                    as un_mtd,
+       round(coalesce(rm.pesos, 0) / 1e6)    as mm_mtd,
+       round(coalesce(mm.pesos, 0) / 1e6)    as mm_ppto_mes,
+       coalesce(ry.un, 0)                    as un_ytd,
+       round(coalesce(ry.pesos, 0) / 1e6)    as mm_ytd,
+       round(coalesce(my.pesos, 0) / 1e6)    as mm_ppto_ytd
 from proy
 cross join p
 left join real_sem   rs on rs.proyecto_ppto = proy.proyecto_ppto
 left join real_mtd   rm on rm.proyecto_ppto = proy.proyecto_ppto
+left join real_ytd   ry on ry.proyecto_ppto = proy.proyecto_ppto
 left join desist_sem ds on ds.proyecto_ppto = proy.proyecto_ppto
-left join ppto       po on po.proyecto_ppto = proy.proyecto_ppto
-order by mm_sem desc, mm_ppto_sem desc, proyecto`;
+left join meta_ytd   my on my.proyecto_ppto = proy.proyecto_ppto
+left join meta_mtd   mm on mm.proyecto_ppto = proy.proyecto_ppto
+left join meta_proy  mp on mp.proyecto_ppto = proy.proyecto_ppto
+                       and mp.mes = date_trunc('month', p.fin)::date
+order by mm_ytd desc, mm_sem desc, proyecto`;
 
 // ─── 2. Trámites ──────────────────────────────────────────────────────────────
 // "Debían" = trámites con Fecha Programada dentro de la semana.

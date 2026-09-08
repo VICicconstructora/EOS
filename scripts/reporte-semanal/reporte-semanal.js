@@ -412,21 +412,29 @@ function construirHtml(d) {
     un_mtd:      a.un_mtd      + num(r.un_mtd),
     mm_mtd:      a.mm_mtd      + num(r.mm_mtd),
     mm_ppto_mes: a.mm_ppto_mes + num(r.mm_ppto_mes),
-  }), { un_sem: 0, mm_sem: 0, mm_ppto_sem: 0, desist_un: 0, desist_mm: 0, un_mtd: 0, mm_mtd: 0, mm_ppto_mes: 0 });
+    un_ytd:      a.un_ytd      + num(r.un_ytd),
+    mm_ytd:      a.mm_ytd      + num(r.mm_ytd),
+    mm_ppto_ytd: a.mm_ppto_ytd + num(r.mm_ppto_ytd),
+  }), { un_sem: 0, mm_sem: 0, mm_ppto_sem: 0, desist_un: 0, desist_mm: 0, un_mtd: 0,
+        mm_mtd: 0, mm_ppto_mes: 0, un_ytd: 0, mm_ytd: 0, mm_ppto_ytd: 0 });
 
   // Solo se listan proyectos con algo que mirar: venta, desistimiento o meta.
   const ventasFilas = ventas
-    .filter(r => num(r.un_sem) || num(r.desist_un_sem) || num(r.mm_ppto_sem) || num(r.un_mtd))
+    .filter(r => num(r.un_sem) || num(r.desist_un_sem) || num(r.mm_ppto_sem)
+              || num(r.un_mtd) || num(r.mm_ytd) || num(r.mm_ppto_ytd))
     .map(r => `<tr>
       <td style="${TD}">${esc(r.proyecto)}</td>
       <td style="${TD_N}">${num(r.un_sem) || '—'}</td>
       <td style="${TD_N}">${mm(r.mm_sem)}</td>
       <td style="${TD_N}">${mm(r.mm_ppto_sem)}</td>
-      <td style="${TD_N};color:${colorCumplimiento(r.mm_sem, r.mm_ppto_sem)};font-weight:600">${pct(r.mm_sem, r.mm_ppto_sem)}</td>
+      <td style="${TD_N};${fondoCumplimiento(r.mm_sem, r.mm_ppto_sem)}font-weight:600">${pct(r.mm_sem, r.mm_ppto_sem)}</td>
       <td style="${TD_N};color:${num(r.desist_un_sem) ? COLOR.malo : COLOR.tenue}">${num(r.desist_un_sem) ? `${r.desist_un_sem} · ${mm(r.desist_mm_sem)}` : '—'}</td>
       <td style="${TD_N}">${mm(r.mm_mtd)}</td>
       <td style="${TD_N}">${mm(r.mm_ppto_mes)}</td>
-      <td style="${TD_N};color:${colorCumplimiento(r.mm_mtd, r.mm_ppto_mes)};font-weight:600">${pct(r.mm_mtd, r.mm_ppto_mes)}</td>
+      <td style="${TD_N};${fondoCumplimiento(r.mm_mtd, r.mm_ppto_mes)}font-weight:600">${pct(r.mm_mtd, r.mm_ppto_mes)}</td>
+      <td style="${TD_N}">${mm(r.mm_ytd)}</td>
+      <td style="${TD_N}">${mm(r.mm_ppto_ytd)}</td>
+      <td style="${TD_N};${fondoCumplimiento(r.mm_ytd, r.mm_ppto_ytd)}font-weight:600">${pct(r.mm_ytd, r.mm_ppto_ytd)}</td>
     </tr>`);
 
   ventasFilas.push(`<tr style="background:#fafafa;font-weight:600">
@@ -434,15 +442,19 @@ function construirHtml(d) {
     <td style="${TD_N}">${totVentas.un_sem || '—'}</td>
     <td style="${TD_N}">${mm(totVentas.mm_sem)}</td>
     <td style="${TD_N}">${mm(totVentas.mm_ppto_sem)}</td>
-    <td style="${TD_N};color:${colorCumplimiento(totVentas.mm_sem, totVentas.mm_ppto_sem)}">${pct(totVentas.mm_sem, totVentas.mm_ppto_sem)}</td>
+    <td style="${TD_N};${fondoCumplimiento(totVentas.mm_sem, totVentas.mm_ppto_sem)}">${pct(totVentas.mm_sem, totVentas.mm_ppto_sem)}</td>
     <td style="${TD_N};color:${totVentas.desist_un ? COLOR.malo : COLOR.tenue}">${totVentas.desist_un ? `${totVentas.desist_un} · ${mm(totVentas.desist_mm)}` : '—'}</td>
     <td style="${TD_N}">${mm(totVentas.mm_mtd)}</td>
     <td style="${TD_N}">${mm(totVentas.mm_ppto_mes)}</td>
-    <td style="${TD_N};color:${colorCumplimiento(totVentas.mm_mtd, totVentas.mm_ppto_mes)}">${pct(totVentas.mm_mtd, totVentas.mm_ppto_mes)}</td>
+    <td style="${TD_N};${fondoCumplimiento(totVentas.mm_mtd, totVentas.mm_ppto_mes)}">${pct(totVentas.mm_mtd, totVentas.mm_ppto_mes)}</td>
+    <td style="${TD_N}">${mm(totVentas.mm_ytd)}</td>
+    <td style="${TD_N}">${mm(totVentas.mm_ppto_ytd)}</td>
+    <td style="${TD_N};${fondoCumplimiento(totVentas.mm_ytd, totVentas.mm_ppto_ytd)}">${pct(totVentas.mm_ytd, totVentas.mm_ppto_ytd)}</td>
   </tr>`);
 
   const ventasHtml = tabla(
-    ['Proyecto', 'Un.', 'Vendido MM', 'Meta sem. MM', '%', 'Desistido', 'Mes MM', 'Meta mes MM', '%'],
+    ['Proyecto', 'Un.', 'Vendido MM', 'Meta sem.', '%', 'Desistido',
+     'Mes MM', 'Meta a la fecha', '%', 'Año MM', 'Meta año', '%'],
     ventasFilas);
 
   // ── 2. Trámites
@@ -650,7 +662,7 @@ function construirHtml(d) {
         tendenciaHtml)}
 
       ${seccion(1, 'Ventas por proyecto',
-        'Real de la semana contra el presupuesto mensual prorrateado a 7 días (snapshot PPTO vigente). Desistido resta.',
+        'Real contra presupuesto en tres cortes: semana, mes y año. La meta semanal es el PPTO del mes dividido entre las semanas completas del mes, la misma regla de las tarjetas. Las metas de mes y año son las devengadas: solo las semanas ya cerradas, no el periodo completo. Desistido resta.',
         ventasHtml + soporte('Ventas', 'Desistimientos'))}
 
       ${seccion(2, 'Trámites — lo programado contra lo cumplido',

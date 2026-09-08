@@ -29,14 +29,18 @@ Sin dependencias: usa el `fetch` de Node 20+ y el `.env` de la raíz del repo.
 | `--semana=YYYY-MM-DD` | Fuerza el lunes de la semana a reportar. Por defecto es la última semana lunes–domingo completa. |
 | `--to=a@b.co,c@d.co` | Sobreescribe `ALERT_TO_EMAILS`. |
 
+En `--dry-run` se escriben los dos entregables al lado del script: `reporte.html`
+y el `.xlsx` de soporte. Ambos están en el `.gitignore` de la carpeta.
+
 ## Qué mide cada sección
 
 | Sección | "Debía" | "Hizo" | Grano |
 |---------|---------|--------|-------|
-| Tendencia | — | Ventas, trámites y cartera de cada semana | 8 semanas, portafolio completo |
-| Ventas | `excel_ic_raw.ppto_valores` línea PyG 17.2 del mes, prorrateada a 7 días | `sinco_ic_raw.adi_dtm_venta` por `fechaventa` (`valorneto`) | Semana + mes a la fecha |
+| Tendencia | Meta semanal de ventas y trámites programados | Ventas, trámites y cartera de cada semana | 8 semanas, portafolio completo |
+| Ventas | `excel_ic_raw.ppto_valores` línea PyG 17.2, repartida por semanas completas | `sinco_ic_raw.adi_dtm_venta` por `fechaventa` (`valorneto`) | Semana + mes + año |
 | Trámites | `Fecha Programada` dentro de la semana | `Fecha Cumplimiento` dentro de la semana | Semana, por categoría y por proyecto |
 | Cartera | Cuotas de `adi_dtm_acuerdos_pago` con `fecha_date` en la semana (`pactado`) | `pagado` de esas cuotas | Semana + mora acumulada a hoy |
+| Recaudo (tarjeta y tendencia) | Igual, pero solo conceptos iniciales | Igual | Semana + año |
 | Obra | Cronograma valorizado de ADPRO (`adp_dtm_vfact_programacion`), prorrateado por días | ADPRO `clase = 'I'` por `fecha` | Semana + mes a la fecha |
 | Flujo | — | Recaudo de la semana − inversión de obra de la semana | Semana + FCL del último corte mensual |
 
@@ -44,6 +48,74 @@ Trámites incluidos, en orden del ciclo comercial: promesas (`TRGA`), créditos
 radicados (`CRAR`/`CTAR`), aprobados (`CRFA`/`CTFA`) y desembolsados
 (`CRKB`/`CTMB`), subsidios radicados (`SUAR`) y aprobados (`SUEA`/`OSAR`),
 escrituras firmadas (`ESEF`) y en registro (`RGAA`), entregas (`TRUE`).
+
+## La meta semanal de ventas
+
+El PPTO es mensual y la fuente no tiene presupuesto semanal, así que hay que
+repartirlo. La regla es: **el valor del mes se divide entre las semanas
+completas del mes, y cada semana lunes-a-domingo se le asigna al mes de su
+domingo.**
+
+Esa asignación por domingo es lo que hace que la cuenta cierre: parte el año en
+semanas disjuntas, cada mes recibe 4 o 5, y la suma de las metas semanales del
+año da exactamente el PPTO del año. Prorratear por días (`ppto × 7 / días del
+mes`, que era la regla vieja) repartía el presupuesto de un mes entre dos
+semanas partidas y ninguna cuadraba contra su propio mes.
+
+Las metas de mes y de año son **devengadas**: suman solo las semanas ya
+cerradas. Comparar los 6 días transcurridos de septiembre contra el presupuesto
+de septiembre entero pintaba 0% en rojo en todos los proyectos cada primera
+semana de mes.
+
+## Recaudo: solo conceptos iniciales
+
+La tarjeta y la tendencia miden el recaudo de los **conceptos iniciales** —
+separación (`idconcepto` 0), cuota inicial (1) y cesantías (5). Es la plata que
+depende de la gestión de Cartera. Crédito (3, 4) y subsidio (6, 313) dependen
+del banco y de la caja de compensación, y meterlos en el mismo porcentaje
+escondía el desempeño del área detrás de desembolsos que nadie en IC controla.
+
+Quedan fuera también los vehículos de ahorro del comprador (Ahorro Programado,
+AFC, CDT, bono de cuota inicial, prima). Son iniciales por naturaleza; se
+excluyeron porque la definición acordada nombró tres conceptos.
+
+La **sección 3** del correo sigue mirando la cartera completa, con la definición
+de mora certificada con el área. Las dos lecturas conviven a propósito.
+
+## Semáforo
+
+Las celdas de % del encabezado, la tendencia y la sección de ventas llevan fondo
+de color: **verde** al cumplir (≥ 100%), **amarillo** entre 90% y 100%, **rojo**
+por debajo. Es más estricto que el color de texto del resto del correo (que
+perdona hasta el 70%) porque el fondo es lo primero que se ve al abrir.
+
+## Los mini-gráficos
+
+Cada tarjeta lleva ocho columnas con el acumulado de la ventana y la meta
+acumulada encima como línea escalonada. Están hechos con **celdas de tabla, no
+con SVG**: Outlook de escritorio usa el motor de render de Word, que ignora
+`<svg>` y la posición absoluta de CSS. Lo único que dibuja de forma confiable es
+una tabla con fondos y bordes, así que cada columna es una tablita apilada de
+dos o tres segmentos y la línea de meta es el borde superior del segmento que
+arranca a la altura de la meta.
+
+## El adjunto .xlsx
+
+Cada correo lleva `Soporte productividad <ini> a <fin>.xlsx` con el detalle
+cliente a cliente detrás de cada sección: Ventas, Desistimientos, Trámites
+semana, Trámites atrasados (el represado completo, ~6.300 filas), Cartera
+semana, Cartera mora y Obra, más una hoja `Léame` que explica el alcance. Las
+cifras van en pesos, no en millones.
+
+Lo escribe `xlsx.js`, un generador propio de ~250 líneas que usa solo `zlib` y
+`Buffer`. No se usó exceljs porque el workflow corre `node reporte-semanal.js` a
+secas, sin `npm install`, y agregar una dependencia obligaba a meter un paso de
+instalación en CI para un archivo que no necesita fórmulas ni gráficos.
+
+`vic_query_db` devuelve máximo **1.000 filas por llamada** sin importar el
+`row_limit` que se le pida, así que las hojas largas se paginan con `offset`.
+El adjunto pesa ~530 KB; el tope de `sendMail` en línea es 3 MB. Si algún día se
+pasa, hay que subirlo con una upload session en vez de meterlo en el cuerpo.
 
 ## Limitaciones reales de la fuente
 
