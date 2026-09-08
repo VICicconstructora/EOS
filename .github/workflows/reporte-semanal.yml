@@ -43,7 +43,12 @@ jobs:
           AZURE_CLIENT_ID:      ${{ secrets.AZURE_CLIENT_ID }}
           AZURE_CLIENT_SECRET:  ${{ secrets.AZURE_CLIENT_SECRET }}
           ALERT_FROM_EMAIL:     ${{ secrets.ALERT_FROM_EMAIL }}
-          ALERT_TO_EMAILS:      ${{ secrets.ALERT_TO_EMAILS }}
+          # Lista propia, separada de la del correo de alarmas. Los dos correos
+          # salen los lunes con media hora de diferencia pero no van al mismo
+          # público: alarmas es operativo (pólizas, licencias, crédito) y este
+          # es de productividad gerencial. El script sigue leyendo la variable
+          # ALERT_TO_EMAILS; lo que cambia es de qué secret se alimenta.
+          ALERT_TO_EMAILS:      ${{ secrets.REPORTE_TO_EMAILS }}
         run: |
           node reporte-semanal.js \
             ${{ github.event.inputs.semana != '' && format('--semana={0}', github.event.inputs.semana) || '' }} \

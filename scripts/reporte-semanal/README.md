@@ -348,9 +348,20 @@ mano. Si algún día cambian esas guardas, hay que mover `queries.js` a una func
 
 ## Secrets de GitHub
 
-Los mismos del workflow `datamart-sync`, sin agregar ninguno nuevo:
-`SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`,
-`AZURE_CLIENT_SECRET`, `ALERT_FROM_EMAIL`, `ALERT_TO_EMAILS`.
+Comparte con `datamart-sync`: `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`,
+`AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, `ALERT_FROM_EMAIL`.
+
+**Los destinatarios NO se comparten.** Este workflow lee `REPORTE_TO_EMAILS` y el
+de alarmas `ALERT_TO_EMAILS`. Son públicos distintos: alarmas es operativo
+(pólizas, licencias, crédito) y este es productividad gerencial. El script sigue
+leyendo la variable `ALERT_TO_EMAILS`; lo que cambia es de qué secret se
+alimenta, así que en local el `.env` de la raíz no necesita nada nuevo.
+
+Para cambiar la lista:
+
+```bash
+printf 'a@icconstructora.co,b@icconstructora.co' | gh secret set REPORTE_TO_EMAILS
+```
 
 El envío necesita permiso de aplicación **Mail.Send** en el app registration de
 Azure. Es el mismo registro que ya usa `sync-datamart-cloud.js` para enviar el
