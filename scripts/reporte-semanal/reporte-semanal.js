@@ -605,37 +605,57 @@ function construirHtml(d) {
 
   // ── 3. Cartera
   const totCart = cartera.reduce((a, r) => ({
-    pactado:  a.pactado  + num(r.pactado_sem_mm),
-    pagado:   a.pagado   + num(r.pagado_sem_mm),
-    vencido:  a.vencido  + num(r.vencido_mm),
-    v90:      a.v90      + num(r.vencido_90_mm),
-    clientes: a.clientes + num(r.clientes_mora),
-  }), { pactado: 0, pagado: 0, vencido: 0, v90: 0, clientes: 0 });
+    pactado_ytd: a.pactado_ytd + num(r.pactado_ytd_mm),
+    pagado_ytd:  a.pagado_ytd  + num(r.pagado_ytd_mm),
+    pactado:     a.pactado     + num(r.pactado_sem_mm),
+    pagado:      a.pagado      + num(r.pagado_sem_mm),
+    vencido:     a.vencido     + num(r.vencido_mm),
+    v90:         a.v90         + num(r.vencido_90_mm),
+    clientes:    a.clientes    + num(r.clientes_mora),
+    antigua:     [a.antigua, r.mora_mas_antigua].filter(Boolean).sort()[0] || null,
+    // Ponderado por saldo vencido, igual que dentro de cada proyecto.
+    dias_pond:   a.dias_pond   + num(r.mora_dias_prom) * num(r.vencido_mm),
+  }), { pactado_ytd: 0, pagado_ytd: 0, pactado: 0, pagado: 0, vencido: 0, v90: 0,
+        clientes: 0, antigua: null, dias_pond: 0 });
+
+  totCart.dias_prom = totCart.vencido ? totCart.dias_pond / totCart.vencido : 0;
 
   const carteraFilas = cartera
-    .filter(r => num(r.pactado_sem_mm) || num(r.pagado_sem_mm) || num(r.vencido_mm))
+    .filter(r => num(r.pactado_ytd_mm) || num(r.pactado_sem_mm)
+              || num(r.pagado_sem_mm) || num(r.vencido_mm))
     .map(r => `<tr>
       <td class="c">${esc(r.proyecto)}</td>
-      <td class="n">${mm(r.pactado_sem_mm)}</td>
-      <td class="n b">${mm(r.pagado_sem_mm)}</td>
-      <td class="n b ${claseCumplimiento(r.pagado_sem_mm, r.pactado_sem_mm)}">${pct(r.pagado_sem_mm, r.pactado_sem_mm)}</td>
-      <td class="n r">${mm(r.vencido_mm)}</td>
+      <td class="n">${mm(r.pactado_ytd_mm)}</td>
+      <td class="n">${mm(r.pagado_ytd_mm)}</td>
+      <td class="n b ${claseFondo(r.pagado_ytd_mm, r.pactado_ytd_mm)}">${pct(r.pagado_ytd_mm, r.pactado_ytd_mm)}</td>
+      <td class="n g">${mm(r.pactado_sem_mm)}</td>
+      <td class="n">${mm(r.pagado_sem_mm)}</td>
+      <td class="n b ${claseFondo(r.pagado_sem_mm, r.pactado_sem_mm)}">${pct(r.pagado_sem_mm, r.pactado_sem_mm)}</td>
+      <td class="n b r">${mm(r.vencido_mm)}</td>
       <td class="n r">${mm(r.vencido_90_mm)}</td>
       <td class="n g">${num(r.clientes_mora) || '—'}</td>
+      <td class="n g">${fechaCorta(r.mora_mas_antigua)}</td>
+      <td class="n g">${dias(r.mora_dias_prom)}</td>
     </tr>`);
 
   carteraFilas.push(`<tr class="tot">
     <td class="c">Total portafolio</td>
+    <td class="n">${mm(totCart.pactado_ytd)}</td>
+    <td class="n">${mm(totCart.pagado_ytd)}</td>
+    <td class="n ${claseFondo(totCart.pagado_ytd, totCart.pactado_ytd)}">${pct(totCart.pagado_ytd, totCart.pactado_ytd)}</td>
     <td class="n">${mm(totCart.pactado)}</td>
     <td class="n">${mm(totCart.pagado)}</td>
-    <td class="n ${claseCumplimiento(totCart.pagado, totCart.pactado)}">${pct(totCart.pagado, totCart.pactado)}</td>
+    <td class="n ${claseFondo(totCart.pagado, totCart.pactado)}">${pct(totCart.pagado, totCart.pactado)}</td>
     <td class="n r">${mm(totCart.vencido)}</td>
     <td class="n r">${mm(totCart.v90)}</td>
     <td class="n g">${totCart.clientes || '—'}</td>
+    <td class="n g">${fechaCorta(totCart.antigua)}</td>
+    <td class="n r">${dias(totCart.dias_prom)}</td>
   </tr>`);
 
   const carteraHtml = tabla(
-    ['Proyecto', 'Pactado sem. MM', 'Recaudado MM', '%', 'Vencido MM', '> 90 días MM', 'Clientes en mora'],
+    ['Proyecto', 'Pactado año', 'Recaudado año', '%', 'Pactado sem.', 'Recaudado sem.', '%',
+     'Vencido', '> 90 días', 'Clientes', 'Mora más antigua', 'Mora prom.'],
     carteraFilas);
 
   // ── 4. Obra
@@ -776,7 +796,7 @@ function construirHtml(d) {
         tramitesHtml + `<p style="margin:16px 0 0;font-size:12px;color:${COLOR.tenue}">Apertura por proyecto</p>` + tramitesProyHtml + soporte('Trámites semana', 'Trámites atrasados'))}
 
       ${seccion(3, 'Cartera',
-        'Cuotas con vencimiento dentro de la semana (pactado vs recaudado) y saldo en mora acumulado a hoy. Vencido = saldo en mora, definición certificada con Cartera.',
+        'Pactado y recaudado del año y de la semana, <strong>solo conceptos iniciales</strong> (separación, cuota inicial, cesantías): es lo que depende de la gestión de Cartera, no del banco ni de la caja de compensación. El bloque de mora sí cubre <strong>todos</strong> los conceptos, con la definición certificada con el área. La mora promedio se pondera por saldo, no por cuota.',
         carteraHtml + soporte('Cartera semana', 'Cartera mora'))}
 
       ${seccion(4, 'Ejecución de obra',

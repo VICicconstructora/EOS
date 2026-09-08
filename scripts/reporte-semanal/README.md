@@ -113,8 +113,16 @@ Quedan fuera también los vehículos de ahorro del comprador (Ahorro Programado,
 AFC, CDT, bono de cuota inicial, prima). Son iniciales por naturaleza; se
 excluyeron porque la definición acordada nombró tres conceptos.
 
-La **sección 3** del correo sigue mirando la cartera completa, con la definición
-de mora certificada con el área. Las dos lecturas conviven a propósito.
+La **sección 3** aplica el mismo filtro en sus columnas de productividad
+(pactado y recaudado, del año y de la semana). Antes las sumaba todas y el
+correo mostraba dos "recaudo de la semana" distintos para la misma semana:
+1.081 de 6.541 en la sección y 267 de 1.529 en la tarjeta.
+
+Su bloque de **mora** sí cubre todos los conceptos, con la definición certificada
+con el área (`20260830_001_cartera_vencida_certificada.sql`): la plata vencida es
+plata vencida, venga del comprador o del banco. La mora promedio se pondera por
+saldo, no por cuota — 900 días sobre dos millones no pesa lo mismo que 30 días
+sobre cuatrocientos mil.
 
 ## Semáforo
 

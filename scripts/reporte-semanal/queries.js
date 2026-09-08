@@ -689,15 +689,35 @@ with p as (
   join erp e on e.idproyecto = a.vtaidproyecto
 )
 select ap.proyecto_ppto as proyecto,
-  round(coalesce(sum(ap.pactado) filter (where ap.fecha_date between p.ini and p.fin), 0) / 1e6) as pactado_sem_mm,
-  round(coalesce(sum(ap.pagado)  filter (where ap.fecha_date between p.ini and p.fin), 0) / 1e6) as pagado_sem_mm,
+  -- Productividad de recaudo: SOLO conceptos iniciales, igual que la tarjeta y
+  -- la tendencia. Antes esta sección los sumaba todos y el correo mostraba dos
+  -- "recaudo de la semana" distintos: 1.081 de 6.541 aquí, 267 de 1.529 arriba.
+  -- La diferencia era crédito y subsidio, que dependen del banco y de la caja,
+  -- no de la gestión de Cartera.
+  round(coalesce(sum(ap.pactado) filter (where ap.fecha_date >= date_trunc('year', p.fin)::date
+        and ap.fecha_date <= p.fin and ap.idconcepto in ${CONCEPTOS_INICIALES}), 0) / 1e6)   as pactado_ytd_mm,
+  round(coalesce(sum(ap.pagado)  filter (where ap.fecha_date >= date_trunc('year', p.fin)::date
+        and ap.fecha_date <= p.fin and ap.idconcepto in ${CONCEPTOS_INICIALES}), 0) / 1e6)   as pagado_ytd_mm,
+  round(coalesce(sum(ap.pactado) filter (where ap.fecha_date between p.ini and p.fin
+        and ap.idconcepto in ${CONCEPTOS_INICIALES}), 0) / 1e6)                              as pactado_sem_mm,
+  round(coalesce(sum(ap.pagado)  filter (where ap.fecha_date between p.ini and p.fin
+        and ap.idconcepto in ${CONCEPTOS_INICIALES}), 0) / 1e6)                              as pagado_sem_mm,
+  -- Mora: TODOS los conceptos. Es la definición certificada con el área
+  -- (20260830_001_cartera_vencida_certificada.sql) y la plata vencida es plata
+  -- vencida, venga del comprador o del banco.
   round(coalesce(sum(ap.mora_saldo) filter (where ap.mora_saldo > 0), 0) / 1e6)                  as vencido_mm,
   round(coalesce(sum(ap.mora_saldo) filter (where ap.mora_saldo > 0 and ap.mora_dias > 90), 0) / 1e6) as vencido_90_mm,
   round(coalesce(sum(ap.mora_saldo) filter (where ap.mora_saldo > 0
         and ap.idconcepto in (3,4)), 0) / 1e6)                                                   as vencido_credito_mm,
   round(coalesce(sum(ap.mora_saldo) filter (where ap.mora_saldo > 0
         and ap.idconcepto in (6,313)), 0) / 1e6)                                                 as vencido_subsidio_mm,
-  count(distinct ap.idventa) filter (where ap.mora_saldo > 0)                                    as clientes_mora
+  count(distinct ap.idventa) filter (where ap.mora_saldo > 0)                                    as clientes_mora,
+  min(ap.fecha_date) filter (where ap.mora_saldo > 0)                                            as mora_mas_antigua,
+  -- Promedio ponderado por saldo, no por cuota: 900 días sobre 2 millones no
+  -- pesa lo mismo que 30 días sobre 400. Sin redondear, para que el total del
+  -- portafolio no discrepe del de las filas.
+  sum(ap.mora_dias * ap.mora_saldo) filter (where ap.mora_saldo > 0)
+    / nullif(sum(ap.mora_saldo) filter (where ap.mora_saldo > 0), 0)                             as mora_dias_prom
 from ap
 cross join p
 group by ap.proyecto_ppto
