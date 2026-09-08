@@ -611,12 +611,14 @@ function construirHtml(d) {
     pagado:      a.pagado      + num(r.pagado_sem_mm),
     vencido:     a.vencido     + num(r.vencido_mm),
     v90:         a.v90         + num(r.vencido_90_mm),
+    bloqueado:   a.bloqueado   + num(r.bloqueado_mm),
+    cli_bloq:    a.cli_bloq    + num(r.clientes_bloqueo),
     clientes:    a.clientes    + num(r.clientes_mora),
     antigua:     [a.antigua, r.mora_mas_antigua].filter(Boolean).sort()[0] || null,
     // Ponderado por saldo vencido, igual que dentro de cada proyecto.
     dias_pond:   a.dias_pond   + num(r.mora_dias_prom) * num(r.vencido_mm),
   }), { pactado_ytd: 0, pagado_ytd: 0, pactado: 0, pagado: 0, vencido: 0, v90: 0,
-        clientes: 0, antigua: null, dias_pond: 0 });
+        bloqueado: 0, cli_bloq: 0, clientes: 0, antigua: null, dias_pond: 0 });
 
   totCart.dias_prom = totCart.vencido ? totCart.dias_pond / totCart.vencido : 0;
 
@@ -636,6 +638,7 @@ function construirHtml(d) {
       <td class="n g">${num(r.clientes_mora) || '—'}</td>
       <td class="n g">${fechaCorta(r.mora_mas_antigua)}</td>
       <td class="n g">${dias(r.mora_dias_prom)}</td>
+      <td class="n a">${mm(r.bloqueado_mm)}</td>
     </tr>`);
 
   carteraFilas.push(`<tr class="tot">
@@ -651,11 +654,13 @@ function construirHtml(d) {
     <td class="n g">${totCart.clientes || '—'}</td>
     <td class="n g">${fechaCorta(totCart.antigua)}</td>
     <td class="n r">${dias(totCart.dias_prom)}</td>
+    <td class="n a">${mm(totCart.bloqueado)}</td>
   </tr>`);
 
   const carteraHtml = tabla(
     ['Proyecto', 'Pactado año', 'Recaudado año', '%', 'Pactado sem.', 'Recaudado sem.', '%',
-     'Vencido', '> 90 días', 'Clientes', 'Mora más antigua', 'Mora prom.'],
+     'Vencido exigible', '> 90 días', 'Clientes', 'Mora más antigua', 'Mora prom.',
+     'Sin escriturar'],
     carteraFilas);
 
   // ── 4. Obra
@@ -796,7 +801,7 @@ function construirHtml(d) {
         tramitesHtml + `<p style="margin:16px 0 0;font-size:12px;color:${COLOR.tenue}">Apertura por proyecto</p>` + tramitesProyHtml + soporte('Trámites semana', 'Trámites atrasados'))}
 
       ${seccion(3, 'Cartera',
-        'Pactado y recaudado del año y de la semana, <strong>solo conceptos iniciales</strong> (separación, cuota inicial, cesantías): es lo que depende de la gestión de Cartera, no del banco ni de la caja de compensación. El bloque de mora sí cubre <strong>todos</strong> los conceptos, con la definición certificada con el área. La mora promedio se pondera por saldo, no por cuota.',
+        'Pactado y recaudado del año y de la semana, <strong>solo conceptos iniciales</strong> (separación, cuota inicial, cesantías): es lo que depende de la gestión de Cartera, no del banco ni de la caja de compensación. El vencido cubre todos los conceptos con la definición de saldo certificada con el área, pero <strong>excluye crédito y subsidio de unidades sin escriturar</strong>: mientras no se firme la escritura el banco no desembolsa y la caja no gira, así que esa plata no la puede cobrar nadie. Va aparte en la última columna, que es el tamaño de lo que destraba la escrituración. La mora promedio se pondera por saldo, no por cuota.',
         carteraHtml + soporte('Cartera semana', 'Cartera mora'))}
 
       ${seccion(4, 'Ejecución de obra',
@@ -886,7 +891,7 @@ function construirLibro(det, d, semana) {
       ['Trámites semana', 'Trámites programados en la semana y/o cumplidos en la semana.'],
       ['Trámites atrasados', 'Represado completo al corte: programados antes del domingo y sin cumplir.'],
       ['Cartera semana', 'Cuotas con vencimiento en la semana. Solo conceptos iniciales: separación, cuota inicial y cesantías.'],
-      ['Cartera mora', 'Saldo en mora a hoy, todos los conceptos. Sustenta la sección 3 del correo.'],
+      ['Cartera mora', 'Saldo en mora a hoy, con la marca de si la unidad está escriturada y si el saldo es exigible.'],
     ].map(([a, b]) => ({ a, b }))));
 
   // ── Resumen: las mismas tablas del correo, en MM.
@@ -946,9 +951,13 @@ function construirLibro(det, d, semana) {
   hojas.push(hoja('Cartera resumen', [
     T('proyecto', 'Proyecto', 26),
     P('pactado_sem_mm', 'Pactado sem. MM'), P('pagado_sem_mm', 'Recaudado sem. MM'),
-    P('vencido_mm', 'Vencido MM'), P('vencido_90_mm', 'Vencido +90d MM'),
+    P('pactado_ytd_mm', 'Pactado año MM'), P('pagado_ytd_mm', 'Recaudado año MM'),
+    P('vencido_mm', 'Vencido exigible MM'), P('vencido_90_mm', 'Vencido +90d MM'),
+    P('bloqueado_mm', 'Bloqueado sin escritura MM'),
+    N('clientes_bloqueo', 'Clientes bloqueados', 18),
     P('vencido_credito_mm', 'Vencido crédito MM'), P('vencido_subsidio_mm', 'Vencido subsidio MM'),
     N('clientes_mora', 'Clientes en mora', 15),
+    F('mora_mas_antigua', 'Mora más antigua'), N('mora_dias_prom', 'Mora prom. d', 13),
   ], d.cartera || []));
 
   hojas.push(hoja('Flujo', [
@@ -1010,6 +1019,7 @@ function construirLibro(det, d, semana) {
     T('concepto', 'Concepto', 18), F('fecha_vencimiento', 'Vencimiento'),
     P('pactado', 'Pactado', 16), P('pagado', 'Pagado', 16),
     N('dias_mora', 'Días mora', 11), P('saldo_en_mora', 'Saldo en mora', 16),
+    T('escriturado', 'Escriturado', 12), T('exigibilidad', 'Exigibilidad', 24),
     T('estado_cartera', 'Estado cartera', 18), T('entidad', 'Entidad', 24),
   ], det.carteraMora));
 

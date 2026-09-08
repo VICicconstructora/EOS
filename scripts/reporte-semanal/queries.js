@@ -42,6 +42,26 @@ const MACROS_OBRA = `'BOSQUE CENTRAL','GAIA','PRAIA NATURA','PRIMERA ESTE',
 // conceptos iniciales por naturaleza, pero el CEO nombró tres y solo esos van.
 const CONCEPTOS_INICIALES = '(0, 1, 5)';
 
+// Ventas con escritura firmada (ESEF cumplido). Es la llave de la regla de
+// exigibilidad de cartera: mientras la escritura no esté firmada, el banco no
+// desembolsa el crédito y la caja no gira el subsidio, así que esa plata NO es
+// cobrable por más vencida que figure en el plan de pagos. Una vez escriturada
+// la unidad, sí se exige.
+//
+// Es la razón por la que La Hacienda E1 aparecía con 12.743 MM en mora cuando
+// su mora realmente gestionable son 432 MM: 12.311 MM eran crédito y subsidio
+// de unidades que todavía no se han podido escriturar. Reclamarle esa cifra a
+// Cartera es reclamarle algo que no depende de Cartera.
+const VENTAS_ESCRITURADAS = `
+  select distinct tr.idventa
+  from sinco_ic_raw.adi_dtm_tramites tr
+  where tr."Codigo Tramite" = 'ESEF'
+    and tr."Fecha Cumplimiento" is not null`;
+
+// Conceptos que dependen de la escritura: crédito propio y de tercero (3, 4),
+// subsidio y subsidio concurrente (6, 313).
+const CONCEPTOS_POST_ESCRITURA = '(3, 4, 6, 313)';
+
 // Trámites que sigue la gerencia. El orden es el del ciclo comercial, no
 // alfabético: promesa -> crédito -> subsidio -> escritura -> entrega.
 // Los códigos replican la taxonomía ya certificada en
@@ -461,6 +481,7 @@ limit 1000 offset ${off}`;
 // sustenta la sección 3 del correo, que sí mira la cartera completa.
 const DET_CARTERA_MORA = (off) => `
 with erp as (${PORTAFOLIO_CRM}
+), esc as (${VENTAS_ESCRITURADAS}
 )
 select e.proyecto_ppto      as proyecto,
        a.codigointerno      as unidad,
@@ -472,6 +493,11 @@ select e.proyecto_ppto      as proyecto,
        a.pagado             as pagado,
        a.mora_dias          as dias_mora,
        a.mora_saldo         as saldo_en_mora,
+       case when exists (select 1 from esc where esc.idventa = a.idventa)
+            then 'Sí' else 'No' end                                as escriturado,
+       case when a.idconcepto not in ${CONCEPTOS_POST_ESCRITURA}
+                 or exists (select 1 from esc where esc.idventa = a.idventa)
+            then 'Exigible' else 'Bloqueado sin escritura' end     as exigibilidad,
        a.estadocartera      as estado_cartera,
        a.entidad            as entidad
 from sinco_ic_raw.adi_dtm_acuerdos_pago a
@@ -682,9 +708,13 @@ const CARTERA = (ini, fin) => `
 with p as (
   select date '${ini}' as ini, date '${fin}' as fin
 ), erp as (${PORTAFOLIO_CRM}
+), esc as (${VENTAS_ESCRITURADAS}
 ), ap as (
   select e.proyecto_ppto, a.pactado, a.pagado, a.mora_saldo, a.mora_dias,
-         a.idventa, a.idconcepto, a.fecha_date
+         a.idventa, a.idconcepto, a.fecha_date,
+         -- Exigible = o no depende de la escritura, o la unidad ya se escrituró.
+         (a.idconcepto not in ${CONCEPTOS_POST_ESCRITURA}
+          or exists (select 1 from esc where esc.idventa = a.idventa)) as exigible
   from sinco_ic_raw.adi_dtm_acuerdos_pago a
   join erp e on e.idproyecto = a.vtaidproyecto
 )
@@ -702,22 +732,29 @@ select ap.proyecto_ppto as proyecto,
         and ap.idconcepto in ${CONCEPTOS_INICIALES}), 0) / 1e6)                              as pactado_sem_mm,
   round(coalesce(sum(ap.pagado)  filter (where ap.fecha_date between p.ini and p.fin
         and ap.idconcepto in ${CONCEPTOS_INICIALES}), 0) / 1e6)                              as pagado_sem_mm,
-  -- Mora: TODOS los conceptos. Es la definición certificada con el área
-  -- (20260830_001_cartera_vencida_certificada.sql) y la plata vencida es plata
-  -- vencida, venga del comprador o del banco.
-  round(coalesce(sum(ap.mora_saldo) filter (where ap.mora_saldo > 0), 0) / 1e6)                  as vencido_mm,
-  round(coalesce(sum(ap.mora_saldo) filter (where ap.mora_saldo > 0 and ap.mora_dias > 90), 0) / 1e6) as vencido_90_mm,
-  round(coalesce(sum(ap.mora_saldo) filter (where ap.mora_saldo > 0
+  -- Mora EXIGIBLE: todos los conceptos, con la definición de saldo certificada
+  -- con el área (20260830_001_cartera_vencida_certificada.sql), pero excluyendo
+  -- crédito y subsidio de unidades sin escriturar. Esa plata no la puede cobrar
+  -- nadie hasta que se firme la escritura, y mezclarla con la mora gestionable
+  -- le atribuía a Cartera un problema que es de escrituración.
+  round(coalesce(sum(ap.mora_saldo) filter (where ap.mora_saldo > 0 and ap.exigible), 0) / 1e6)  as vencido_mm,
+  round(coalesce(sum(ap.mora_saldo) filter (where ap.mora_saldo > 0 and ap.exigible
+        and ap.mora_dias > 90), 0) / 1e6)                                                        as vencido_90_mm,
+  -- Lo bloqueado se muestra aparte, no se esconde: es el tamaño de lo que
+  -- destraba la escrituración.
+  round(coalesce(sum(ap.mora_saldo) filter (where ap.mora_saldo > 0 and not ap.exigible), 0) / 1e6) as bloqueado_mm,
+  count(distinct ap.idventa) filter (where ap.mora_saldo > 0 and not ap.exigible)                as clientes_bloqueo,
+  round(coalesce(sum(ap.mora_saldo) filter (where ap.mora_saldo > 0 and ap.exigible
         and ap.idconcepto in (3,4)), 0) / 1e6)                                                   as vencido_credito_mm,
-  round(coalesce(sum(ap.mora_saldo) filter (where ap.mora_saldo > 0
+  round(coalesce(sum(ap.mora_saldo) filter (where ap.mora_saldo > 0 and ap.exigible
         and ap.idconcepto in (6,313)), 0) / 1e6)                                                 as vencido_subsidio_mm,
-  count(distinct ap.idventa) filter (where ap.mora_saldo > 0)                                    as clientes_mora,
-  min(ap.fecha_date) filter (where ap.mora_saldo > 0)                                            as mora_mas_antigua,
+  count(distinct ap.idventa) filter (where ap.mora_saldo > 0 and ap.exigible)                    as clientes_mora,
+  min(ap.fecha_date) filter (where ap.mora_saldo > 0 and ap.exigible)                            as mora_mas_antigua,
   -- Promedio ponderado por saldo, no por cuota: 900 días sobre 2 millones no
   -- pesa lo mismo que 30 días sobre 400. Sin redondear, para que el total del
   -- portafolio no discrepe del de las filas.
-  sum(ap.mora_dias * ap.mora_saldo) filter (where ap.mora_saldo > 0)
-    / nullif(sum(ap.mora_saldo) filter (where ap.mora_saldo > 0), 0)                             as mora_dias_prom
+  sum(ap.mora_dias * ap.mora_saldo) filter (where ap.mora_saldo > 0 and ap.exigible)
+    / nullif(sum(ap.mora_saldo) filter (where ap.mora_saldo > 0 and ap.exigible), 0)             as mora_dias_prom
 from ap
 cross join p
 group by ap.proyecto_ppto

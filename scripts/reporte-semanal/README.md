@@ -118,11 +118,36 @@ La **sección 3** aplica el mismo filtro en sus columnas de productividad
 correo mostraba dos "recaudo de la semana" distintos para la misma semana:
 1.081 de 6.541 en la sección y 267 de 1.529 en la tarjeta.
 
-Su bloque de **mora** sí cubre todos los conceptos, con la definición certificada
-con el área (`20260830_001_cartera_vencida_certificada.sql`): la plata vencida es
-plata vencida, venga del comprador o del banco. La mora promedio se pondera por
+Su bloque de **mora** cubre todos los conceptos, con la definición de saldo
+certificada con el área (`20260830_001_cartera_vencida_certificada.sql`), pero
+aplicando la regla de exigibilidad de abajo. La mora promedio se pondera por
 saldo, no por cuota — 900 días sobre dos millones no pesa lo mismo que 30 días
 sobre cuatrocientos mil.
+
+## Exigibilidad: crédito y subsidio dependen de la escritura
+
+**Mientras la escritura no esté firmada, el crédito y el subsidio no son cartera
+exigible.** El banco no desembolsa y la caja de compensación no gira hasta que la
+unidad se escritura. Esos saldos figuran vencidos en el plan de pagos pero no los
+puede cobrar nadie: no dependen del comprador ni de la gestión de cobro, sino de
+que se destrabe la escrituración. Una vez firmada, sí se exigen.
+
+La llave es el trámite **ESEF** con `Fecha Cumplimiento` diligenciada, cruzado por
+`idventa` (`VENTAS_ESCRITURADAS` en `queries.js`). Los conceptos que dependen de
+la escritura son `idconcepto` 3 y 4 (crédito propio y de tercero) y 6 y 313
+(subsidio y subsidio concurrente) — `CONCEPTOS_POST_ESCRITURA`.
+
+El correo muestra las dos cifras separadas: **Vencido exigible** y **Sin
+escriturar**. La segunda no es un problema de Cartera, es el tamaño de lo que
+destraba la escrituración.
+
+Al corte del 2026-09-06, de $55.897 MM que figuraban vencidos, **$32.245 MM (58%)
+eran crédito y subsidio de unidades sin escriturar**. La mora gestionable son
+$23.655 MM en 484 clientes. La Hacienda E1 pasaba de $12.743 MM a $432 MM y
+Reserva de Oporto E3 de $3.758 MM a $823 MM.
+
+La regla está documentada en el wiki, que es su fuente de verdad:
+`wiki/procesos/experiencia/cartera-pre-escritura.md` y `escrituracion.md`.
 
 ## Semáforo
 
