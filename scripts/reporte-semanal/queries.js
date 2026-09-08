@@ -519,23 +519,44 @@ with p as (
 ), proy as (
   select distinct proyecto_ppto from erp
 ), ${SEMANAS_POR_MES}
-, inventario as (
-  -- Estado de las unidades principales (sin anexos: parqueaderos, depósitos).
+, inv_base as (
+  -- Inventario por unidad, leído de adi_dtm_inventarios (no de ventas).
   --
-  -- OJO con la fuente: la medida certificada en apps/indicadores/medidas_sql.md
-  -- usa \`codventa is null\` para el inventario disponible y hoy eso devuelve
-  -- CERO filas en toda la tabla: codventa viene lleno en las 3.378 unidades,
-  -- incluidas las disponibles. El estado real vive en \`investunidad\`
-  -- ('Vendida' 2.695, 'Disponible' 682, 'Reservada' 1 al 2026-09-08). Una
-  -- reservada no es ni vendida ni disponible, así que las columnas no siempre
-  -- suman el total.
+  -- Dos columnas de esta tabla se parecen y NO son lo mismo:
+  --   invundppalventa      = la unidad es el ítem principal de SU VENTA. Un
+  --                          garaje vendido junto a un apartamento va en 0, y
+  --                          un apartamento todavía sin vender también puede
+  --                          ir en 0.
+  --   invundppaltipounidad = la unidad es de un TIPO principal (apartamento,
+  --                          casa, local) frente a los anexos.
+  --
+  -- Para contar inventario la buena es la segunda. Con la primera, Castilla
+  -- Living daba 534 unidades en vez de 615: se perdían 81 apartamentos
+  -- disponibles marcados con invundppalventa = 0.
+  --
+  -- La medida certificada en apps/indicadores/medidas_sql.md usa la primera y
+  -- además define el disponible como codventa is null, que hoy devuelve CERO
+  -- filas en toda la tabla: codventa viene lleno en las 3.378 unidades,
+  -- disponibles incluidas. El estado real vive en investunidad ('Vendida',
+  -- 'Disponible', 'Reservada'). Una reservada no es ni lo uno ni lo otro, así
+  -- que las tres columnas no siempre suman el total.
   select e.proyecto_ppto,
-         count(*)                                              as total,
-         count(*) filter (where i.investunidad = 'Vendida')    as vendidas,
-         count(*) filter (where i.investunidad = 'Disponible') as disponibles
+         i.investunidad,
+         i.invundppaltipounidad,
+         max(i.invundppaltipounidad) over (partition by e.proyecto_ppto) as tiene_ppal
   from sinco_ic_raw.adi_dtm_inventarios i
   join erp e on e.idproyecto = i.invcodproyecto
-  where i.invundppalventa = 1
+), inventario as (
+  -- Se cuentan las unidades de tipo principal, salvo en los proyectos que no
+  -- tienen ninguna: ahí el producto son los anexos y se cuentan todas. Es el
+  -- caso de Castilla Imperial Parqueaderos, cuyas 65 unidades son garajes y que
+  -- con el filtro a secas desaparecía del inventario teniendo meta de ventas.
+  select proyecto_ppto,
+         count(*)                                            as total,
+         count(*) filter (where investunidad = 'Vendida')    as vendidas,
+         count(*) filter (where investunidad = 'Disponible') as disponibles
+  from inv_base
+  where invundppaltipounidad = 1 or coalesce(tiene_ppal, 0) = 0
   group by 1
 ), ppto_proy as (
   select pv.proyecto_ppto,

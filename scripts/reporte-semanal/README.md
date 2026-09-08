@@ -72,15 +72,33 @@ semana de mes.
 La sección de ventas abre con el inventario de unidades principales
 (`invundppalventa = 1`, sin parqueaderos ni depósitos).
 
-**La medida certificada en `apps/indicadores/medidas_sql.md` está rota.** Define
-el inventario disponible como `codventa IS NULL` y al 2026-09-08 eso devuelve
-**cero filas en toda la tabla**: las 3.378 unidades principales traen `codventa`
-lleno, disponibles incluidas. Cualquier tablero que use esa definición está
-reportando inventario cero.
+**La medida certificada en `apps/indicadores/medidas_sql.md` tiene dos errores.**
 
-El estado real vive en `investunidad`: `Vendida` (2.695), `Disponible` (682) y
-`Reservada` (1). Una reservada no es ni vendida ni disponible, así que las tres
-columnas no siempre suman el total.
+1. Define el inventario disponible como `codventa IS NULL` y al 2026-09-08 eso
+   devuelve **cero filas en toda la tabla**: las 3.378 unidades traen `codventa`
+   lleno, disponibles incluidas. El estado real vive en `investunidad`:
+   `Vendida`, `Disponible`, `Reservada`. Una reservada no es ni lo uno ni lo
+   otro, así que las tres columnas no siempre suman el total.
+2. Filtra las unidades principales con `invundppalventa = 1`, que **no** es esa
+   columna. Hay dos parecidas y significan cosas distintas:
+
+   | Columna | Qué marca |
+   |---|---|
+   | `invundppalventa` | La unidad es el ítem principal de **su venta**. Un garaje vendido junto a un apartamento va en 0, y un apartamento sin vender también puede ir en 0. |
+   | `invundppaltipounidad` | La unidad es de un **tipo** principal — apartamento, casa, local — frente a los anexos. |
+
+   Para contar inventario la buena es la segunda. Con la primera, Castilla
+   Living daba 534 unidades en vez de **615**: se perdían 81 apartamentos
+   disponibles marcados con `invundppalventa = 0`. En el portafolio completo la
+   diferencia es 2.982 contra 3.209 unidades y 292 contra 507 disponibles.
+
+Cualquier tablero que siga esa medida está subcontando el inventario y
+reportando cero disponibles.
+
+**Excepción de los proyectos de anexos.** Filtrar por tipo principal a secas deja
+en cero a Castilla Imperial Parqueaderos, cuyo producto son los garajes. La
+consulta cuenta las unidades de tipo principal salvo en los proyectos que no
+tienen ninguna, donde cuenta todas: ahí el anexo es el producto.
 
 ## Trámites: el represado sin cota
 
