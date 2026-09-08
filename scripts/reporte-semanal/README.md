@@ -133,6 +133,25 @@ una tabla con fondos y bordes, así que cada columna es una tablita apilada de
 dos o tres segmentos y la línea de meta es el borde superior del segmento que
 arranca a la altura de la meta.
 
+## Peso del correo
+
+Gmail recorta los correos a partir de ~102 KB. Con las columnas nuevas el
+mensaje llegó a **113 KB**, y el 72% de eso (82 KB) eran atributos `style`
+idénticos repetidos en las ~980 celdas de tabla.
+
+Las celdas llevan ahora **clase**, no estilo inline, con un bloque `<style>` al
+principio del mensaje: el correo bajó a **53 KB** sin quitar una sola tabla.
+Word —el motor con el que Outlook de escritorio renderiza— soporta selectores
+de clase simples, y Gmail respeta el bloque. Si algún cliente llegara a
+descartarlo, las tablas pierden formato pero el contenido se sigue leyendo.
+
+Sigue inline lo que es genuinamente dinámico y no se puede enumerar: el color de
+las barras de los mini-gráficos, que se arman en una tabla anidada por columna
+donde una clase no ahorraría nada.
+
+Al agregar columnas, revisar el tamaño con `wc -c reporte.html` después de un
+`--dry-run`.
+
 ## El adjunto .xlsx
 
 Cada correo lleva `Soporte productividad <ini> a <fin>.xlsx`, que es la revisión

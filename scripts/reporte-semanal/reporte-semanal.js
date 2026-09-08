@@ -317,16 +317,28 @@ const COLOR = {
 
 // Semáforo de FONDO para las celdas de %, con los umbrales que fijó el CEO:
 // verde al cumplir, amarillo entre 90% y 100%, rojo por debajo. Es más estricto
-// que colorCumplimiento() (que perdona hasta el 70%) porque aquí el color es lo
+// que claseCumplimiento() (que perdona hasta el 70%) porque aquí el color es lo
 // primero que se ve al abrir el correo.
-function fondoCumplimiento(real, meta) {
+function claseFondo(real, meta) {
   const r = semaforo(real, meta);
-  if (r === null)  return `color:${COLOR.tenue};`;
-  if (r >= 1)      return 'background:#d1fae5;color:#065f46;';
-  if (r >= 0.9)    return 'background:#fef3c7;color:#92400e;';
-  return 'background:#fee2e2;color:#991b1b;';
+  if (r === null) return 'g';
+  if (r >= 1)     return 's1';
+  if (r >= 0.9)   return 's2';
+  return 's3';
 }
 
+// Semáforo de texto, más indulgente: verde desde 100%, ámbar desde 70%.
+function claseCumplimiento(real, meta) {
+  const r = semaforo(real, meta);
+  if (r === null) return 'g';
+  if (r >= 1)     return 'v';
+  if (r >= 0.7)   return 'a';
+  return 'r';
+}
+
+// Versión en hex del mismo semáforo indulgente. La necesitan los
+// mini-gráficos: el color de la barra va inline porque se arma dentro de una
+// tabla anidada por columna, donde una clase no ahorraría nada.
 function colorCumplimiento(real, meta) {
   const r = semaforo(real, meta);
   if (r === null) return COLOR.tenue;
@@ -335,22 +347,44 @@ function colorCumplimiento(real, meta) {
   return COLOR.malo;
 }
 
-// Los estilos van inline en cada celda: Outlook desktop ignora o desordena los
-// bloques <style>. Se mantienen cortos porque se repiten en cientos de celdas y
-// Gmail recorta el correo a partir de ~102 KB.
-const TD = 'padding:6px 10px;border-bottom:1px solid #eee';
-const TH = 'padding:8px 10px;text-align:left;font-weight:600;color:#444';
-const TD_N = `${TD};text-align:right`;
-const TH_N = `${TH};text-align:right`;
+// Las celdas de tabla llevan clase, no estilo inline.
+//
+// El correo tiene ~980 celdas y repetir el estilo en cada una pesaba 82 KB de
+// los 113 KB del mensaje: el 72% eran atributos style idénticos. Gmail recorta
+// a partir de ~102 KB, así que el formato inline se estaba comiendo el correo.
+// Con clases baja a ~40 KB sin quitar una sola tabla.
+//
+// Word (el motor con el que Outlook de escritorio renderiza) sí soporta
+// selectores de clase simples, y Gmail respeta el bloque <style>. Lo que ese
+// motor no soporta —y por eso los mini-gráficos siguen siendo tablas— es SVG y
+// posición absoluta. Si algún cliente llegara a descartar el bloque, las tablas
+// pierden formato pero el contenido se sigue leyendo.
+//
+// Solo queda inline lo que es genuinamente dinámico y no se puede enumerar,
+// como el color de una celda que depende de un valor.
+const HOJA_ESTILOS = `<style>
+  .t{border-collapse:collapse;width:100%;font-size:13px;margin-top:8px}
+  .h,.hn{padding:8px 10px;font-weight:600;color:#444;background:#f5f5f5}
+  .h{text-align:left} .hn{text-align:right}
+  .c,.n{padding:6px 10px;border-bottom:1px solid #eee}
+  .n{text-align:right}
+  .b{font-weight:600}
+  .g{color:#888} .r{color:#dc2626} .v{color:#059669} .a{color:#d97706}
+  .s1{background:#d1fae5;color:#065f46}
+  .s2{background:#fef3c7;color:#92400e}
+  .s3{background:#fee2e2;color:#991b1b}
+  .tot{background:#fafafa;font-weight:600}
+  .sm{font-size:11px}
+</style>`;
 
 function tabla(headers, filas) {
   if (filas.length === 0) {
     return `<p style="color:${COLOR.tenue};font-size:13px;margin:8px 0 0">Sin movimiento en la semana.</p>`;
   }
   const head = headers.map((h, i) =>
-    `<th style="${i === 0 ? TH : TH_N}">${esc(h)}</th>`).join('');
-  return `<table style="border-collapse:collapse;width:100%;font-size:13px;margin-top:8px">
-    <thead><tr style="background:#f5f5f5">${head}</tr></thead>
+    `<th class="${i === 0 ? 'h' : 'hn'}">${esc(h)}</th>`).join('');
+  return `<table class="t">
+    <thead><tr>${head}</tr></thead>
     <tbody>${filas.join('')}</tbody>
   </table>`;
 }
@@ -388,25 +422,25 @@ function construirHtml(d) {
 
   const tendenciaFilas = serie.map((r, i) => {
     const ultima = i === serie.length - 1;
-    const fondo  = ultima ? 'background:#fafafa;font-weight:600' : '';
+    const fondo  = ultima ? ' class="tot"' : '';
     // El represado solo dice algo contra el de la semana pasada: lo relevante
     // no es que sean miles, es si suben o bajan.
     const prev   = i > 0 ? num(serie[i - 1].vencidos_acum) : null;
     const dif    = prev === null ? null : num(r.vencidos_acum) - prev;
     const difTxt = dif === null || dif === 0 ? ''
-      : ` <span style="color:${dif > 0 ? COLOR.malo : COLOR.ok};font-weight:400">${dif > 0 ? '+' : ''}${dif}</span>`;
-    return `<tr style="${fondo}">
-      <td style="${TD}">${esc(rangoCorto(r))}</td>
-      <td style="${TD_N}">${num(r.un_sem) || '—'}</td>
-      <td style="${TD_N}">${mm(r.mm_sem)}</td>
-      <td style="${TD_N};${fondoCumplimiento(r.mm_ytd, r.mm_meta_ytd)}font-weight:600">${pct(r.mm_ytd, r.mm_meta_ytd)}</td>
-      <td style="${TD_N};color:${num(r.desist_un_sem) ? COLOR.malo : COLOR.tenue}">${num(r.desist_un_sem) || '—'}</td>
-      <td style="${TD_N}">${num(r.hicieron) || '—'} / ${num(r.debian) || '—'}</td>
-      <td style="${TD_N};${fondoCumplimiento(r.hicieron, r.debian)}font-weight:600">${pct(r.hicieron, r.debian)}</td>
-      <td style="${TD_N}">${num(r.vencidos_acum).toLocaleString('es-CO')}${difTxt}</td>
-      <td style="${TD_N}">${mm(r.pactado_mm)}</td>
-      <td style="${TD_N}">${mm(r.pagado_mm)}</td>
-      <td style="${TD_N};${fondoCumplimiento(r.pagado_mm, r.pactado_mm)}font-weight:600">${pct(r.pagado_mm, r.pactado_mm)}</td>
+      : ` <span class="${dif > 0 ? 'r' : 'v'}" style="font-weight:400">${dif > 0 ? '+' : ''}${dif}</span>`;
+    return `<tr${fondo}>
+      <td class="c">${esc(rangoCorto(r))}</td>
+      <td class="n">${num(r.un_sem) || '—'}</td>
+      <td class="n">${mm(r.mm_sem)}</td>
+      <td class="n b ${claseFondo(r.mm_ytd, r.mm_meta_ytd)}">${pct(r.mm_ytd, r.mm_meta_ytd)}</td>
+      <td class="n ${num(r.desist_un_sem) ? 'r' : 'g'}">${num(r.desist_un_sem) || '—'}</td>
+      <td class="n">${num(r.hicieron) || '—'} / ${num(r.debian) || '—'}</td>
+      <td class="n b ${claseFondo(r.hicieron, r.debian)}">${pct(r.hicieron, r.debian)}</td>
+      <td class="n">${num(r.vencidos_acum).toLocaleString('es-CO')}${difTxt}</td>
+      <td class="n">${mm(r.pactado_mm)}</td>
+      <td class="n">${mm(r.pagado_mm)}</td>
+      <td class="n b ${claseFondo(r.pagado_mm, r.pactado_mm)}">${pct(r.pagado_mm, r.pactado_mm)}</td>
     </tr>`;
   });
 
@@ -437,35 +471,35 @@ function construirHtml(d) {
     .filter(r => num(r.inv_total) || num(r.un_sem) || num(r.desist_un_sem)
               || num(r.mm_ppto_sem) || num(r.mm_ytd) || num(r.mm_ppto_ytd))
     .map(r => `<tr>
-      <td style="${TD}">${esc(r.proyecto)}</td>
-      <td style="${TD_N};color:${COLOR.tenue}">${num(r.inv_total) || '—'}</td>
-      <td style="${TD_N}">${num(r.inv_vendidas) || '—'}</td>
-      <td style="${TD_N};font-weight:600;color:${num(r.inv_disponibles) ? '#111' : COLOR.tenue}">${num(r.inv_disponibles) || '—'}</td>
-      <td style="${TD_N}">${num(r.un_sem) || '—'}</td>
-      <td style="${TD_N}">${mm(r.mm_sem)}</td>
-      <td style="${TD_N};color:${COLOR.tenue}">${un(r.un_ppto_sem)}</td>
-      <td style="${TD_N}">${mm(r.mm_ppto_sem)}</td>
-      <td style="${TD_N};${fondoCumplimiento(r.mm_sem, r.mm_ppto_sem)}font-weight:600">${pct(r.mm_sem, r.mm_ppto_sem)}</td>
-      <td style="${TD_N};color:${num(r.desist_un_sem) ? COLOR.malo : COLOR.tenue}">${num(r.desist_un_sem) ? `${r.desist_un_sem} · ${mm(r.desist_mm_sem)}` : '—'}</td>
-      <td style="${TD_N}">${mm(r.mm_ytd)}</td>
-      <td style="${TD_N}">${mm(r.mm_ppto_ytd)}</td>
-      <td style="${TD_N};${fondoCumplimiento(r.mm_ytd, r.mm_ppto_ytd)}font-weight:600">${pct(r.mm_ytd, r.mm_ppto_ytd)}</td>
+      <td class="c">${esc(r.proyecto)}</td>
+      <td class="n g">${num(r.inv_total) || '—'}</td>
+      <td class="n">${num(r.inv_vendidas) || '—'}</td>
+      <td class="n b ${num(r.inv_disponibles) ? '' : 'g'}">${num(r.inv_disponibles) || '—'}</td>
+      <td class="n">${num(r.un_sem) || '—'}</td>
+      <td class="n">${mm(r.mm_sem)}</td>
+      <td class="n g">${un(r.un_ppto_sem)}</td>
+      <td class="n">${mm(r.mm_ppto_sem)}</td>
+      <td class="n b ${claseFondo(r.mm_sem, r.mm_ppto_sem)}">${pct(r.mm_sem, r.mm_ppto_sem)}</td>
+      <td class="n ${num(r.desist_un_sem) ? 'r' : 'g'}">${num(r.desist_un_sem) ? `${r.desist_un_sem} · ${mm(r.desist_mm_sem)}` : '—'}</td>
+      <td class="n">${mm(r.mm_ytd)}</td>
+      <td class="n">${mm(r.mm_ppto_ytd)}</td>
+      <td class="n b ${claseFondo(r.mm_ytd, r.mm_ppto_ytd)}">${pct(r.mm_ytd, r.mm_ppto_ytd)}</td>
     </tr>`);
 
-  ventasFilas.push(`<tr style="background:#fafafa;font-weight:600">
-    <td style="${TD}">Total portafolio</td>
-    <td style="${TD_N}">${totVentas.inv_total.toLocaleString('es-CO') || '—'}</td>
-    <td style="${TD_N}">${totVentas.inv_vend.toLocaleString('es-CO') || '—'}</td>
-    <td style="${TD_N}">${totVentas.inv_disp.toLocaleString('es-CO') || '—'}</td>
-    <td style="${TD_N}">${totVentas.un_sem || '—'}</td>
-    <td style="${TD_N}">${mm(totVentas.mm_sem)}</td>
-    <td style="${TD_N}">${un(totVentas.un_ppto_sem)}</td>
-    <td style="${TD_N}">${mm(totVentas.mm_ppto_sem)}</td>
-    <td style="${TD_N};${fondoCumplimiento(totVentas.mm_sem, totVentas.mm_ppto_sem)}">${pct(totVentas.mm_sem, totVentas.mm_ppto_sem)}</td>
-    <td style="${TD_N};color:${totVentas.desist_un ? COLOR.malo : COLOR.tenue}">${totVentas.desist_un ? `${totVentas.desist_un} · ${mm(totVentas.desist_mm)}` : '—'}</td>
-    <td style="${TD_N}">${mm(totVentas.mm_ytd)}</td>
-    <td style="${TD_N}">${mm(totVentas.mm_ppto_ytd)}</td>
-    <td style="${TD_N};${fondoCumplimiento(totVentas.mm_ytd, totVentas.mm_ppto_ytd)}">${pct(totVentas.mm_ytd, totVentas.mm_ppto_ytd)}</td>
+  ventasFilas.push(`<tr class="tot">
+    <td class="c">Total portafolio</td>
+    <td class="n">${totVentas.inv_total.toLocaleString('es-CO') || '—'}</td>
+    <td class="n">${totVentas.inv_vend.toLocaleString('es-CO') || '—'}</td>
+    <td class="n">${totVentas.inv_disp.toLocaleString('es-CO') || '—'}</td>
+    <td class="n">${totVentas.un_sem || '—'}</td>
+    <td class="n">${mm(totVentas.mm_sem)}</td>
+    <td class="n">${un(totVentas.un_ppto_sem)}</td>
+    <td class="n">${mm(totVentas.mm_ppto_sem)}</td>
+    <td class="n ${claseFondo(totVentas.mm_sem, totVentas.mm_ppto_sem)}">${pct(totVentas.mm_sem, totVentas.mm_ppto_sem)}</td>
+    <td class="n ${totVentas.desist_un ? 'r' : 'g'}">${totVentas.desist_un ? `${totVentas.desist_un} · ${mm(totVentas.desist_mm)}` : '—'}</td>
+    <td class="n">${mm(totVentas.mm_ytd)}</td>
+    <td class="n">${mm(totVentas.mm_ppto_ytd)}</td>
+    <td class="n ${claseFondo(totVentas.mm_ytd, totVentas.mm_ppto_ytd)}">${pct(totVentas.mm_ytd, totVentas.mm_ppto_ytd)}</td>
   </tr>`);
 
   const ventasHtml = tabla(
@@ -495,31 +529,31 @@ function construirHtml(d) {
   const dias = v => (num(v) ? `${num(v).toLocaleString('es-CO')} d` : '—');
 
   const tramitesFilas = tramites.map(r => `<tr>
-    <td style="${TD}">${esc(r.categoria)}</td>
-    <td style="${TD_N}">${num(r.debian_ytd) || '—'}</td>
-    <td style="${TD_N};font-weight:600">${num(r.hicieron_ytd) || '—'}</td>
-    <td style="${TD_N};${fondoCumplimiento(r.hicieron_ytd, r.debian_ytd)}font-weight:600">${pct(r.hicieron_ytd, r.debian_ytd)}</td>
-    <td style="${TD_N};color:${COLOR.tenue}">${num(r.debian) || '—'}</td>
-    <td style="${TD_N}">${num(r.hicieron) || '—'}</td>
-    <td style="${TD_N};${fondoCumplimiento(r.hicieron, r.debian)}font-weight:600">${pct(r.hicieron, r.debian)}</td>
-    <td style="${TD_N};color:${num(r.atrasados) ? COLOR.malo : COLOR.tenue};font-weight:600">${num(r.atrasados).toLocaleString('es-CO') || '—'}</td>
-    <td style="${TD_N};color:${COLOR.tenue}">${fechaCorta(r.mas_antiguo)}</td>
-    <td style="${TD_N};color:${num(r.atraso_promedio) > 365 ? COLOR.malo : COLOR.alerta}">${dias(r.atraso_promedio)}</td>
-    <td style="${TD_N};color:${COLOR.tenue}">${num(r.prox_semana) || '—'}</td>
+    <td class="c">${esc(r.categoria)}</td>
+    <td class="n">${num(r.debian_ytd) || '—'}</td>
+    <td class="n b">${num(r.hicieron_ytd) || '—'}</td>
+    <td class="n b ${claseFondo(r.hicieron_ytd, r.debian_ytd)}">${pct(r.hicieron_ytd, r.debian_ytd)}</td>
+    <td class="n g">${num(r.debian) || '—'}</td>
+    <td class="n">${num(r.hicieron) || '—'}</td>
+    <td class="n b ${claseFondo(r.hicieron, r.debian)}">${pct(r.hicieron, r.debian)}</td>
+    <td class="n b ${num(r.atrasados) ? 'r' : 'g'}">${num(r.atrasados).toLocaleString('es-CO') || '—'}</td>
+    <td class="n g">${fechaCorta(r.mas_antiguo)}</td>
+    <td class="n ${num(r.atraso_promedio) > 365 ? 'r' : 'a'}">${dias(r.atraso_promedio)}</td>
+    <td class="n g">${num(r.prox_semana) || '—'}</td>
   </tr>`);
 
-  tramitesFilas.push(`<tr style="background:#fafafa;font-weight:600">
-    <td style="${TD}">Total</td>
-    <td style="${TD_N}">${totTram.debian_ytd || '—'}</td>
-    <td style="${TD_N}">${totTram.hicieron_ytd || '—'}</td>
-    <td style="${TD_N};${fondoCumplimiento(totTram.hicieron_ytd, totTram.debian_ytd)}">${pct(totTram.hicieron_ytd, totTram.debian_ytd)}</td>
-    <td style="${TD_N}">${totTram.debian || '—'}</td>
-    <td style="${TD_N}">${totTram.hicieron || '—'}</td>
-    <td style="${TD_N};${fondoCumplimiento(totTram.hicieron, totTram.debian)}">${pct(totTram.hicieron, totTram.debian)}</td>
-    <td style="${TD_N};color:${totTram.atrasados ? COLOR.malo : COLOR.tenue}">${totTram.atrasados.toLocaleString('es-CO') || '—'}</td>
-    <td style="${TD_N};color:${COLOR.tenue}">${fechaCorta(totTram.mas_antiguo)}</td>
-    <td style="${TD_N};color:${COLOR.malo}">${dias(totTram.atraso_promedio)}</td>
-    <td style="${TD_N};color:${COLOR.tenue}">${totTram.prox || '—'}</td>
+  tramitesFilas.push(`<tr class="tot">
+    <td class="c">Total</td>
+    <td class="n">${totTram.debian_ytd || '—'}</td>
+    <td class="n">${totTram.hicieron_ytd || '—'}</td>
+    <td class="n ${claseFondo(totTram.hicieron_ytd, totTram.debian_ytd)}">${pct(totTram.hicieron_ytd, totTram.debian_ytd)}</td>
+    <td class="n">${totTram.debian || '—'}</td>
+    <td class="n">${totTram.hicieron || '—'}</td>
+    <td class="n ${claseFondo(totTram.hicieron, totTram.debian)}">${pct(totTram.hicieron, totTram.debian)}</td>
+    <td class="n ${totTram.atrasados ? 'r' : 'g'}">${totTram.atrasados.toLocaleString('es-CO') || '—'}</td>
+    <td class="n g">${fechaCorta(totTram.mas_antiguo)}</td>
+    <td class="n r">${dias(totTram.atraso_promedio)}</td>
+    <td class="n g">${totTram.prox || '—'}</td>
   </tr>`);
 
   const tramitesHtml = tabla(
@@ -531,15 +565,15 @@ function construirHtml(d) {
     ['Proyecto', 'Debían año', 'Van', '%', 'Debían sem.', 'Hicieron',
      'Atrasados', 'Más antiguo', 'Atraso prom.'],
     tramitesProy.map(r => `<tr>
-      <td style="${TD}">${esc(r.proyecto)}</td>
-      <td style="${TD_N}">${num(r.debian_ytd) || '—'}</td>
-      <td style="${TD_N}">${num(r.hicieron_ytd) || '—'}</td>
-      <td style="${TD_N};${fondoCumplimiento(r.hicieron_ytd, r.debian_ytd)}font-weight:600">${pct(r.hicieron_ytd, r.debian_ytd)}</td>
-      <td style="${TD_N};color:${COLOR.tenue}">${num(r.debian) || '—'}</td>
-      <td style="${TD_N}">${num(r.hicieron) || '—'}</td>
-      <td style="${TD_N};color:${num(r.atrasados) ? COLOR.malo : COLOR.tenue};font-weight:600">${num(r.atrasados).toLocaleString('es-CO') || '—'}</td>
-      <td style="${TD_N};color:${COLOR.tenue}">${fechaCorta(r.mas_antiguo)}</td>
-      <td style="${TD_N};color:${COLOR.tenue}">${dias(r.atraso_promedio)}</td>
+      <td class="c">${esc(r.proyecto)}</td>
+      <td class="n">${num(r.debian_ytd) || '—'}</td>
+      <td class="n">${num(r.hicieron_ytd) || '—'}</td>
+      <td class="n b ${claseFondo(r.hicieron_ytd, r.debian_ytd)}">${pct(r.hicieron_ytd, r.debian_ytd)}</td>
+      <td class="n g">${num(r.debian) || '—'}</td>
+      <td class="n">${num(r.hicieron) || '—'}</td>
+      <td class="n b ${num(r.atrasados) ? 'r' : 'g'}">${num(r.atrasados).toLocaleString('es-CO') || '—'}</td>
+      <td class="n g">${fechaCorta(r.mas_antiguo)}</td>
+      <td class="n g">${dias(r.atraso_promedio)}</td>
     </tr>`));
 
   // ── 3. Cartera
@@ -554,23 +588,23 @@ function construirHtml(d) {
   const carteraFilas = cartera
     .filter(r => num(r.pactado_sem_mm) || num(r.pagado_sem_mm) || num(r.vencido_mm))
     .map(r => `<tr>
-      <td style="${TD}">${esc(r.proyecto)}</td>
-      <td style="${TD_N}">${mm(r.pactado_sem_mm)}</td>
-      <td style="${TD_N};font-weight:600">${mm(r.pagado_sem_mm)}</td>
-      <td style="${TD_N};color:${colorCumplimiento(r.pagado_sem_mm, r.pactado_sem_mm)};font-weight:600">${pct(r.pagado_sem_mm, r.pactado_sem_mm)}</td>
-      <td style="${TD_N};color:${COLOR.malo}">${mm(r.vencido_mm)}</td>
-      <td style="${TD_N};color:${COLOR.malo}">${mm(r.vencido_90_mm)}</td>
-      <td style="${TD_N};color:${COLOR.tenue}">${num(r.clientes_mora) || '—'}</td>
+      <td class="c">${esc(r.proyecto)}</td>
+      <td class="n">${mm(r.pactado_sem_mm)}</td>
+      <td class="n b">${mm(r.pagado_sem_mm)}</td>
+      <td class="n b ${claseCumplimiento(r.pagado_sem_mm, r.pactado_sem_mm)}">${pct(r.pagado_sem_mm, r.pactado_sem_mm)}</td>
+      <td class="n r">${mm(r.vencido_mm)}</td>
+      <td class="n r">${mm(r.vencido_90_mm)}</td>
+      <td class="n g">${num(r.clientes_mora) || '—'}</td>
     </tr>`);
 
-  carteraFilas.push(`<tr style="background:#fafafa;font-weight:600">
-    <td style="${TD}">Total portafolio</td>
-    <td style="${TD_N}">${mm(totCart.pactado)}</td>
-    <td style="${TD_N}">${mm(totCart.pagado)}</td>
-    <td style="${TD_N};color:${colorCumplimiento(totCart.pagado, totCart.pactado)}">${pct(totCart.pagado, totCart.pactado)}</td>
-    <td style="${TD_N};color:${COLOR.malo}">${mm(totCart.vencido)}</td>
-    <td style="${TD_N};color:${COLOR.malo}">${mm(totCart.v90)}</td>
-    <td style="${TD_N};color:${COLOR.tenue}">${totCart.clientes || '—'}</td>
+  carteraFilas.push(`<tr class="tot">
+    <td class="c">Total portafolio</td>
+    <td class="n">${mm(totCart.pactado)}</td>
+    <td class="n">${mm(totCart.pagado)}</td>
+    <td class="n ${claseCumplimiento(totCart.pagado, totCart.pactado)}">${pct(totCart.pagado, totCart.pactado)}</td>
+    <td class="n r">${mm(totCart.vencido)}</td>
+    <td class="n r">${mm(totCart.v90)}</td>
+    <td class="n g">${totCart.clientes || '—'}</td>
   </tr>`);
 
   const carteraHtml = tabla(
@@ -600,14 +634,14 @@ function construirHtml(d) {
       colorEstado = num(r.cobertura_pct) >= 60 ? COLOR.tenue : COLOR.alerta;
     }
     return `<tr>
-      <td style="${TD}">${esc(r.proyecto)}</td>
-      <td style="${TD_N}">${meta === null ? '—' : mm(r.prog_sem_mm)}</td>
-      <td style="${TD_N};font-weight:600">${mm(r.inv_sem_mm)}</td>
-      <td style="${TD_N};color:${meta === null ? COLOR.tenue : colorCumplimiento(r.inv_sem_mm, meta)};font-weight:600">${meta === null ? '—' : pct(r.inv_sem_mm, meta)}</td>
-      <td style="${TD_N}">${medible ? mm(r.prog_mtd_mm) : '—'}</td>
-      <td style="${TD_N}">${mm(r.inv_mtd_mm)}</td>
-      <td style="${TD_N};font-weight:600">${r.avance_pct === null ? '—' : `${r.avance_pct}%`}</td>
-      <td style="${TD};text-align:right;color:${colorEstado};font-size:11px">${esc(estado)}</td>
+      <td class="c">${esc(r.proyecto)}</td>
+      <td class="n">${meta === null ? '—' : mm(r.prog_sem_mm)}</td>
+      <td class="n b">${mm(r.inv_sem_mm)}</td>
+      <td class="n b ${meta === null ? 'g' : claseCumplimiento(r.inv_sem_mm, meta)}">${meta === null ? '—' : pct(r.inv_sem_mm, meta)}</td>
+      <td class="n">${medible ? mm(r.prog_mtd_mm) : '—'}</td>
+      <td class="n">${mm(r.inv_mtd_mm)}</td>
+      <td class="n b">${r.avance_pct === null ? '—' : `${r.avance_pct}%`}</td>
+      <td class="n sm" style="color:${colorEstado}">${esc(estado)}</td>
     </tr>`;
   });
 
@@ -622,26 +656,26 @@ function construirHtml(d) {
   const flujoCorteHtml = tabla(
     ['Proyecto', 'FCL del mes MM', 'FCL acumulado MM', 'Ingresos MM', 'Costos MM'],
     flujoCorte.map(r => `<tr>
-      <td style="${TD}">${esc(r.proyecto)}</td>
-      <td style="${TD_N};color:${num(r.fcl_mm) < 0 ? COLOR.malo : COLOR.ok};font-weight:600">${mm(r.fcl_mm)}</td>
-      <td style="${TD_N};color:${num(r.fcl_acum_mm) < 0 ? COLOR.malo : '#111'}">${mm(r.fcl_acum_mm)}</td>
-      <td style="${TD_N};color:${COLOR.tenue}">${mm(r.ingresos_mm)}</td>
-      <td style="${TD_N};color:${COLOR.tenue}">${mm(r.costos_mm)}</td>
+      <td class="c">${esc(r.proyecto)}</td>
+      <td class="n b ${num(r.fcl_mm) < 0 ? 'r' : 'v'}">${mm(r.fcl_mm)}</td>
+      <td class="n ${num(r.fcl_acum_mm) < 0 ? 'r' : ''}">${mm(r.fcl_acum_mm)}</td>
+      <td class="n g">${mm(r.ingresos_mm)}</td>
+      <td class="n g">${mm(r.costos_mm)}</td>
     </tr>`));
 
   const cajaCard = `
     <table style="border-collapse:collapse;width:100%;margin-top:10px;font-size:13px">
       <tr>
-        <td style="${TD};width:34%">Recaudo cobrado en la semana</td>
-        <td style="${TD_N};font-weight:600">${mm(fp.recaudo_mm)} MM</td>
+        <td class="c" style="width:34%">Recaudo cobrado en la semana</td>
+        <td class="n b">${mm(fp.recaudo_mm)} MM</td>
       </tr>
       <tr>
-        <td style="${TD}">Inversión de obra ejecutada</td>
-        <td style="${TD_N};font-weight:600">(${mm(fp.obra_mm)}) MM</td>
+        <td class="c">Inversión de obra ejecutada</td>
+        <td class="n b">(${mm(fp.obra_mm)}) MM</td>
       </tr>
       <tr style="background:#fafafa">
-        <td style="${TD};font-weight:600">Neto operativo de la semana</td>
-        <td style="${TD_N};font-weight:700;color:${num(fp.neto_mm) < 0 ? COLOR.malo : COLOR.ok}">${mm(fp.neto_mm)} MM</td>
+        <td class="c b">Neto operativo de la semana</td>
+        <td class="n b ${num(fp.neto_mm) < 0 ? 'r' : 'v'}" style="font-weight:700">${mm(fp.neto_mm)} MM</td>
       </tr>
     </table>`;
 
@@ -651,7 +685,7 @@ function construirHtml(d) {
 
   const asunto = tituloAsunto(totVentas, totTram, semana);
 
-  const html = `
+  const html = `${HOJA_ESTILOS}
   <div style="font-family:Arial,Helvetica,sans-serif;max-width:900px;margin:0 auto;color:#111">
     <div style="background:${COLOR.fondo};padding:20px 28px;border-radius:8px 8px 0 0">
       <h2 style="color:#fff;margin:0;font-size:18px">IC Constructora — Productividad de la semana</h2>
@@ -668,7 +702,7 @@ function construirHtml(d) {
             titulo: 'Ventas',
             cifra: `${num(estaSem.un_sem)} un · ${mm(estaSem.mm_sem)} MM`,
             deltaHtml: delta(estaSem.mm_sem, semAnt.mm_sem),
-            metaSem: `Meta ${mm(estaSem.mm_meta_sem)} MM · <span style="${fondoCumplimiento(estaSem.mm_sem, estaSem.mm_meta_sem)}padding:0 3px;font-weight:600">${pct(estaSem.mm_sem, estaSem.mm_meta_sem)}</span>`,
+            metaSem: `Meta ${mm(estaSem.mm_meta_sem)} MM · <span class="b ${claseFondo(estaSem.mm_sem, estaSem.mm_meta_sem)}" style="padding:0 3px">${pct(estaSem.mm_sem, estaSem.mm_meta_sem)}</span>`,
             spark: sparkline(acumular(serie, 'mm_sem', 'mm_meta_sem'),
                              colorCumplimiento(ac.ventas_mm, ac.ventas_meta_mm)),
             pie: `Año ${mm(ac.ventas_mm)} de ${mm(ac.ventas_meta_mm)} MM · <strong>${pct(ac.ventas_mm, ac.ventas_meta_mm)}</strong>`,
@@ -677,7 +711,7 @@ function construirHtml(d) {
             titulo: 'Trámites cumplidos',
             cifra: `${num(estaSem.hicieron)} de ${num(estaSem.debian)}`,
             deltaHtml: delta(estaSem.hicieron, semAnt.hicieron),
-            metaSem: `<span style="${fondoCumplimiento(estaSem.hicieron, estaSem.debian)}padding:0 3px;font-weight:600">${pct(estaSem.hicieron, estaSem.debian)}</span> de lo programado`,
+            metaSem: `<span class="b ${claseFondo(estaSem.hicieron, estaSem.debian)}" style="padding:0 3px">${pct(estaSem.hicieron, estaSem.debian)}</span> de lo programado`,
             spark: sparkline(acumular(serie, 'hicieron', 'debian'),
                              colorCumplimiento(ac.tram_hicieron, ac.tram_debian)),
             pie: `<strong style="color:${COLOR.malo}">${num(ac.tram_vencidos).toLocaleString('es-CO')}</strong> vencidos acumulados · ${num(ac.tram_vencidos_90d)} de los últimos 90 d`,
@@ -686,7 +720,7 @@ function construirHtml(d) {
             titulo: 'Recaudo (conceptos iniciales)',
             cifra: `${mm(estaSem.pagado_mm)} MM`,
             deltaHtml: delta(estaSem.pagado_mm, semAnt.pagado_mm),
-            metaSem: `Pactado ${mm(estaSem.pactado_mm)} MM · <span style="${fondoCumplimiento(estaSem.pagado_mm, estaSem.pactado_mm)}padding:0 3px;font-weight:600">${pct(estaSem.pagado_mm, estaSem.pactado_mm)}</span>`,
+            metaSem: `Pactado ${mm(estaSem.pactado_mm)} MM · <span class="b ${claseFondo(estaSem.pagado_mm, estaSem.pactado_mm)}" style="padding:0 3px">${pct(estaSem.pagado_mm, estaSem.pactado_mm)}</span>`,
             spark: sparkline(acumular(serie, 'pagado_mm', 'pactado_mm'),
                              colorCumplimiento(ac.cartera_pagado_mm, ac.cartera_pactado_mm)),
             pie: `Año ${mm(ac.cartera_pagado_mm)} de ${mm(ac.cartera_pactado_mm)} MM · <strong>${pct(ac.cartera_pagado_mm, ac.cartera_pactado_mm)}</strong>`,
