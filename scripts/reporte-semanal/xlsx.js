@@ -16,7 +16,8 @@
  *   construir([{ nombre: 'Ventas', columnas: [...], filas: [[...], ...] }])
  *   → Buffer listo para adjuntar o escribir a disco.
  *
- * Cada columna es { titulo, ancho, tipo }, con tipo 'texto' | 'numero' | 'fecha'.
+ * Cada columna es { titulo, ancho, tipo }, con tipo 'texto' | 'numero' |
+ * 'pesos' (número con signo $) | 'fecha'.
  */
 
 'use strict';
@@ -133,15 +134,15 @@ function serialFecha(v) {
   return (t - EPOCA) / 86400000;
 }
 
-const ESTILO = { normal: 0, encabezado: 1, fecha: 2, numero: 3 };
+const ESTILO = { normal: 0, encabezado: 1, fecha: 2, numero: 3, pesos: 4 };
 
 function celda(ref, valor, tipo) {
   if (valor === null || valor === undefined || valor === '') return '';
   const texto = () => `<c r="${ref}" t="inlineStr"><is><t xml:space="preserve">${xmlEsc(valor)}</t></is></c>`;
 
-  if (tipo === 'numero') {
+  if (tipo === 'numero' || tipo === 'pesos') {
     const n = Number(valor);
-    return Number.isNaN(n) ? texto() : `<c r="${ref}" s="${ESTILO.numero}"><v>${n}</v></c>`;
+    return Number.isNaN(n) ? texto() : `<c r="${ref}" s="${ESTILO[tipo]}"><v>${n}</v></c>`;
   }
   if (tipo === 'fecha') {
     const s = serialFecha(valor);
@@ -180,16 +181,17 @@ function hojaXml(hoja) {
 
 const ESTILOS_XML = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
-<numFmts count="2"><numFmt numFmtId="164" formatCode="yyyy\\-mm\\-dd"/><numFmt numFmtId="165" formatCode="#,##0"/></numFmts>
+<numFmts count="3"><numFmt numFmtId="164" formatCode="yyyy\\-mm\\-dd"/><numFmt numFmtId="165" formatCode="#,##0"/><numFmt numFmtId="166" formatCode="&quot;$&quot;#,##0"/></numFmts>
 <fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font></fonts>
 <fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF1A1A2E"/><bgColor indexed="64"/></patternFill></fill></fills>
 <borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>
 <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
-<cellXfs count="4">
+<cellXfs count="5">
 <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
 <xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/>
 <xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
 <xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
+<xf numFmtId="166" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
 </cellXfs>
 <cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>
 </styleSheet>`;

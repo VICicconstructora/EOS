@@ -176,10 +176,13 @@ function fechaCorta(isoStr) {
 
 const num = v => (v === null || v === undefined ? 0 : Number(v));
 
+// Todos los valores monetarios del correo pasan por aquí, así que el signo va
+// en un solo sitio. El cero se sigue imprimiendo como raya: "$0" en cincuenta
+// celdas ensucia la tabla y no dice nada que la raya no diga.
 function mm(v) {
   const n = num(v);
   if (n === 0) return '—';
-  return `${n.toLocaleString('es-CO')}`;
+  return `$${n.toLocaleString('es-CO')}`;
 }
 
 function esc(s) {
@@ -720,6 +723,9 @@ function tituloAsunto(v, t, semana) {
 
 const T = (clave, titulo, ancho) => ({ clave, titulo, ancho, tipo: 'texto' });
 const N = (clave, titulo, ancho) => ({ clave, titulo, ancho: ancho || 14, tipo: 'numero' });
+// Pesos: mismo número, con formato de moneda en Excel. Se separa de N porque
+// las columnas de unidades, días y porcentajes no llevan signo.
+const P = (clave, titulo, ancho) => ({ clave, titulo, ancho: ancho || 16, tipo: 'pesos' });
 const F = (clave, titulo) => ({ clave, titulo, ancho: 13, tipo: 'fecha' });
 
 function hoja(nombre, columnas, filas) {
@@ -745,15 +751,15 @@ function construirLibro(det, semana) {
       ['Trámites atrasados', 'Represado completo al corte: programados antes del domingo y sin cumplir.'],
       ['Cartera semana', 'Cuotas con vencimiento en la semana. Solo conceptos iniciales: separación, cuota inicial y cesantías.'],
       ['Cartera mora', 'Saldo en mora a hoy, todos los conceptos. Sustenta la sección 3 del correo.'],
-      ['Obra', 'Ejecución por proyecto. Obra no tiene grano de cliente.'],
-      ['Cifras en', 'Pesos, no millones. El correo redondea a MM; aquí va el peso exacto.'],
+      ['Obra', 'Ejecución por proyecto. Obra no tiene grano de cliente. Única hoja en millones.'],
+      ['Cifras en', 'Pesos exactos, no millones (salvo la hoja Obra). El correo redondea a MM.'],
     ].map(([a, b]) => ({ a, b }))));
 
   hojas.push(hoja('Ventas', [
     T('proyecto', 'Proyecto', 26), T('unidad', 'Unidad', 16),
     T('comprador', 'Comprador', 34), T('documento', 'Documento', 14),
     F('fecha_venta', 'Fecha venta'), T('vendedor', 'Vendedor', 26),
-    N('valor_neto', 'Valor neto', 16), N('area_m2', 'Área m2', 10),
+    P('valor_neto', 'Valor neto', 16), N('area_m2', 'Área m2', 10),
     T('estado', 'Estado', 14), T('entidad_credito', 'Entidad crédito', 22),
     T('estado_plan_pago', 'Estado plan pago', 18),
   ], det.ventas));
@@ -762,8 +768,8 @@ function construirLibro(det, semana) {
     T('proyecto', 'Proyecto', 26), T('unidad', 'Unidad', 16),
     T('comprador', 'Comprador', 34), T('documento', 'Documento', 14),
     F('fecha_desistimiento', 'Fecha desist.'), F('fecha_venta_original', 'Fecha venta'),
-    T('vendedor', 'Vendedor', 26), N('valor_venta', 'Valor venta', 16),
-    N('valor_arras', 'Arras', 14), N('valor_a_devolver', 'A devolver', 14),
+    T('vendedor', 'Vendedor', 26), P('valor_venta', 'Valor venta', 16),
+    P('valor_arras', 'Arras', 14), P('valor_a_devolver', 'A devolver', 14),
     T('motivo', 'Motivo', 30), T('observaciones', 'Observaciones', 50),
   ], det.desistimientos));
 
@@ -790,9 +796,9 @@ function construirLibro(det, semana) {
     T('proyecto', 'Proyecto', 26), T('unidad', 'Unidad', 16),
     T('comprador', 'Comprador', 34), T('documento', 'Documento', 14),
     T('concepto', 'Concepto', 18), F('fecha_vencimiento', 'Vencimiento'),
-    N('pactado', 'Pactado', 16), N('pagado', 'Pagado', 16),
-    N('diferencia', 'Diferencia', 16), N('saldo', 'Saldo', 16),
-    N('dias_mora', 'Días mora', 11), N('saldo_en_mora', 'Saldo en mora', 16),
+    P('pactado', 'Pactado', 16), P('pagado', 'Pagado', 16),
+    P('diferencia', 'Diferencia', 16), P('saldo', 'Saldo', 16),
+    N('dias_mora', 'Días mora', 11), P('saldo_en_mora', 'Saldo en mora', 16),
     T('estado_cartera', 'Estado cartera', 18), T('entidad', 'Entidad', 24),
   ], det.carteraSemana));
 
@@ -800,8 +806,8 @@ function construirLibro(det, semana) {
     T('proyecto', 'Proyecto', 26), T('unidad', 'Unidad', 16),
     T('comprador', 'Comprador', 34), T('documento', 'Documento', 14),
     T('concepto', 'Concepto', 18), F('fecha_vencimiento', 'Vencimiento'),
-    N('pactado', 'Pactado', 16), N('pagado', 'Pagado', 16),
-    N('dias_mora', 'Días mora', 11), N('saldo_en_mora', 'Saldo en mora', 16),
+    P('pactado', 'Pactado', 16), P('pagado', 'Pagado', 16),
+    N('dias_mora', 'Días mora', 11), P('saldo_en_mora', 'Saldo en mora', 16),
     T('estado_cartera', 'Estado cartera', 18), T('entidad', 'Entidad', 24),
   ], det.carteraMora));
 
