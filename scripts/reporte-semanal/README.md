@@ -41,7 +41,7 @@ y el `.xlsx` de soporte. Ambos están en el `.gitignore` de la carpeta.
 | Trámites | `Fecha Programada` en el año a la fecha y en la semana | `Fecha Cumplimiento` en los mismos cortes | Año + semana + represado, por categoría y por proyecto |
 | Cartera | Cuotas de `adi_dtm_acuerdos_pago` con `fecha_date` en la semana (`pactado`) | `pagado` de esas cuotas | Semana + mora acumulada a hoy |
 | Recaudo (tarjeta y tendencia) | Igual, pero solo conceptos iniciales | Igual | Semana + año |
-| Obra | Cronograma valorizado de ADPRO (`adp_dtm_vfact_programacion`), prorrateado por días | ADPRO `clase = 'I'` por `fecha` | Semana + mes a la fecha |
+| Obra | Presupuestado y proyectado de ADPRO (`clase` P e Y) | Asegurado (B+T) y ejecutado (I) | Acumulado + variación de la semana |
 | Flujo | — | Recaudo de la semana − inversión de obra de la semana | Semana + FCL del último corte mensual |
 
 Trámites incluidos, en orden del ciclo comercial: promesas (`TRGA`), créditos
@@ -118,6 +118,40 @@ de crédito van sobre meta (109%, 149%, 145%), y el año se cae en desembolsos
 (28%), escrituras firmadas (28%), escrituras en registro (35%) y entregas (35%).
 El represado se concentra en esas mismas cuatro etapas, con atrasos promedio de
 776 a 1.028 días.
+
+## Obra: la escalera de control de costos de ADPRO
+
+Los cuatro conceptos viven en `adp_dtm_vfact_controlproyecto`, separados por la
+columna `clase` y nombrados por `Clase Descripcion`:
+
+| `clase` | Descripción | Se usa |
+|---|---|---|
+| `P` | Presupuestado | PPTO |
+| `Y` | Proyectado | Proyectado |
+| `B` | Asegurado — por **compras** (`Valores Comprados`, traslados) | Asegurado |
+| `T` | Asegurado — por **contratos** (por grupos, generales, todo costo, nómina) | Asegurado |
+| `I` | Invertido | Ejecutado |
+| `C` | Consumido — salidas de almacén | no |
+| `J` | Ejecutado — clase muerta: 913 filas, todas de 2023-2024 | no |
+
+**Asegurado = B + T.** Son dos mecanismos distintos con la misma etiqueta, y
+sumar uno solo deja por fuera la mitad del compromiso: en Bosque Central, T
+(contratos) son $113.703 MM y B (compras) $12.870 MM.
+
+**Acumulado y variación.** Las filas fechadas `1900-01-01` son el saldo de
+apertura y las demás son movimientos. El acumulado suma todo; la variación de la
+semana suma solo las fechadas dentro de ella. **El PPTO no tiene variación
+posible**: todas sus filas están en `1900-01-01`, o sea que en esta fuente el
+presupuesto es una foto sin historia de revisiones. Si algún día hace falta ver
+cómo se movió el presupuesto, hay que buscar otra fuente.
+
+Una variación negativa es una reversión o un ajuste contable, no ejecución: el
+correo la marca en ámbar con signo menos para que no se lea como avance.
+
+**Desv.** es proyectado menos presupuesto — el sobrecosto que ya se sabe. Al
+corte del 2026-09-06 el portafolio proyecta $904.266 MM contra un PPTO de
+$832.671 MM: **$71.595 MM por encima**, concentrado en Reserva de Oporto
+(+$19.992 MM) y Bosque Central (+$14.186 MM).
 
 ## Recaudo: solo conceptos iniciales
 
@@ -237,7 +271,20 @@ Están escritas también en el pie del correo para que nadie las descubra tarde.
    `excel_ic_raw.proyectos_map`. Azul Celeste, Azul Turquesa, Mitika, Verde Vivo
    y Well solo existen en el corte mensual de Excel y no aparecen en las
    secciones semanales.
-2. **El cronograma de obra solo sirve en dos proyectos hoy.** La meta semanal en
+2. **El cronograma de obra ya no se usa como meta (era la limitación #2).**
+   La sección de obra medía la inversión de la semana contra
+   `sinco_ic_raw.adp_dtm_vfact_programacion`, el cronograma valorizado, que solo
+   estaba vigente en Bosque Central y Primera Este: en los otros seis proyectos
+   el correo imprimía "sin cronograma" o "vencido" y la columna Programado salía
+   vacía. Arreglarlo era trabajo de Obra sobre ADPRO, no del script.
+
+   Se reemplazó por la **escalera de control de costos**, que vive completa en
+   `adp_dtm_vfact_controlproyecto` para los ocho proyectos y no depende de que
+   nadie mantenga el cronograma. Ver la sección siguiente.
+
+   <details><summary>Estado del cronograma al 2026-09-07, por si se retoma</summary>
+
+2b. **Cobertura del cronograma valorizado.** La meta semanal en
    pesos sale de `sinco_ic_raw.adp_dtm_vfact_programacion`, no del presupuesto de
    ADPRO (`clase = 'P'`), que tiene todas sus filas en `fecha = 1900-01-01` y por
    tanto no está distribuido en el tiempo. El cronograma sí tiene fechas y valor,
@@ -254,9 +301,7 @@ Están escritas también en el pie del correo para que nadie las descubra tarde.
    | Castilla Imperial | — | — | Sin cronograma |
    | La Hacienda Jamundí | — | — | Sin cronograma |
 
-   El correo no calcula cumplimiento cuando el cronograma está vencido, no existe
-   o cubre menos del 25% del presupuesto (`COBERTURA_MINIMA`); en su lugar imprime
-   el estado. Arreglar esto es trabajo de Obra sobre ADPRO, no del script.
+   </details>
 
    Detalle del grano, por si hay que tocar la consulta: cada fila de
    `adp_dtm_vfact_programacion` es una actividad × ventana de fechas.

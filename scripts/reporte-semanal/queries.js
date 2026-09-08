@@ -261,10 +261,10 @@ order by s.lunes`;
 // completos: a comienzos de mes eso compararía 3 semanas de venta contra el
 // presupuesto de un mes entero.
 //
-// Obra no lleva meta acumulada: el cronograma de ADPRO solo está vigente en
-// Bosque Central y Primera Este, así que un "programado del año" del portafolio
-// sería una cifra inventada. Se reporta el avance sobre el presupuesto de obra,
-// que sí es dato completo.
+// Obra solo aporta aquí lo ejecutado en el año. El avance sobre el presupuesto
+// lo calcula la sección 4 con el dato crudo de ADPRO, y la tarjeta lo toma de
+// ahí: tenerlo dos veces desde fuentes distintas daba 682.709 en el encabezado
+// y 683.558 en la tabla.
 const ACUMULADO = (fin) => `
 with p as (
   select date_trunc('year', date '${fin}')::date as ini,
@@ -299,9 +299,6 @@ with p as (
   cross join p
   where cp.clase = 'I' and cp.fecha between p.ini and p.fin
     and cp."MacroProyecto Descripcion" in (${MACROS_OBRA})
-), obra_vida as (
-  select coalesce(sum(obra_real), 0) as real_mm, coalesce(sum(obra_ppto), 0) as ppto_mm
-  from public.kpi_programacion_obra_ytd_proyecto
 ), tram as (
   select tr."Fecha Programada"::date   as fp,
          tr."Fecha Cumplimiento"::date as fc
@@ -324,8 +321,6 @@ select round((select pesos from ventas_ytd) / 1e6)   as ventas_mm,
        round((select pactado from cartera_ytd) / 1e6) as cartera_pactado_mm,
        round((select pagado from cartera_ytd) / 1e6)  as cartera_pagado_mm,
        round((select pesos from obra_ytd) / 1e6)      as obra_mm,
-       (select real_mm from obra_vida)                as obra_vida_real_mm,
-       (select ppto_mm from obra_vida)                as obra_vida_ppto_mm,
        (select debian from tram_ytd)                  as tram_debian,
        (select hicieron from tram_ytd)                as tram_hicieron,
        (select vencidos from tram_ytd)                as tram_vencidos,
@@ -782,81 +777,57 @@ group by ap.proyecto_ppto
 order by vencido_mm desc nulls last`;
 
 // ─── 4. Ejecución de obra ─────────────────────────────────────────────────────
-// "Debía invertir" sale del cronograma de obra de ADPRO
-// (adp_dtm_vfact_programacion), medido en pesos. El grano de esa tabla es
-// actividad × ventana de fechas: "Valor Programado" es el valor TOTAL del grupo
-// de actividad y "Porcentaje Asignado" la fracción que le toca a esa ventana
-// (verificado: los porcentajes suman exactamente 1 por grupo). El valor con
-// fecha es entonces Valor Programado × Porcentaje Asignado, prorrateado por días
-// entre Fecha Inicial y Fecha Final para repartirlo dentro de la semana.
+// La escalera de control de costos de ADPRO, que vive entera en
+// adp_dtm_vfact_controlproyecto. La columna `clase` es la que separa cada
+// concepto y `Clase Descripcion` la nombra:
 //
-// NO se usa el presupuesto de ADPRO (clase 'P') como meta semanal: sus filas
-// tienen fecha 1900-01-01, no está fasado en el tiempo.
+//   P  Presupuestado  el PPTO de obra
+//   Y  Proyectado     el costo al que se espera terminar
+//   B  Asegurado      por COMPRAS  (origen: Valores Comprados, traslados)
+//   T  Asegurado      por CONTRATOS (origen: Contratado por grupos, generales,
+//                     todo costo, nómina, cuentas control)
+//   I  Invertido      lo ejecutado
+//   C  Consumido      salidas de almacén, no se usa aquí
+//   J  Ejecutado      clase muerta: 913 filas, todas de 2023-2024
 //
-// El cronograma no cubre todo: por eso la consulta devuelve `cobertura_pct`
-// (cronograma total / presupuesto) y `horizonte` (última fecha programada). El
-// correo usa esas dos columnas para no mostrar un cumplimiento contra un
-// cronograma vencido o inexistente. Al 2026-09-07 solo Bosque Central, Primera
-// Este y Praia Natura tienen cronograma vigente; Castilla Imperial y La Hacienda
-// Jamundí no tienen ninguno.
+// Asegurado = B + T. Son dos mecanismos distintos con la misma etiqueta y
+// sumar solo uno deja por fuera la mitad del compromiso.
 //
-// El acumulado invertido viene de la matview ic_kpi (vía su vista de compat en
-// public): sumarlo aquí sobre adp_dtm_vfact_controlproyecto sin cota de fecha
-// revienta el statement_timeout de 15 s.
+// Las filas con fecha 1900-01-01 son el saldo de apertura y las fechadas son
+// movimientos, así que el acumulado suma todo y la variación de la semana suma
+// solo las fechadas dentro de ella. El PPTO no tiene variación posible: TODAS
+// sus filas están en 1900-01-01, o sea que en esta fuente el presupuesto es una
+// foto sin historia de revisiones.
+//
+// ANTES esta sección medía contra el cronograma valorizado
+// (adp_dtm_vfact_programacion), que es otra tabla y solo estaba vigente en
+// Bosque Central y Primera Este — por eso el correo mostraba "sin cronograma"
+// o "vencido" en seis de ocho proyectos y la columna Programado salía vacía.
+// La escalera de arriba está completa en los ocho, no depende de que Obra
+// mantenga el cronograma, y responde mejor la pregunta de qué se hizo en la
+// semana.
 const OBRA = (ini, fin) => `
 with p as (
   select date '${ini}' as ini, date '${fin}' as fin
-), crono as (
-  select pr."MacroProyecto Descripcion"                   as macro,
-         pr."Fecha Inicial"                               as f_ini,
-         greatest(pr."Fecha Final", pr."Fecha Inicial")   as f_fin,
-         pr."Valor Programado" * pr."Porcentaje Asignado" as valor
-  from sinco_ic_raw.adp_dtm_vfact_programacion pr
-  where pr."Porcentaje Asignado" > 0
-    and pr."Fecha Inicial" is not null
-    and pr."Fecha Final"   is not null
-), crono_agg as (
-  select c.macro,
-    sum(c.valor / ((c.f_fin - c.f_ini) + 1)
-        * greatest(least(c.f_fin, p.fin) - greatest(c.f_ini, p.ini) + 1, 0))      as prog_sem,
-    sum(c.valor / ((c.f_fin - c.f_ini) + 1)
-        * greatest(least(c.f_fin, p.fin)
-                   - greatest(c.f_ini, date_trunc('month', p.fin)::date) + 1, 0)) as prog_mtd,
-    sum(c.valor)                                                                  as prog_total,
-    max(c.f_fin)                                                                  as horizonte
-  from crono c cross join p
-  group by c.macro
-), mov as (
-  select cp."MacroProyecto Descripcion" as macro, cp.fecha, cp."Valor Total" as valor
-  from sinco_ic_raw.adp_dtm_vfact_controlproyecto cp
-  cross join p
-  where cp.clase = 'I'
-    and cp.fecha >= date_trunc('month', p.fin)::date - 56
-    and cp.fecha <= p.fin
-    and cp."MacroProyecto Descripcion" in (${MACROS_OBRA})
-), real_agg as (
-  select mov.macro,
-    sum(valor) filter (where fecha between p.ini and p.fin)      as inv_sem,
-    sum(valor) filter (where fecha >= date_trunc('month', p.fin)::date
-                         and fecha <= p.fin)                     as inv_mtd
-  from mov cross join p
-  group by mov.macro
 )
-select k.proyecto_ppto                                        as proyecto,
-       round(coalesce(ca.prog_sem, 0) / 1e6)                  as prog_sem_mm,
-       round(coalesce(ra.inv_sem, 0) / 1e6)                   as inv_sem_mm,
-       round(coalesce(ca.prog_mtd, 0) / 1e6)                  as prog_mtd_mm,
-       round(coalesce(ra.inv_mtd, 0) / 1e6)                   as inv_mtd_mm,
-       k.obra_real                                            as acum_mm,
-       k.obra_ppto                                            as ppto_mm,
-       round(100.0 * k.obra_real / nullif(k.obra_ppto, 0), 1) as avance_pct,
-       round(100.0 * coalesce(ca.prog_total, 0)
-             / nullif(k.obra_ppto, 0) / 1e6)                  as cobertura_pct,
-       ca.horizonte                                           as horizonte
-from public.kpi_programacion_obra_ytd_proyecto k
-left join crono_agg ca on ca.macro = k.proyecto_ppto
-left join real_agg  ra on ra.macro = k.proyecto_ppto
-order by inv_sem_mm desc`;
+select cp."MacroProyecto Descripcion"                                  as proyecto,
+       round(sum(cp."Valor Total") filter (where cp.clase = 'P') / 1e6) as ppto_mm,
+       round(sum(cp."Valor Total") filter (where cp.clase = 'Y') / 1e6) as proyectado_mm,
+       round(sum(cp."Valor Total") filter (where cp.clase in ('B','T')) / 1e6) as asegurado_mm,
+       round(sum(cp."Valor Total") filter (where cp.clase = 'I') / 1e6) as ejecutado_mm,
+       round(sum(cp."Valor Total") filter (where cp.clase = 'Y'
+             and cp.fecha between p.ini and p.fin) / 1e6)              as var_proyectado_mm,
+       round(sum(cp."Valor Total") filter (where cp.clase in ('B','T')
+             and cp.fecha between p.ini and p.fin) / 1e6)              as var_asegurado_mm,
+       round(sum(cp."Valor Total") filter (where cp.clase = 'I'
+             and cp.fecha between p.ini and p.fin) / 1e6)              as var_ejecutado_mm
+from sinco_ic_raw.adp_dtm_vfact_controlproyecto cp
+cross join p
+where cp."MacroProyecto Descripcion" in (${MACROS_OBRA})
+  -- Acota el escaneo: C (Consumido) es un tercio de la tabla y no se usa aquí.
+  and cp.clase in ('P','Y','B','T','I')
+group by 1
+order by ppto_mm desc nulls last`;
 
 // ─── 5. Flujo de caja ─────────────────────────────────────────────────────────
 // Dos lecturas deliberadamente separadas:

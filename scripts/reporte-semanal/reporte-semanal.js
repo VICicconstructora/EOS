@@ -664,42 +664,70 @@ function construirHtml(d) {
     carteraFilas);
 
   // ── 4. Obra
-  // El cronograma de ADPRO no cubre todos los proyectos ni todo el presupuesto.
-  // Cuando está vencido o no existe, se muestra el estado en vez de un
-  // cumplimiento contra una meta que no está ahí.
-  // Por debajo de este % de cobertura el cronograma no sirve como meta: Praia
-  // Natura tiene cargado el 11% de su presupuesto y comparar 859 MM ejecutados
-  // contra 2 MM programados daba un 42.950% que no significa nada.
-  const COBERTURA_MINIMA = 25;
+  // La escalera de control de costos de ADPRO: presupuestado, proyectado,
+  // asegurado (compras + contratos) y ejecutado, cada uno acumulado y con su
+  // movimiento de la semana. Reemplaza la comparación contra el cronograma
+  // valorizado, que solo estaba vigente en dos de los ocho proyectos.
+  const totObra = obra.reduce((a, r) => ({
+    ppto:       a.ppto       + num(r.ppto_mm),
+    proyectado: a.proyectado + num(r.proyectado_mm),
+    asegurado:  a.asegurado  + num(r.asegurado_mm),
+    ejecutado:  a.ejecutado  + num(r.ejecutado_mm),
+    v_proy:     a.v_proy     + num(r.var_proyectado_mm),
+    v_aseg:     a.v_aseg     + num(r.var_asegurado_mm),
+    v_ejec:     a.v_ejec     + num(r.var_ejecutado_mm),
+  }), { ppto: 0, proyectado: 0, asegurado: 0, ejecutado: 0,
+        v_proy: 0, v_aseg: 0, v_ejec: 0 });
 
-  const obraFilas = obra.map(r => {
-    const vigente = r.horizonte && r.horizonte.slice(0, 10) >= semana.fin;
-    const medible = vigente && num(r.cobertura_pct) >= COBERTURA_MINIMA;
-    const meta = medible ? r.prog_sem_mm : null;
-    let estado, colorEstado;
-    if (!r.horizonte) {
-      estado = 'sin cronograma';       colorEstado = COLOR.malo;
-    } else if (!vigente) {
-      estado = `vencido ${fechaCorta(r.horizonte)}`; colorEstado = COLOR.alerta;
-    } else {
-      estado = `cubre ${num(r.cobertura_pct)}% del ppto`;
-      colorEstado = num(r.cobertura_pct) >= 60 ? COLOR.tenue : COLOR.alerta;
-    }
-    return `<tr>
+  // Desviación del proyectado contra el presupuesto. Positiva = el proyecto va
+  // a costar más de lo presupuestado, que es la señal que importa.
+  const desv = (proy, ppto) => num(proy) - num(ppto);
+
+  const celdaDesv = v => {
+    if (!v) return '<td class="n g">—</td>';
+    const clase = v > 0 ? 'r' : 'v';
+    return `<td class="n b ${clase}">${v > 0 ? '+' : '−'}${mm(Math.abs(v))}</td>`;
+  };
+
+  // Un movimiento negativo en la semana es una reversión o un ajuste contable,
+  // no ejecución. Se marca para que no se lea como avance.
+  const celdaVar = (v, negrita) => {
+    const n = num(v);
+    const cls = `n${negrita ? ' b' : ''}${n < 0 ? ' a' : ''}`;
+    return n === 0
+      ? `<td class="${cls} g">—</td>`
+      : `<td class="${cls}">${n < 0 ? '−' : ''}${mm(Math.abs(n))}</td>`;
+  };
+
+  const obraFilas = obra.map(r => `<tr>
       <td class="c">${esc(r.proyecto)}</td>
-      <td class="n">${meta === null ? '—' : mm(r.prog_sem_mm)}</td>
-      <td class="n b">${mm(r.inv_sem_mm)}</td>
-      <td class="n b ${meta === null ? 'g' : claseCumplimiento(r.inv_sem_mm, meta)}">${meta === null ? '—' : pct(r.inv_sem_mm, meta)}</td>
-      <td class="n">${medible ? mm(r.prog_mtd_mm) : '—'}</td>
-      <td class="n">${mm(r.inv_mtd_mm)}</td>
-      <td class="n b">${r.avance_pct === null ? '—' : `${r.avance_pct}%`}</td>
-      <td class="n sm" style="color:${colorEstado}">${esc(estado)}</td>
-    </tr>`;
-  });
+      <td class="n">${mm(r.ppto_mm)}</td>
+      <td class="n">${mm(r.proyectado_mm)}</td>
+      ${celdaDesv(desv(r.proyectado_mm, r.ppto_mm))}
+      <td class="n">${mm(r.asegurado_mm)}</td>
+      <td class="n b">${mm(r.ejecutado_mm)}</td>
+      <td class="n b ${claseCumplimiento(r.ejecutado_mm, r.ppto_mm)}">${pct(r.ejecutado_mm, r.ppto_mm)}</td>
+      ${celdaVar(r.var_proyectado_mm)}
+      ${celdaVar(r.var_asegurado_mm)}
+      ${celdaVar(r.var_ejecutado_mm, true)}
+    </tr>`);
+
+  obraFilas.push(`<tr class="tot">
+    <td class="c">Total portafolio</td>
+    <td class="n">${mm(totObra.ppto)}</td>
+    <td class="n">${mm(totObra.proyectado)}</td>
+    ${celdaDesv(desv(totObra.proyectado, totObra.ppto))}
+    <td class="n">${mm(totObra.asegurado)}</td>
+    <td class="n">${mm(totObra.ejecutado)}</td>
+    <td class="n ${claseCumplimiento(totObra.ejecutado, totObra.ppto)}">${pct(totObra.ejecutado, totObra.ppto)}</td>
+    ${celdaVar(totObra.v_proy)}
+    ${celdaVar(totObra.v_aseg)}
+    ${celdaVar(totObra.v_ejec, true)}
+  </tr>`);
 
   const obraHtml = tabla(
-    ['Proyecto', 'Programado sem. MM', 'Invertido sem. MM', '%',
-     'Programado mes MM', 'Invertido mes MM', 'Avance obra', 'Cronograma'],
+    ['Proyecto', 'PPTO', 'Proyectado', 'Desv.', 'Asegurado', 'Ejecutado', '% ejec.',
+     'Δ Proyectado', 'Δ Asegurado', 'Δ Ejecutado'],
     obraFilas);
 
   // ── 5. Flujo
@@ -783,7 +811,7 @@ function construirHtml(d) {
             deltaHtml: delta(estaSem.obra_mm, semAnt.obra_mm),
             metaSem: `<span style="color:${COLOR.tenue}">sin meta semanal confiable</span>`,
             spark: sparkline(acumular(serie, 'obra_mm', null), '#94a3b8'),
-            pie: `Año ${mm(ac.obra_mm)} MM · avance <strong>${pct(ac.obra_vida_real_mm, ac.obra_vida_ppto_mm)}</strong> del ppto de obra`,
+            pie: `Año ${mm(ac.obra_mm)} MM · avance <strong>${pct(totObra.ejecutado, totObra.ppto)}</strong> del ppto de obra`,
           })}
         </tr>
       </table>
@@ -805,7 +833,7 @@ function construirHtml(d) {
         carteraHtml + soporte('Cartera semana', 'Cartera mora'))}
 
       ${seccion(4, 'Ejecución de obra',
-        'Inversión ejecutada en pesos (ADPRO, clase Invertido) contra el cronograma de obra valorizado y prorrateado por días. El cronograma no cubre todos los proyectos ni todo el presupuesto: la última columna dice qué tan confiable es la meta de cada uno.',
+        'La escalera de control de costos de ADPRO, acumulada y con el movimiento de la semana (Δ). <strong>Asegurado</strong> suma compras y contratos, que en la fuente son dos clases distintas con la misma etiqueta. <strong>Desv.</strong> es proyectado menos presupuesto: en rojo, el sobrecosto que ya se sabe. El PPTO no lleva Δ porque en esta fuente no tiene historia de revisiones — todas sus filas están fechadas 1900-01-01.',
         obraHtml + soporte('Obra'))}
 
       ${seccion(5, 'Flujo de caja',
@@ -867,6 +895,7 @@ function hoja(nombre, columnas, filas) {
 function construirLibro(det, d, semana) {
   const hojas = [];
   const ac = (d.acumulado && d.acumulado[0]) || {};
+  const sumaObra = campo => (d.obra || []).reduce((a, r) => a + num(r[campo]), 0);
 
   // Portada: qué es cada hoja y con qué corte se sacó. El adjunto circula solo
   // por correo y termina abierto meses después, sin el mensaje al lado.
@@ -908,7 +937,9 @@ function construirLibro(det, d, semana) {
     ['Cartera recaudada año MM',     mm(ac.cartera_pagado_mm)],
     ['Cumplimiento recaudo',         pct(ac.cartera_pagado_mm, ac.cartera_pactado_mm)],
     ['Obra ejecutada año MM',        mm(ac.obra_mm)],
-    ['Avance de obra',               pct(ac.obra_vida_real_mm, ac.obra_vida_ppto_mm)],
+    ['Obra presupuestada MM',        mm(sumaObra('ppto_mm'))],
+    ['Obra ejecutada acumulada MM',  mm(sumaObra('ejecutado_mm'))],
+    ['Avance de obra',               pct(sumaObra('ejecutado_mm'), sumaObra('ppto_mm'))],
   ].map(([a, b]) => ({ a, b: String(b) }))));
 
   hojas.push(hoja('Tendencia', [
@@ -1025,11 +1056,12 @@ function construirLibro(det, d, semana) {
 
   // Obra va en millones porque su fuente ya viene redondeada a MM.
   hojas.push(hoja('Obra', [
-    T('proyecto', 'Proyecto', 26), N('prog_sem_mm', 'Programado sem. MM'),
-    N('inv_sem_mm', 'Invertido sem. MM'), N('prog_mtd_mm', 'Programado mes MM'),
-    N('inv_mtd_mm', 'Invertido mes MM'), N('acum_mm', 'Acumulado MM'),
-    N('ppto_mm', 'Ppto obra MM'), N('avance_pct', 'Avance %', 11),
-    N('cobertura_pct', 'Cobertura crono %', 16), F('horizonte', 'Horizonte crono'),
+    T('proyecto', 'Proyecto', 26),
+    P('ppto_mm', 'PPTO MM'), P('proyectado_mm', 'Proyectado MM'),
+    P('asegurado_mm', 'Asegurado MM'), P('ejecutado_mm', 'Ejecutado MM'),
+    P('var_proyectado_mm', 'Δ Proyectado sem. MM', 20),
+    P('var_asegurado_mm', 'Δ Asegurado sem. MM', 20),
+    P('var_ejecutado_mm', 'Δ Ejecutado sem. MM', 20),
   ], det.obra));
 
   return XLSX.construir(hojas);
