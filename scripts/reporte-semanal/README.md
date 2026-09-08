@@ -357,6 +357,13 @@ de alarmas `ALERT_TO_EMAILS`. Son públicos distintos: alarmas es operativo
 leyendo la variable `ALERT_TO_EMAILS`; lo que cambia es de qué secret se
 alimenta, así que en local el `.env` de la raíz no necesita nada nuevo.
 
+Al 2026-09-08:
+
+| Lista | Quién |
+|---|---|
+| `ALERT_TO_EMAILS` (alarmas) | Juan Paulo McAllister, José Darío Martínez |
+| `REPORTE_TO_EMAILS` (este) | los dos anteriores + Mayerly Cavanzo (Experiencia) + los directores de proyectos: Alida Ruiz y Óscar Julián Español |
+
 Para cambiar la lista:
 
 ```bash
