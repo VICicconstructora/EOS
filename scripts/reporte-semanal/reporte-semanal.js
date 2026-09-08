@@ -475,42 +475,71 @@ function construirHtml(d) {
 
   // ── 2. Trámites
   const totTram = tramites.reduce((a, r) => ({
-    debian:   a.debian   + num(r.debian),
-    hicieron: a.hicieron + num(r.hicieron),
-    atrasados: a.atrasados + num(r.atrasados_90d),
-    prox:     a.prox     + num(r.prox_semana),
-  }), { debian: 0, hicieron: 0, atrasados: 0, prox: 0 });
+    debian_ytd:   a.debian_ytd   + num(r.debian_ytd),
+    hicieron_ytd: a.hicieron_ytd + num(r.hicieron_ytd),
+    debian:       a.debian       + num(r.debian),
+    hicieron:     a.hicieron     + num(r.hicieron),
+    atrasados:    a.atrasados    + num(r.atrasados),
+    prox:         a.prox         + num(r.prox_semana),
+    // El más antiguo del portafolio es el mínimo de los mínimos, no una suma.
+    mas_antiguo:  [a.mas_antiguo, r.mas_antiguo].filter(Boolean).sort()[0] || null,
+    // Promedio ponderado por represado: promediar los nueve promedios daría
+    // el mismo peso a una categoría con 75 atrasados que a otra con 1.142.
+    dias_pond:    a.dias_pond    + num(r.atraso_promedio) * num(r.atrasados),
+  }), { debian_ytd: 0, hicieron_ytd: 0, debian: 0, hicieron: 0, atrasados: 0,
+        prox: 0, mas_antiguo: null, dias_pond: 0 });
+
+  totTram.atraso_promedio = totTram.atrasados
+    ? Math.round(totTram.dias_pond / totTram.atrasados) : 0;
+
+  const dias = v => (num(v) ? `${num(v).toLocaleString('es-CO')} d` : '—');
 
   const tramitesFilas = tramites.map(r => `<tr>
     <td style="${TD}">${esc(r.categoria)}</td>
-    <td style="${TD_N}">${num(r.debian) || '—'}</td>
-    <td style="${TD_N};font-weight:600">${num(r.hicieron) || '—'}</td>
-    <td style="${TD_N};color:${colorCumplimiento(r.hicieron, r.debian)};font-weight:600">${pct(r.hicieron, r.debian)}</td>
-    <td style="${TD_N};color:${num(r.atrasados_90d) ? COLOR.malo : COLOR.tenue}">${num(r.atrasados_90d) || '—'}</td>
+    <td style="${TD_N}">${num(r.debian_ytd) || '—'}</td>
+    <td style="${TD_N};font-weight:600">${num(r.hicieron_ytd) || '—'}</td>
+    <td style="${TD_N};${fondoCumplimiento(r.hicieron_ytd, r.debian_ytd)}font-weight:600">${pct(r.hicieron_ytd, r.debian_ytd)}</td>
+    <td style="${TD_N};color:${COLOR.tenue}">${num(r.debian) || '—'}</td>
+    <td style="${TD_N}">${num(r.hicieron) || '—'}</td>
+    <td style="${TD_N};${fondoCumplimiento(r.hicieron, r.debian)}font-weight:600">${pct(r.hicieron, r.debian)}</td>
+    <td style="${TD_N};color:${num(r.atrasados) ? COLOR.malo : COLOR.tenue};font-weight:600">${num(r.atrasados).toLocaleString('es-CO') || '—'}</td>
+    <td style="${TD_N};color:${COLOR.tenue}">${fechaCorta(r.mas_antiguo)}</td>
+    <td style="${TD_N};color:${num(r.atraso_promedio) > 365 ? COLOR.malo : COLOR.alerta}">${dias(r.atraso_promedio)}</td>
     <td style="${TD_N};color:${COLOR.tenue}">${num(r.prox_semana) || '—'}</td>
   </tr>`);
 
   tramitesFilas.push(`<tr style="background:#fafafa;font-weight:600">
     <td style="${TD}">Total</td>
+    <td style="${TD_N}">${totTram.debian_ytd || '—'}</td>
+    <td style="${TD_N}">${totTram.hicieron_ytd || '—'}</td>
+    <td style="${TD_N};${fondoCumplimiento(totTram.hicieron_ytd, totTram.debian_ytd)}">${pct(totTram.hicieron_ytd, totTram.debian_ytd)}</td>
     <td style="${TD_N}">${totTram.debian || '—'}</td>
     <td style="${TD_N}">${totTram.hicieron || '—'}</td>
-    <td style="${TD_N};color:${colorCumplimiento(totTram.hicieron, totTram.debian)}">${pct(totTram.hicieron, totTram.debian)}</td>
-    <td style="${TD_N};color:${totTram.atrasados ? COLOR.malo : COLOR.tenue}">${totTram.atrasados || '—'}</td>
+    <td style="${TD_N};${fondoCumplimiento(totTram.hicieron, totTram.debian)}">${pct(totTram.hicieron, totTram.debian)}</td>
+    <td style="${TD_N};color:${totTram.atrasados ? COLOR.malo : COLOR.tenue}">${totTram.atrasados.toLocaleString('es-CO') || '—'}</td>
+    <td style="${TD_N};color:${COLOR.tenue}">${fechaCorta(totTram.mas_antiguo)}</td>
+    <td style="${TD_N};color:${COLOR.malo}">${dias(totTram.atraso_promedio)}</td>
     <td style="${TD_N};color:${COLOR.tenue}">${totTram.prox || '—'}</td>
   </tr>`);
 
   const tramitesHtml = tabla(
-    ['Trámite', 'Debían', 'Hicieron', '%', 'Atrasados 90d', 'Próx. sem.'],
+    ['Trámite', 'Debían año', 'Van', '%', 'Debían sem.', 'Hicieron', '%',
+     'Atrasados', 'Más antiguo', 'Atraso prom.', 'Próx. sem.'],
     tramitesFilas);
 
   const tramitesProyHtml = tabla(
-    ['Proyecto', 'Debían', 'Hicieron', '%', 'Atrasados 90d'],
+    ['Proyecto', 'Debían año', 'Van', '%', 'Debían sem.', 'Hicieron',
+     'Atrasados', 'Más antiguo', 'Atraso prom.'],
     tramitesProy.map(r => `<tr>
       <td style="${TD}">${esc(r.proyecto)}</td>
-      <td style="${TD_N}">${num(r.debian) || '—'}</td>
+      <td style="${TD_N}">${num(r.debian_ytd) || '—'}</td>
+      <td style="${TD_N}">${num(r.hicieron_ytd) || '—'}</td>
+      <td style="${TD_N};${fondoCumplimiento(r.hicieron_ytd, r.debian_ytd)}font-weight:600">${pct(r.hicieron_ytd, r.debian_ytd)}</td>
+      <td style="${TD_N};color:${COLOR.tenue}">${num(r.debian) || '—'}</td>
       <td style="${TD_N}">${num(r.hicieron) || '—'}</td>
-      <td style="${TD_N};color:${colorCumplimiento(r.hicieron, r.debian)};font-weight:600">${pct(r.hicieron, r.debian)}</td>
-      <td style="${TD_N};color:${num(r.atrasados_90d) ? COLOR.malo : COLOR.tenue}">${num(r.atrasados_90d) || '—'}</td>
+      <td style="${TD_N};color:${num(r.atrasados) ? COLOR.malo : COLOR.tenue};font-weight:600">${num(r.atrasados).toLocaleString('es-CO') || '—'}</td>
+      <td style="${TD_N};color:${COLOR.tenue}">${fechaCorta(r.mas_antiguo)}</td>
+      <td style="${TD_N};color:${COLOR.tenue}">${dias(r.atraso_promedio)}</td>
     </tr>`));
 
   // ── 3. Cartera
@@ -682,7 +711,7 @@ function construirHtml(d) {
         ventasHtml + soporte('Ventas', 'Desistimientos'))}
 
       ${seccion(2, 'Trámites — lo programado contra lo cumplido',
-        '"Debían" son trámites con fecha programada dentro de la semana; "hicieron" son los cerrados en la semana, incluidos atrasos de semanas previas. Por eso el % puede pasar de 100.',
+        'Primero el acumulado del año: cuántos debía haber cerrado a la fecha y cuántos lleva. Después la semana. "Hicieron" incluye atrasos de periodos previos, y por eso el % puede pasar de 100. "Atrasados" es el represado completo al corte, sin cota de tiempo, con la fecha del más viejo y el atraso promedio de cada categoría.',
         tramitesHtml + `<p style="margin:16px 0 0;font-size:12px;color:${COLOR.tenue}">Apertura por proyecto</p>` + tramitesProyHtml + soporte('Trámites semana', 'Trámites atrasados'))}
 
       ${seccion(3, 'Cartera',
@@ -726,7 +755,7 @@ function corteViejo(corte) {
 function tituloAsunto(v, t, semana) {
   const partes = [`${v.un_sem} venta${v.un_sem === 1 ? '' : 's'}`];
   partes.push(`${t.hicieron}/${t.debian} trámites`);
-  if (t.atrasados) partes.push(`${t.atrasados} atrasados`);
+  if (t.atrasados) partes.push(`${t.atrasados.toLocaleString('es-CO')} atrasados`);
   return `[IC EOS] Productividad semana ${fechaCorta(semana.ini)}–${fechaCorta(semana.fin)} · ${partes.join(' · ')}`;
 }
 
@@ -749,8 +778,9 @@ function hoja(nombre, columnas, filas) {
   };
 }
 
-function construirLibro(det, semana) {
+function construirLibro(det, d, semana) {
   const hojas = [];
+  const ac = (d.acumulado && d.acumulado[0]) || {};
 
   // Portada: qué es cada hoja y con qué corte se sacó. El adjunto circula solo
   // por correo y termina abierto meses después, sin el mensaje al lado.
@@ -758,15 +788,93 @@ function construirLibro(det, semana) {
     [
       ['Semana reportada', `${fechaCorta(semana.ini)} a ${fechaCorta(semana.fin)}`],
       ['Alcance', 'Los 14 proyectos CBR con dato vivo en SINCO (fuente_real = CRM).'],
+      ['', ''],
+      ['RESUMEN', 'Las mismas tablas del correo, para revisarlas sin abrirlo. Cifras en millones (MM).'],
+      ['Año', 'Cierre del año a la fecha: ventas, trámites, cartera y obra contra su meta.'],
+      ['Tendencia', 'Las últimas 8 semanas, una fila por semana.'],
+      ['Ventas resumen', 'Inventario, venta de la semana y acumulado del año, por proyecto.'],
+      ['Trámites resumen', 'Por categoría: acumulado del año, la semana y el represado con su antigüedad.'],
+      ['Trámites x proyecto', 'Lo mismo, abierto por proyecto: a quién reclamarle.'],
+      ['Cartera resumen', 'Pactado y recaudado de la semana, más la mora acumulada por proyecto.'],
+      ['Obra', 'Ejecución contra cronograma por proyecto. Obra no tiene grano de cliente.'],
+      ['Flujo', 'FCL formal por proyecto del último corte mensual del Excel PyG.'],
+      ['', ''],
+      ['DETALLE', 'La lista nominal detrás de cada cifra. Cifras en pesos exactos.'],
       ['Ventas', 'Cada venta firmada dentro de la semana, con comprador, unidad y vendedor.'],
       ['Desistimientos', 'Desistimientos registrados en la semana, con motivo y valor a devolver.'],
       ['Trámites semana', 'Trámites programados en la semana y/o cumplidos en la semana.'],
       ['Trámites atrasados', 'Represado completo al corte: programados antes del domingo y sin cumplir.'],
       ['Cartera semana', 'Cuotas con vencimiento en la semana. Solo conceptos iniciales: separación, cuota inicial y cesantías.'],
       ['Cartera mora', 'Saldo en mora a hoy, todos los conceptos. Sustenta la sección 3 del correo.'],
-      ['Obra', 'Ejecución por proyecto. Obra no tiene grano de cliente. Única hoja en millones.'],
-      ['Cifras en', 'Pesos exactos, no millones (salvo la hoja Obra). El correo redondea a MM.'],
     ].map(([a, b]) => ({ a, b }))));
+
+  // ── Resumen: las mismas tablas del correo, en MM.
+  hojas.push(hoja('Año', [T('a', 'Indicador', 34), T('b', 'Valor', 22)], [
+    ['Ventas del año MM',            mm(ac.ventas_mm)],
+    ['Meta del año a la fecha MM',   mm(ac.ventas_meta_mm)],
+    ['Cumplimiento ventas',          pct(ac.ventas_mm, ac.ventas_meta_mm)],
+    ['Unidades vendidas',            num(ac.ventas_un).toLocaleString('es-CO')],
+    ['Trámites programados año',     num(ac.tram_debian).toLocaleString('es-CO')],
+    ['Trámites cumplidos año',       num(ac.tram_hicieron).toLocaleString('es-CO')],
+    ['Cumplimiento trámites',        pct(ac.tram_hicieron, ac.tram_debian)],
+    ['Trámites vencidos acumulados', num(ac.tram_vencidos).toLocaleString('es-CO')],
+    ['Cartera pactada año MM',       mm(ac.cartera_pactado_mm)],
+    ['Cartera recaudada año MM',     mm(ac.cartera_pagado_mm)],
+    ['Cumplimiento recaudo',         pct(ac.cartera_pagado_mm, ac.cartera_pactado_mm)],
+    ['Obra ejecutada año MM',        mm(ac.obra_mm)],
+    ['Avance de obra',               pct(ac.obra_vida_real_mm, ac.obra_vida_ppto_mm)],
+  ].map(([a, b]) => ({ a, b: String(b) }))));
+
+  hojas.push(hoja('Tendencia', [
+    F('lunes', 'Lunes'), F('domingo', 'Domingo'),
+    N('un_sem', 'Unidades', 10), P('mm_sem', 'Vendido MM'),
+    P('mm_meta_sem', 'Meta sem. MM'), N('desist_un_sem', 'Desist.', 10),
+    P('mm_ytd', 'Año MM'), P('mm_meta_ytd', 'Meta año MM'),
+    N('debian', 'Trám. debían', 13), N('hicieron', 'Trám. hicieron', 14),
+    N('vencidos_acum', 'Vencidos acum.', 14),
+    P('pactado_mm', 'Pactado MM'), P('pagado_mm', 'Recaudo MM'),
+    P('obra_mm', 'Obra MM'),
+  ], d.tendencia || []));
+
+  hojas.push(hoja('Ventas resumen', [
+    T('proyecto', 'Proyecto', 26),
+    N('inv_total', 'Inventario', 11), N('inv_vendidas', 'Vendidas', 10),
+    N('inv_disponibles', 'Disponibles', 12),
+    N('un_sem', 'Un. semana', 11), P('mm_sem', 'Vendido sem. MM'),
+    N('un_ppto_sem', 'Meta un. sem.', 13), P('mm_ppto_sem', 'Meta sem. MM'),
+    N('desist_un_sem', 'Desist. un.', 11), P('desist_mm_sem', 'Desist. MM'),
+    N('un_ytd', 'Un. año', 10), P('mm_ytd', 'Año MM'), P('mm_ppto_ytd', 'Meta año MM'),
+  ], d.ventas || []));
+
+  hojas.push(hoja('Trámites resumen', [
+    T('categoria', 'Trámite', 24), T('grupo', 'Grupo', 14),
+    N('debian_ytd', 'Debían año', 12), N('hicieron_ytd', 'Van año', 11),
+    N('debian', 'Debían sem.', 12), N('hicieron', 'Hicieron sem.', 13),
+    N('atrasados', 'Atrasados', 11), F('mas_antiguo', 'Más antiguo'),
+    N('atraso_promedio', 'Atraso prom. d', 14), N('prox_semana', 'Próx. sem.', 11),
+  ], d.tramites || []));
+
+  hojas.push(hoja('Trámites x proyecto', [
+    T('proyecto', 'Proyecto', 26),
+    N('debian_ytd', 'Debían año', 12), N('hicieron_ytd', 'Van año', 11),
+    N('debian', 'Debían sem.', 12), N('hicieron', 'Hicieron sem.', 13),
+    N('atrasados', 'Atrasados', 11), F('mas_antiguo', 'Más antiguo'),
+    N('atraso_promedio', 'Atraso prom. d', 14),
+  ], d.tramitesProy || []));
+
+  hojas.push(hoja('Cartera resumen', [
+    T('proyecto', 'Proyecto', 26),
+    P('pactado_sem_mm', 'Pactado sem. MM'), P('pagado_sem_mm', 'Recaudado sem. MM'),
+    P('vencido_mm', 'Vencido MM'), P('vencido_90_mm', 'Vencido +90d MM'),
+    P('vencido_credito_mm', 'Vencido crédito MM'), P('vencido_subsidio_mm', 'Vencido subsidio MM'),
+    N('clientes_mora', 'Clientes en mora', 15),
+  ], d.cartera || []));
+
+  hojas.push(hoja('Flujo', [
+    T('proyecto', 'Proyecto', 26), F('corte', 'Corte'),
+    P('fcl_mm', 'FCL del mes MM'), P('fcl_acum_mm', 'FCL acumulado MM'),
+    P('ingresos_mm', 'Ingresos MM'), P('costos_mm', 'Costos MM'),
+  ], d.flujoCorte || []));
 
   hojas.push(hoja('Ventas', [
     T('proyecto', 'Proyecto', 26), T('unidad', 'Unidad', 16),
@@ -941,7 +1049,7 @@ async function main() {
     };
     console.log('[soporte] ' + Object.entries(det)
       .map(([k, v]) => `${k}=${v.length}`).join(' '));
-    adjunto = { nombre: nombreLibro(semana), datos: construirLibro(det, semana) };
+    adjunto = { nombre: nombreLibro(semana), datos: construirLibro(det, d, semana) };
     console.log(`[soporte] ${adjunto.nombre} — ${(adjunto.datos.length / 1024).toFixed(0)} KB`);
   } catch (err) {
     console.error(`[soporte] No se pudo armar el .xlsx: ${err.message}`);

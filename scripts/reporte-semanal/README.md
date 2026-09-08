@@ -38,7 +38,7 @@ y el `.xlsx` de soporte. Ambos están en el `.gitignore` de la carpeta.
 |---------|---------|--------|-------|
 | Tendencia | Meta semanal de ventas y trámites programados | Ventas, trámites y cartera de cada semana | 8 semanas, portafolio completo |
 | Ventas | `excel_ic_raw.ppto_valores` líneas PyG 17.1 (unidades) y 17.2 (pesos), repartidas por semanas completas | `sinco_ic_raw.adi_dtm_venta` por `fechaventa` (`valorneto`) | Inventario + semana + año |
-| Trámites | `Fecha Programada` dentro de la semana | `Fecha Cumplimiento` dentro de la semana | Semana, por categoría y por proyecto |
+| Trámites | `Fecha Programada` en el año a la fecha y en la semana | `Fecha Cumplimiento` en los mismos cortes | Año + semana + represado, por categoría y por proyecto |
 | Cartera | Cuotas de `adi_dtm_acuerdos_pago` con `fecha_date` en la semana (`pactado`) | `pagado` de esas cuotas | Semana + mora acumulada a hoy |
 | Recaudo (tarjeta y tendencia) | Igual, pero solo conceptos iniciales | Igual | Semana + año |
 | Obra | Cronograma valorizado de ADPRO (`adp_dtm_vfact_programacion`), prorrateado por días | ADPRO `clase = 'I'` por `fecha` | Semana + mes a la fecha |
@@ -82,6 +82,25 @@ El estado real vive en `investunidad`: `Vendida` (2.695), `Disponible` (682) y
 `Reservada` (1). Una reservada no es ni vendida ni disponible, así que las tres
 columnas no siempre suman el total.
 
+## Trámites: el represado sin cota
+
+La sección abre con el acumulado del año — cuántos debía haber cerrado a la
+fecha y cuántos lleva — y solo después muestra la semana. Una semana sola no
+dice si el año se está perdiendo.
+
+"Atrasados" es el represado **completo** al corte: programados antes del domingo
+y sin cumplir en ese momento, sin la cota de 90 días que traía antes. Va
+acompañado de la fecha del más antiguo y del atraso promedio de la categoría,
+que es lo que distingue una bola de nieve de un rezago de días. El promedio del
+total se pondera por represado: promediar los nueve promedios le daría el mismo
+peso a una categoría con 75 atrasados que a otra con 1.142.
+
+Al corte del 2026-09-06 el embudo se lee solo: promesas, radicación y aprobación
+de crédito van sobre meta (109%, 149%, 145%), y el año se cae en desembolsos
+(28%), escrituras firmadas (28%), escrituras en registro (35%) y entregas (35%).
+El represado se concentra en esas mismas cuatro etapas, con atrasos promedio de
+776 a 1.028 días.
+
 ## Recaudo: solo conceptos iniciales
 
 La tarjeta y la tendencia miden el recaudo de los **conceptos iniciales** —
@@ -116,11 +135,18 @@ arranca a la altura de la meta.
 
 ## El adjunto .xlsx
 
-Cada correo lleva `Soporte productividad <ini> a <fin>.xlsx` con el detalle
-cliente a cliente detrás de cada sección: Ventas, Desistimientos, Trámites
-semana, Trámites atrasados (el represado completo, ~6.300 filas), Cartera
-semana, Cartera mora y Obra, más una hoja `Léame` que explica el alcance. Las
-cifras van en pesos, no en millones.
+Cada correo lleva `Soporte productividad <ini> a <fin>.xlsx`, que es la revisión
+completa: se puede leer sin abrir el correo. Quince hojas en dos bloques.
+
+**Resumen** — las mismas tablas del correo, en millones: `Año` (cierre del año a
+la fecha), `Tendencia` (las 8 semanas), `Ventas resumen`, `Trámites resumen`,
+`Trámites x proyecto`, `Cartera resumen`, `Obra` y `Flujo`.
+
+**Detalle** — la lista nominal detrás de cada cifra, en pesos exactos: `Ventas`,
+`Desistimientos`, `Trámites semana`, `Trámites atrasados` (el represado
+completo, ~6.300 filas), `Cartera semana` y `Cartera mora`.
+
+La hoja `Léame` explica cada una y el alcance del corte.
 
 Lo escribe `xlsx.js`, un generador propio de ~250 líneas que usa solo `zlib` y
 `Buffer`. No se usó exceljs porque el workflow corre `node reporte-semanal.js` a

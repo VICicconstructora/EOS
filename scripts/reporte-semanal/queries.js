@@ -606,10 +606,25 @@ with p as (
   where exists (select 1 from erp e where e.idproyecto = tr.idproyecto)
 )
 select c.orden, c.categoria, c.grupo,
+  -- Acumulado del año: cuántos debía haber cerrado a estas alturas y cuántos
+  -- lleva. Es la lectura que ordena la conversación. La semana sola no dice si
+  -- el año se está perdiendo.
+  count(*) filter (where t.fp >= date_trunc('year', p.fin)::date
+                     and t.fp <= p.fin)                                        as debian_ytd,
+  count(*) filter (where t.fc >= date_trunc('year', p.fin)::date
+                     and t.fc <= p.fin)                                        as hicieron_ytd,
   count(*) filter (where t.fp between p.ini and p.fin)                         as debian,
   count(*) filter (where t.fc between p.ini and p.fin)                         as hicieron,
   count(*) filter (where t.fp between p.ini and p.fin and t.fc is null)        as pend_semana,
-  count(*) filter (where t.fp < p.ini and t.fp >= p.ini - 90 and t.fc is null) as atrasados_90d,
+  -- Represado al corte, sin cota de tiempo: programado antes del domingo y sin
+  -- cumplir en ese momento. Con la fecha del más viejo y el atraso promedio,
+  -- que es lo que distingue una bola de nieve de un rezago de días.
+  count(*) filter (where t.fp <= p.fin
+                     and (t.fc is null or t.fc > p.fin))                       as atrasados,
+  min(t.fp) filter (where t.fp <= p.fin
+                      and (t.fc is null or t.fc > p.fin))                      as mas_antiguo,
+  round(avg(p.fin - t.fp) filter (where t.fp <= p.fin
+                                    and (t.fc is null or t.fc > p.fin)))       as atraso_promedio,
   count(*) filter (where t.fp > p.fin and t.fp <= p.fin + 7 and t.fc is null)  as prox_semana
 from cat c
 join t on t.cod = any(c.codigos)
@@ -633,17 +648,26 @@ with p as (
   join erp e on e.idproyecto = tr.idproyecto
 )
 select t.proyecto_ppto as proyecto,
-  count(*) filter (where t.fp between p.ini and p.fin)                         as debian,
-  count(*) filter (where t.fc between p.ini and p.fin)                         as hicieron,
-  count(*) filter (where t.fp < p.ini and t.fp >= p.ini - 90 and t.fc is null) as atrasados_90d
+  count(*) filter (where t.fp >= date_trunc('year', p.fin)::date
+                     and t.fp <= p.fin)                                  as debian_ytd,
+  count(*) filter (where t.fc >= date_trunc('year', p.fin)::date
+                     and t.fc <= p.fin)                                  as hicieron_ytd,
+  count(*) filter (where t.fp between p.ini and p.fin)                   as debian,
+  count(*) filter (where t.fc between p.ini and p.fin)                   as hicieron,
+  count(*) filter (where t.fp <= p.fin
+                     and (t.fc is null or t.fc > p.fin))                 as atrasados,
+  min(t.fp) filter (where t.fp <= p.fin
+                      and (t.fc is null or t.fc > p.fin))                as mas_antiguo,
+  round(avg(p.fin - t.fp) filter (where t.fp <= p.fin
+                                    and (t.fc is null or t.fc > p.fin))) as atraso_promedio
 from t
 join cat c on t.cod = any(c.codigos)
 cross join p
 group by t.proyecto_ppto
 having count(*) filter (where t.fp between p.ini and p.fin) > 0
     or count(*) filter (where t.fc between p.ini and p.fin) > 0
-    or count(*) filter (where t.fp < p.ini and t.fp >= p.ini - 90 and t.fc is null) > 0
-order by atrasados_90d desc, proyecto`;
+    or count(*) filter (where t.fp <= p.fin and (t.fc is null or t.fc > p.fin)) > 0
+order by atrasados desc, proyecto`;
 
 // ─── 3. Cartera ───────────────────────────────────────────────────────────────
 // Recaudo de la semana = cuotas con fecha_date en la semana (pactado vs pagado).
