@@ -623,8 +623,11 @@ select c.orden, c.categoria, c.grupo,
                      and (t.fc is null or t.fc > p.fin))                       as atrasados,
   min(t.fp) filter (where t.fp <= p.fin
                       and (t.fc is null or t.fc > p.fin))                      as mas_antiguo,
-  round(avg(p.fin - t.fp) filter (where t.fp <= p.fin
-                                    and (t.fc is null or t.fc > p.fin)))       as atraso_promedio,
+  -- Sin redondear: el promedio del total se pondera con estos valores y
+  -- redondear antes hacía que la tabla por categoría y la de por proyecto
+  -- dieran 855 y 851 días para la misma población. Se redondea al imprimir.
+  avg(p.fin - t.fp) filter (where t.fp <= p.fin
+                              and (t.fc is null or t.fc > p.fin))              as atraso_promedio,
   count(*) filter (where t.fp > p.fin and t.fp <= p.fin + 7 and t.fc is null)  as prox_semana
 from cat c
 join t on t.cod = any(c.codigos)
@@ -658,8 +661,8 @@ select t.proyecto_ppto as proyecto,
                      and (t.fc is null or t.fc > p.fin))                 as atrasados,
   min(t.fp) filter (where t.fp <= p.fin
                       and (t.fc is null or t.fc > p.fin))                as mas_antiguo,
-  round(avg(p.fin - t.fp) filter (where t.fp <= p.fin
-                                    and (t.fc is null or t.fc > p.fin))) as atraso_promedio
+  avg(p.fin - t.fp) filter (where t.fp <= p.fin
+                              and (t.fc is null or t.fc > p.fin))       as atraso_promedio
 from t
 join cat c on t.cod = any(c.codigos)
 cross join p

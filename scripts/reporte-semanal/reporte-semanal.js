@@ -526,7 +526,7 @@ function construirHtml(d) {
   totTram.atraso_promedio = totTram.atrasados
     ? Math.round(totTram.dias_pond / totTram.atrasados) : 0;
 
-  const dias = v => (num(v) ? `${num(v).toLocaleString('es-CO')} d` : '—');
+  const dias = v => (num(v) ? `${Math.round(num(v)).toLocaleString('es-CO')} d` : '—');
 
   const tramitesFilas = tramites.map(r => `<tr>
     <td class="c">${esc(r.categoria)}</td>
@@ -561,20 +561,47 @@ function construirHtml(d) {
      'Atrasados', 'Más antiguo', 'Atraso prom.', 'Próx. sem.'],
     tramitesFilas);
 
-  const tramitesProyHtml = tabla(
-    ['Proyecto', 'Debían año', 'Van', '%', 'Debían sem.', 'Hicieron',
-     'Atrasados', 'Más antiguo', 'Atraso prom.'],
-    tramitesProy.map(r => `<tr>
+  const totProy = tramitesProy.reduce((a, r) => ({
+    debian_ytd:   a.debian_ytd   + num(r.debian_ytd),
+    hicieron_ytd: a.hicieron_ytd + num(r.hicieron_ytd),
+    debian:       a.debian       + num(r.debian),
+    hicieron:     a.hicieron     + num(r.hicieron),
+    atrasados:    a.atrasados    + num(r.atrasados),
+    mas_antiguo:  [a.mas_antiguo, r.mas_antiguo].filter(Boolean).sort()[0] || null,
+    dias_pond:    a.dias_pond    + num(r.atraso_promedio) * num(r.atrasados),
+  }), { debian_ytd: 0, hicieron_ytd: 0, debian: 0, hicieron: 0, atrasados: 0,
+        mas_antiguo: null, dias_pond: 0 });
+
+  const proyFilas = tramitesProy.map(r => `<tr>
       <td class="c">${esc(r.proyecto)}</td>
       <td class="n">${num(r.debian_ytd) || '—'}</td>
       <td class="n">${num(r.hicieron_ytd) || '—'}</td>
       <td class="n b ${claseFondo(r.hicieron_ytd, r.debian_ytd)}">${pct(r.hicieron_ytd, r.debian_ytd)}</td>
       <td class="n g">${num(r.debian) || '—'}</td>
       <td class="n">${num(r.hicieron) || '—'}</td>
+      <td class="n b ${claseFondo(r.hicieron, r.debian)}">${pct(r.hicieron, r.debian)}</td>
       <td class="n b ${num(r.atrasados) ? 'r' : 'g'}">${num(r.atrasados).toLocaleString('es-CO') || '—'}</td>
       <td class="n g">${fechaCorta(r.mas_antiguo)}</td>
       <td class="n g">${dias(r.atraso_promedio)}</td>
-    </tr>`));
+    </tr>`);
+
+  proyFilas.push(`<tr class="tot">
+    <td class="c">Total</td>
+    <td class="n">${totProy.debian_ytd || '—'}</td>
+    <td class="n">${totProy.hicieron_ytd || '—'}</td>
+    <td class="n ${claseFondo(totProy.hicieron_ytd, totProy.debian_ytd)}">${pct(totProy.hicieron_ytd, totProy.debian_ytd)}</td>
+    <td class="n">${totProy.debian || '—'}</td>
+    <td class="n">${totProy.hicieron || '—'}</td>
+    <td class="n ${claseFondo(totProy.hicieron, totProy.debian)}">${pct(totProy.hicieron, totProy.debian)}</td>
+    <td class="n ${totProy.atrasados ? 'r' : 'g'}">${totProy.atrasados.toLocaleString('es-CO') || '—'}</td>
+    <td class="n g">${fechaCorta(totProy.mas_antiguo)}</td>
+    <td class="n r">${dias(totProy.atrasados ? Math.round(totProy.dias_pond / totProy.atrasados) : 0)}</td>
+  </tr>`);
+
+  const tramitesProyHtml = tabla(
+    ['Proyecto', 'Debían año', 'Van', '%', 'Debían sem.', 'Hicieron', '%',
+     'Atrasados', 'Más antiguo', 'Atraso prom.'],
+    proyFilas);
 
   // ── 3. Cartera
   const totCart = cartera.reduce((a, r) => ({
