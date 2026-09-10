@@ -357,11 +357,11 @@ de alarmas `ALERT_TO_EMAILS`. Son públicos distintos: alarmas es operativo
 leyendo la variable `ALERT_TO_EMAILS`; lo que cambia es de qué secret se
 alimenta, así que en local el `.env` de la raíz no necesita nada nuevo.
 
-Al 2026-09-08:
+Al 2026-09-10:
 
 | Lista | Quién |
 |---|---|
-| `ALERT_TO_EMAILS` (alarmas) | Juan Paulo McAllister, José Darío Martínez |
+| `ALERT_TO_EMAILS` (alarmas) | Juan Paulo McAllister. José Darío Martínez salió el 2026-09-10: las alarmas y las tareas EOS son tablero del CEO. |
 | `REPORTE_TO_EMAILS` (este) | los dos anteriores + Mayerly Cavanzo (Experiencia), los directores de proyectos (Alida Ruiz, Óscar Julián Español) y los coordinadores (Diego Benavides, Belén Villamizar, Luciana Zambrano) |
 
 Para cambiar la lista:

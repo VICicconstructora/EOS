@@ -51,6 +51,10 @@ const DISCOVER_RANGE       = 'A1:P15';     // para debug: primeras 15 filas, col
 const UMBRAL_POLIZA   = 30;
 const UMBRAL_LICENCIA = 60;
 const UMBRAL_CREDITO  = 90;
+// Días que una solicitud radicada (prórroga, renovación, revalidación) cuenta como
+// gestión viva. Pasados estos, el trámite está estancado: la alarma pierde el fondo
+// verde y vuelve a verse como lo que es, un vencimiento que nadie está moviendo.
+const UMBRAL_GESTION  = 90;
 
 // Índices de columnas (0-based) en la hoja Proyectos
 // La columna A (índice 0) siempre está vacía; los datos reales empiezan en B (índice 1)
@@ -113,9 +117,13 @@ if (!TENANT_ID || !CLIENT_ID || !CLIENT_SECRET) {
 
 // ─── Fecha ────────────────────────────────────────────────────────────────────
 
+// Todo texto visible (email, detalle de alarma) lleva el mes en letras:
+// 2026-May-12. El formato ISO queda solo para las columnas DATE de Supabase.
+const MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
 const TODAY = new Date();
 TODAY.setHours(0, 0, 0, 0);
-const TODAY_STR = TODAY.toISOString().split('T')[0];
+const TODAY_STR = `${TODAY.getFullYear()}-${MESES[TODAY.getMonth()]}-${String(TODAY.getDate()).padStart(2, '0')}`;
 
 // ─── Microsoft Graph — autenticación ─────────────────────────────────────────
 
@@ -194,7 +202,15 @@ function excelDate(n) {
   return d;
 }
 
+// Texto visible. Las fechas de excelDate() están normalizadas a medianoche UTC,
+// por eso se leen con getUTC* (con los locales se correría un día en UTC-5).
 function fmtDate(d) {
+  if (!d) return '';
+  return `${d.getUTCFullYear()}-${MESES[d.getUTCMonth()]}-${String(d.getUTCDate()).padStart(2, '0')}`;
+}
+
+// Solo para la columna DATE de Supabase, que exige ISO.
+function isoDate(d) {
   if (!d) return '';
   return d.toISOString().split('T')[0];
 }
@@ -202,6 +218,14 @@ function fmtDate(d) {
 function diasRestantes(d) {
   if (!d) return null;
   return Math.ceil((d.getTime() - TODAY.getTime()) / 86400000);
+}
+
+// Una solicitud solo marca la alarma como gestionada mientras sea reciente:
+// radicada hace UMBRAL_GESTION días o menos. Un trámite pedido hace un año y sin
+// respuesta no es gestión, es abandono.
+function gestionVigente(solic) {
+  const dias = diasRestantes(solic);
+  return dias !== null && dias >= -UMBRAL_GESTION;
 }
 
 function iconoAlarma(dias, umbral) {
@@ -307,7 +331,8 @@ async function supabaseUpsert(table, rows, conflictColumn) {
 
 async function supabaseResolveStale(runTime) {
   if (!SUPABASE_URL || !SUPABASE_KEY) return;
-  const staleUrl = `${SUPABASE_URL}/rest/v1/alarms?company_id=eq.ic-constructora&status=eq.active&last_seen_at=lt.${encodeURIComponent(runTime)}`;
+  const CATEGORIAS = 'credito,poliza_tr,poliza_rc,licencia';   // no tocar lista_precio: la escribe otro proceso
+  const staleUrl = `${SUPABASE_URL}/rest/v1/alarms?company_id=eq.ic-constructora&status=in.(active,acknowledged)&category=in.(${CATEGORIAS})&last_seen_at=lt.${encodeURIComponent(runTime)}`;
   const res = await fetch(staleUrl, {
     headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
   });
@@ -330,22 +355,196 @@ async function supabaseResolveStale(runTime) {
   }
 }
 
+// ─── Tareas EOS (módulo de VIC) ───────────────────────────────────────────────
+//
+// Las tareas viven en public.tasks y las asigna VIC por Teams. El correo es el
+// tablero de control: qué se pidió, a quién, quién respondió y qué se cerró.
+//
+// Se aplica la misma convención que las alarmas — el icono es el estado; el
+// fondo es la gestión. Una tarea vencida sigue roja aunque el responsable se
+// haya comprometido a una fecha; lo que hace el compromiso es marcarla
+// gestionada y ponerle fondo verde, para separarla de la que nadie ha tocado.
+
+const VENTANA_CIERRES = 7;    // días hacia atrás para "cerradas recientemente"
+const UMBRAL_TAREA    = 7;    // días para que una tarea abierta pase a 🟡
+
+const ESTADO_TAREA = {
+  assigned:    'Sin aceptar',
+  accepted:    'Comprometida',
+  in_progress: 'En curso',
+  blocked:     'Bloqueada',
+  submitted:   'Con prueba, sin verificar',
+};
+
+// Las fechas de tasks llegan como 'YYYY-MM-DD' (columnas DATE) o como
+// timestamptz. Se normalizan a medianoche UTC para que fmtDate() y
+// diasRestantes() las lean igual que las del Datamart.
+function fechaTarea(v) {
+  if (!v) return null;
+  const d = new Date(String(v).slice(0, 10) + 'T00:00:00Z');
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function personaTarea(nombre, email) {
+  return nombre || (email || '').split('@')[0] || '—';
+}
+
+async function fetchTareas() {
+  if (!SUPABASE_URL || !SUPABASE_KEY) return null;
+  const campos = 'id,title,assigned_to,assigned_name,created_by,created_by_name,' +
+                 'due_date,committed_date,status,priority,proof_url,verified_by,' +
+                 'verified_at,completed_at,created_at';
+  const url = `${SUPABASE_URL}/rest/v1/tasks?company_id=eq.ic-constructora` +
+              `&select=${campos}&order=created_at.desc&limit=500`;
+  const res = await fetch(url, {
+    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+  });
+  if (!res.ok) {
+    console.warn(`[tareas] Error leyendo tasks: ${res.status} ${await res.text()}`);
+    return null;
+  }
+  return res.json();
+}
+
+// Reparte las tareas en los tres grupos del correo. El orden importa: una
+// tarea 'submitted' aparece SOLO en "esperando verificación" — es donde
+// bloquea a alguien — y no se repite en abiertas.
+function clasificarTareas(tareas) {
+  // null = la lectura falló. Se propaga para no confundir "no pude leer" con
+  // "no hay tareas": la sección se omite en vez de mentir con un cero.
+  if (tareas === null) return null;
+
+  const filas = tareas.map(t => {
+    const ancla = fechaTarea(t.committed_date) || fechaTarea(t.due_date);
+    return {
+      titulo:      t.title || '(sin título)',
+      responsable: personaTarea(t.assigned_name, t.assigned_to),
+      asigno:      personaTarea(t.created_by_name, t.created_by),
+      verifico:    personaTarea('', t.verified_by),
+      estado:      t.status,
+      prioridad:   t.priority,
+      pruebaUrl:   t.proof_url || '',
+      ancla,
+      dias:        diasRestantes(ancla),
+      // El compromiso es la señal de que el responsable ya respondió.
+      gestionada:  Boolean(t.committed_date),
+      cerrada:     fechaTarea(t.verified_at || t.completed_at),
+    };
+  });
+
+  const porVerificar = filas.filter(f => f.estado === 'submitted');
+  const abiertas = filas
+    .filter(f => !['done', 'cancelled', 'submitted'].includes(f.estado))
+    .sort((a, b) => {
+      if (a.dias === null) return 1;
+      if (b.dias === null) return -1;
+      return a.dias - b.dias;          // lo más vencido primero
+    });
+  const cerradas = filas
+    .filter(f => f.estado === 'done' && f.cerrada &&
+                 diasRestantes(f.cerrada) >= -VENTANA_CIERRES)
+    .sort((a, b) => b.cerrada - a.cerrada);
+
+  return { porVerificar, abiertas, cerradas, total: filas.length };
+}
+
+function buildTareasHtml(t) {
+  if (!t) return '';
+
+  const TD_BASE  = 'padding:6px 12px;border-bottom:1px solid #eee';
+  const TD_VERDE = 'padding:6px 12px;border-bottom:1px solid #d1fae5;background:#ecfdf5';
+
+  const encabezado = cols => `<thead><tr style="background:#f5f5f5">${
+    cols.map(c => `<th style="padding:8px 12px;text-align:left">${c}</th>`).join('')
+  }</tr></thead>`;
+
+  const tabla = (cols, filas) =>
+    filas.length === 0
+      ? '<p style="color:#888">Ninguna</p>'
+      : `<table style="border-collapse:collapse;width:100%;font-size:13px">
+           ${encabezado(cols)}<tbody>${filas.join('')}</tbody>
+         </table>`;
+
+  // 1. Esperando verificación — lo que bloquea a quien asignó.
+  const filasVerificar = t.porVerificar.map(f => {
+    const prueba = f.pruebaUrl
+      ? `<a href="${f.pruebaUrl}" style="color:#2563eb">ver prueba</a>`
+      : '—';
+    return `<tr>
+      <td style="${TD_BASE}">📎</td>
+      <td style="${TD_BASE};font-weight:600">${f.titulo}</td>
+      <td style="${TD_BASE}">${f.responsable}</td>
+      <td style="${TD_BASE}">${f.asigno}</td>
+      <td style="${TD_BASE}">${prueba}</td>
+    </tr>`;
+  });
+
+  // 2. Abiertas — icono por urgencia, fondo verde si ya hay compromiso.
+  const filasAbiertas = t.abiertas.map(f => {
+    const ico = f.dias === null ? '⚪' : (f.dias < 0 ? '🔴' : (f.dias < UMBRAL_TAREA ? '🟡' : '🟢'));
+    const td  = f.gestionada ? TD_VERDE : TD_BASE;
+    const cuando = f.ancla
+      ? `${fmtDate(f.ancla)}${f.dias < 0 ? ` (${Math.abs(f.dias)}d vencida)` : ''}`
+      : 'sin fecha';
+    return `<tr>
+      <td style="${td}">${ico}</td>
+      <td style="${td};font-weight:600">${f.titulo}</td>
+      <td style="${td}">${f.responsable}</td>
+      <td style="${td}">${f.asigno}</td>
+      <td style="${td}">${cuando}</td>
+      <td style="${td}">${ESTADO_TAREA[f.estado] || f.estado}</td>
+    </tr>`;
+  });
+
+  // 3. Cerradas en la ventana — quién la resolvió y quién la dio por buena.
+  const filasCerradas = t.cerradas.map(f => `<tr>
+      <td style="${TD_BASE}">✅</td>
+      <td style="${TD_BASE};font-weight:600">${f.titulo}</td>
+      <td style="${TD_BASE}">${f.responsable}</td>
+      <td style="${TD_BASE}">${f.verifico}</td>
+      <td style="${TD_BASE}">${fmtDate(f.cerrada)}</td>
+    </tr>`);
+
+  const vencidas = t.abiertas.filter(f => f.dias !== null && f.dias < 0).length;
+  const resumen = t.total === 0
+    ? 'Todavía no hay tareas registradas. Se crean pidiéndoselo a VIC en Teams.'
+    : `${t.abiertas.length} abiertas${vencidas ? ` (${vencidas} vencidas)` : ''} · ` +
+      `${t.porVerificar.length} esperando verificación · ` +
+      `${t.cerradas.length} cerradas en los últimos ${VENTANA_CIERRES} días`;
+
+  return `
+        <hr style="border:none;border-top:1px solid #eee;margin:28px 0 20px">
+        <h3 style="color:#1a1a2e;margin:0 0 4px">Tareas EOS</h3>
+        <p style="color:#666;font-size:13px;margin:0 0 16px">${resumen}</p>
+
+        <h4 style="color:#7c3aed;margin:16px 0 8px;font-size:14px">Esperando verificación (${t.porVerificar.length})</h4>
+        ${tabla(['', 'Tarea', 'Responsable', 'Asignó', 'Prueba'], filasVerificar)}
+
+        <h4 style="color:#d97706;margin:20px 0 8px;font-size:14px">Abiertas (${t.abiertas.length})</h4>
+        ${tabla(['', 'Tarea', 'Responsable', 'Asignó', 'Compromiso', 'Estado'], filasAbiertas)}
+
+        <h4 style="color:#059669;margin:20px 0 8px;font-size:14px">Cerradas en los últimos ${VENTANA_CIERRES} días (${t.cerradas.length})</h4>
+        ${tabla(['', 'Tarea', 'Responsable', 'Verificó', 'Cerrada'], filasCerradas)}`;
+}
+
 // ─── Email via Graph API ──────────────────────────────────────────────────────
 
-async function sendEmail(token, vencidas, porVencer) {
-  if (!FROM_EMAIL || TO_EMAILS.length === 0) {
-    console.log('[email] Omitido — configura ALERT_FROM_EMAIL y ALERT_TO_EMAILS.');
-    return;
-  }
-
+function buildEmailHtml(vencidas, porVencer, tareas) {
+  // El 🔴/🟡 dice qué tan grave está el hecho; el fondo dice si alguien ya lo está
+  // gestionando. Una alarma con solicitud de prórroga, renovación o revalidación
+  // radicada sigue siendo roja — el documento está vencido — pero va sobre verde
+  // para distinguirla de la que nadie ha tocado.
   function filaHtml(a) {
     const ico  = a.nivel === 'VENCIDA' ? '🔴' : '🟡';
     const nombre = a.slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    const td = a.gestionada
+      ? 'padding:6px 12px;border-bottom:1px solid #d1fae5;background:#ecfdf5'
+      : 'padding:6px 12px;border-bottom:1px solid #eee';
     return `<tr>
-      <td style="padding:6px 12px;border-bottom:1px solid #eee">${ico}</td>
-      <td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">${nombre}</td>
-      <td style="padding:6px 12px;border-bottom:1px solid #eee">${a.area}</td>
-      <td style="padding:6px 12px;border-bottom:1px solid #eee">${a.detalle}</td>
+      <td style="${td}">${ico}</td>
+      <td style="${td};font-weight:600">${nombre}</td>
+      <td style="${td}">${a.area}</td>
+      <td style="${td}">${a.detalle}</td>
     </tr>`;
   }
 
@@ -373,10 +572,28 @@ async function sendEmail(token, vencidas, porVencer) {
         ${tablaHtml(vencidas)}
         <h3 style="color:#d97706;margin-top:24px">Por vencer en los próximos 90 días (${porVencer.length})</h3>
         ${tablaHtml(porVencer)}
+        ${buildTareasHtml(tareas)}
         <hr style="border:none;border-top:1px solid #eee;margin:24px 0">
+        <p style="font-size:12px;color:#555;margin:0 0 8px">
+          <span style="display:inline-block;width:12px;height:12px;background:#ecfdf5;border:1px solid #d1fae5;vertical-align:middle"></span>
+          Fondo verde: en alarmas, ya hay una solicitud radicada (prórroga, renovación o
+          revalidación); en tareas, el responsable ya se comprometió a una fecha.
+          El estado sigue siendo el del icono — el fondo solo indica que está gestionada.
+        </p>
         <p style="color:#888;font-size:12px">Generado automáticamente por el sistema EOS de IC Constructora.</p>
       </div>
     </div>`;
+
+  return html;
+}
+
+async function sendEmail(token, vencidas, porVencer, tareas) {
+  if (!FROM_EMAIL || TO_EMAILS.length === 0) {
+    console.log('[email] Omitido — configura ALERT_FROM_EMAIL y ALERT_TO_EMAILS.');
+    return;
+  }
+
+  const html = buildEmailHtml(vencidas, porVencer, tareas);
 
   const message = {
     message: {
@@ -431,9 +648,10 @@ function buildAlarms(slug, etapas) {
       const sufijo = notas.length ? ` · ${notas.join(' · ')}` : '';
       alarmas.push({
         slug, nivel: diasC < 0 ? 'VENCIDA' : 'POR VENCER',
+        gestionada: gestionVigente(e.solicProrrCred),
         area: 'Crédito', category: 'credito',
-        etapa: String(e.etapa), expires_at: fmtDate(credVenc), dias: diasC,
-        detalle: `E${e.etapa}: ${e.entidadCredito}, vence ${fmtDate(credVenc)} (${diasC} días)${sufijo}`,
+        etapa: String(e.etapa), expires_at: isoDate(credVenc), dias: diasC,
+        cuerpo: `${e.entidadCredito}, vence ${fmtDate(credVenc)} (${diasC} días)${sufijo}`,
       });
     }
 
@@ -463,9 +681,10 @@ function buildAlarms(slug, etapas) {
 
       alarmas.push({
         slug, nivel: dias < 0 ? 'VENCIDA' : 'POR VENCER',
+        gestionada: gestionVigente(p.solic),
         area: `Póliza ${p.tipo}`, category: p.cat,
-        etapa: String(e.etapa), expires_at: fmtDate(vencEf), dias,
-        detalle: `E${e.etapa}: ${p.ent}, vence ${fmtDate(vencEf)} (${dias} días)${sufijo}`,
+        etapa: String(e.etapa), expires_at: isoDate(vencEf), dias,
+        cuerpo: `${p.ent}, vence ${fmtDate(vencEf)} (${dias} días)${sufijo}`,
       });
     });
 
@@ -482,25 +701,75 @@ function buildAlarms(slug, etapas) {
           : `renovación solicitada ${fmtDate(solicLicPendiente)}`);
       }
       if (numRenovLic > 0) {
-        notas.push(`${numRenovLic} renovación${numRenovLic !== 1 ? 'es' : ''}`);
+        notas.push(`${numRenovLic} ${numRenovLic !== 1 ? 'renovaciones' : 'renovación'}`);
       }
       const sufijo = notas.length ? ` · ${notas.join(' · ')}` : '';
       alarmas.push({
         slug, nivel: diasL < 0 ? 'VENCIDA' : 'POR VENCER',
+        gestionada: gestionVigente(solicLicPendiente),
         area: 'Licencia Construcción', category: 'licencia',
-        etapa: String(e.etapa), expires_at: fmtDate(vencLicEf), dias: diasL,
-        detalle: `E${e.etapa}: venció ${fmtDate(vencLicEf)} (${diasL} días)${sufijo}`,
+        etapa: String(e.etapa), expires_at: isoDate(vencLicEf), dias: diasL,
+        cuerpo: `venció ${fmtDate(vencLicEf)} (${diasL} días)${sufijo}`,
       });
     }
   });
 
-  return alarmas;
+  return conservarMasCritica(mergeEtapas(alarmas));
+}
+
+// Un crédito o una póliza suelen cubrir varias etapas del mismo proyecto. El
+// Datamart repite el dato fila por fila (una fila por etapa), pero es un solo
+// hecho: debe salir una sola alarma que nombre todas las etapas que cubre.
+// La clave de agrupación es todo el contenido menos la etapa; si algo difiere
+// (entidad, fecha vigente, prórrogas), son hechos distintos y no se agrupan.
+// Dos filas del Datamart pueden traer la misma etapa y la misma categoría con
+// pólizas distintas (Mitika E1.2 tiene dos TR y dos RC). En la base comparten
+// identidad — external_id es slug::etapa::categoría — así que solo puede quedar
+// una: se conserva la más crítica, la de menos días restantes.
+function conservarMasCritica(alarmas) {
+  const porIdentidad = new Map();
+
+  alarmas.forEach(a => {
+    const clave  = `${a.slug}::${a.etapa}::${a.category}`;
+    const previa = porIdentidad.get(clave);
+    if (!previa || a.dias < previa.dias) porIdentidad.set(clave, a);
+  });
+
+  return Array.from(porIdentidad.values());
+}
+
+function etiquetaEtapa(etapa) {
+  return /^\d/.test(etapa) ? `E${etapa}` : etapa;
+}
+
+function mergeEtapas(alarmas) {
+  const grupos = new Map();
+
+  alarmas.forEach(a => {
+    const clave = `${a.slug}::${a.category}::${a.nivel}::${a.expires_at}::${a.cuerpo}`;
+    const g = grupos.get(clave);
+    if (g) {
+      if (!g.etapas.includes(a.etapa)) g.etapas.push(a.etapa);
+    } else {
+      grupos.set(clave, { ...a, etapas: [a.etapa] });
+    }
+  });
+
+  return Array.from(grupos.values()).map(g => {
+    const { cuerpo, etapas, ...resto } = g;
+    return {
+      ...resto,
+      etapa:   etapas.join(', '),
+      detalle: `${etapas.map(etiquetaEtapa).join(', ')}: ${cuerpo}`,
+    };
+  });
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
   const DISCOVER = process.argv.includes('--discover');
+  const DRY_RUN  = process.argv.includes('--dry-run');   // imprime las alarmas y no toca Supabase ni el correo
   console.log(`\n[datamart-sync] ${TODAY_STR}${DISCOVER ? ' [DISCOVER MODE]' : ''}`);
 
   // 1. Autenticar
@@ -615,8 +884,34 @@ async function main() {
 
   console.log(`\n[alarmas] Total: ${alarmasGlobales.length} (${vencidas.length} vencidas, ${porVencer.length} por vencer)`);
 
+  // 5b. Tareas EOS — solo lectura, no dependen del Datamart.
+  const tareas = clasificarTareas(await fetchTareas());
+  if (tareas) {
+    console.log(`[tareas]  Total: ${tareas.total} (${tareas.abiertas.length} abiertas, ` +
+                `${tareas.porVerificar.length} por verificar, ${tareas.cerradas.length} cerradas recientes)`);
+  } else {
+    console.warn('[tareas]  No se pudieron leer — la sección de Tareas EOS se omite del correo.');
+  }
+
   // 6. Upsert en Supabase
-  if (SUPABASE_URL && SUPABASE_KEY) {
+  if (DRY_RUN) {
+    console.log('\n[dry-run] Alarmas generadas — no se escribe en Supabase ni se envía correo:');
+    alarmasGlobales.forEach(a => {
+      console.log(`  ${a.nivel.padEnd(10)} ${a.gestionada ? '[monitoreada]' : '             '} ${a.slug.padEnd(20)} ${a.area.padEnd(22)} ${a.detalle}`);
+    });
+
+    // El fondo verde no se ve en consola. Se deja el correo renderizado en disco
+    // para abrirlo en el navegador y verificar cómo llega realmente.
+    (tareas ? tareas.abiertas : []).forEach(t => {
+      const cuando = t.ancla ? fmtDate(t.ancla) : 'sin fecha';
+      console.log(`  TAREA      ${t.gestionada ? '[comprometida]' : '              '} ` +
+                  `${t.responsable.padEnd(24)} ${cuando.padEnd(14)} ${t.titulo}`);
+    });
+
+    const preview = require('path').join(__dirname, 'alarmas-preview.html');
+    require('fs').writeFileSync(preview, buildEmailHtml(vencidas, porVencer, tareas), 'utf8');
+    console.log(`\n[dry-run] Correo renderizado en ${preview}`);
+  } else if (SUPABASE_URL && SUPABASE_KEY) {
     const RUN_TIME = new Date().toISOString();
     const records = alarmasGlobales.map(a => ({
       company_id:   'ic-constructora',
@@ -646,13 +941,18 @@ async function main() {
   }
 
   // 7. Email
-  await sendEmail(token, vencidas, porVencer);
+  if (!DRY_RUN) await sendEmail(token, vencidas, porVencer, tareas);
 
   // 8. Resumen final
   console.log(`\n────────────────────────────────────────`);
   console.log(`Alarmas: ${alarmasGlobales.length} total`);
   console.log(`  Vencidas:    ${vencidas.length}`);
   console.log(`  Por vencer:  ${porVencer.length}`);
+  if (tareas) {
+    console.log(`Tareas EOS: ${tareas.total} total`);
+    console.log(`  Abiertas:      ${tareas.abiertas.length}`);
+    console.log(`  Por verificar: ${tareas.porVerificar.length}`);
+  }
   console.log(`────────────────────────────────────────\n`);
 }
 
