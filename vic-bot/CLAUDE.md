@@ -22,8 +22,8 @@ VIC tiene acceso a TODO en dos orígenes:
 
 | Fuente | Cómo accede | Alcance |
 |--------|-------------|---------|
-| **Wiki Obsidian** | `wiki_documents` en Supabase, búsqueda híbrida (full-text tsvector + pgvector/Voyage) | Personas, proyectos, procesos, estructura organizacional. ~594 páginas. |
-| **Toda la base Supabase (solo lectura)** | RPCs `vic_*_db` y tools fijas de EOS | EOS (esquema `public`: rocks, metrics, issues, people, meetings, processes, vto, **alarms**, **tasks**) + SINCO (ERP: `sinco_ic_raw`, `sinco_ic_model`, `sinco_ic_calc`, `sinco_ic_targets`, `sinco_ic_historico`, `sinco_ic_export`, `sinco_ic_meta`). |
+| **Wiki Obsidian** | Búsqueda en vivo vía Microsoft Graph Search API (`src/lib/sharepointSearch.js`), índice nativo de SharePoint — no hay tabla propia ni embeddings desde que se borró `wiki.wiki_documents` el 2026-08-20. | Personas, proyectos, procesos, estructura organizacional. |
+| **Toda la base Supabase (solo lectura)** | RPCs `vic_*_db` y tools fijas de EOS | EOS (esquema `public`: rocks, metrics, issues, people, meetings, processes, vto, **alarms**, **tasks**) + SINCO/ERP (`sinco_ic_raw` — tablas `adi_dtm_*`, `sinco_ic_calc` — vistas certificadas de cartera) + financiero Excel/PyG (`excel_ic_raw`, `excel_ic_model`, `excel_ic_meta` — reemplazó a `sinco_ic_historico`/`sinco_ic_meta`/`sinco_ic_targets` en la reorg del 2026-06-10, ver `CLAUDE.md` raíz). |
 
 ### Acceso de solo lectura a Supabase
 
@@ -60,10 +60,11 @@ vic-bot/src/
 │   ├── anthropic.js  # adaptador Claude (tool-use nativo)
 │   └── openai.js     # adaptador OpenAI-compatible (NVIDIA, etc.) vía fetch
 ├── lib/
-│   ├── embeddings.js # Voyage AI (embeddings de búsqueda del wiki)
+│   ├── sharepointSearch.js # Microsoft Graph Search API — reemplaza el índice propio en Supabase que se perdió el 2026-08-20
+│   ├── embeddings.js # Voyage AI — código huérfano, ya no lo importa nada (era para el pgvector que se borró)
 │   └── push.js       # saveConversationRef + sendProactive (Bot Framework)
 └── tools/
-    ├── wiki.js       # Búsqueda híbrida en wiki_documents
+    ├── wiki.js       # search_wiki/get_wiki_page/list_wiki_pages sobre sharepointSearch.js (búsqueda nativa de SharePoint, no propia)
     ├── eos.js        # Tools fijas de EOS (rocks, metrics, issues, ...)
     └── sinco.js      # SINCO + acceso total DB (query_db, etc.) + alarmas de negocio
 ```
@@ -115,6 +116,8 @@ Los dos adaptadores comparten el manejo de cierre del agentic loop (`src/lib/err
 
 Los esquemas SINCO aceptados por `list_sinco_tables` / `describe_sinco_table` son los **7** que anuncia el prompt (`raw`, `model`, `calc`, `targets`, `historico`, `export`, `meta`); antes el `enum` solo permitía 4 y las llamadas a los otros rebotaban, quemando iteraciones.
 
+> ⚠ **Desactualizado tras la reorg del 2026-06-10:** `sinco_ic_targets`, `sinco_ic_historico` y `sinco_ic_meta` fueron reemplazados por `excel_ic_*` (ver `CLAUDE.md` raíz). El array `ESQUEMAS` en `src/tools/sinco.js` sigue listando los 7 nombres viejos — no se ha verificado si esos 3 esquemas siguen existiendo en la BD. Pendiente: confirmar y, si ya no existen, achicar `ESQUEMAS` a `raw`, `calc`, `export` (y `model` si aplica) para que VIC no ofrezca esquemas muertos.
+
 ### Almacenamiento (cifrado)
 
 Las keys viven en `vic.vic_user_keys` (vista de compat en `public`), **cifradas con pgcrypto** (`pgp_sym_encrypt`). La clave maestra de cifrado vive solo en la variable de entorno `VIC_KEYS_SECRET` del bot; nunca se guarda en la tabla. La tabla tiene RLS sin políticas: el único acceso es vía las RPC `SECURITY DEFINER` (`vic_set_user_key`, `vic_get_user_key`, `vic_user_key_hint`, `vic_delete_user_key`), expuestas solo a `service_role`.
@@ -139,7 +142,13 @@ Para agregar una tool: define el objeto en `TOOLS`, agrega el `case` en `runTool
 
 Único punto donde VIC ESCRIBE. Pasa por RPC `SECURITY DEFINER` acotadas a `public.tasks` (`task_create/commit/update_status/submit_proof/verify` + lecturas `get_my_tasks/get_tasks_for`); el candado read-only general (`_vic_esquemas_bloqueados`) no se toca. Migración: `app/supabase/migrations/20260612_001_tasks_module_phase1.sql`.
 
-Seguridad clave: el correo de quien actúa (creador/responsable/verificador) lo inyecta el servidor desde `ctx.email`, NUNCA el modelo. El modelo solo elige a quién se asigna y sobre qué tarea. Roster válido = `invited_users` ∪ `profiles`. Verifica quien asignó (`created_by`) o un admin (`profiles.role='admin'` = CEO).
+Seguridad clave: el correo de quien actúa (creador/responsable/verificador) lo inyecta el servidor desde `ctx.email`, NUNCA el modelo. El modelo solo elige a quién se asigna y sobre qué tarea. Verifica quien asignó (`created_by`) o un admin (`profiles.role='admin'` = CEO).
+
+**Directorio: Entra, no el roster de la app.** `invited_users` ∪ `profiles` es solo quien fue invitado a Tracción (~100 filas), no la empresa. Hasta el 2026-09-10 ese era el único directorio de tareas y VIC contestaba "no encontré a nadie con ese nombre" para gente que sí trabaja en IC (caso Edwar Alejandro Vasquez Avila). Ahora `find_person` consulta además **Entra ID** vía Graph `/users?$search` (`lib/graph.js: searchDirectory / getDirectoryUser`, permiso `User.Read.All` del registro del bot).
+
+La validación sigue viviendo en Postgres — el LLM nunca puede inventarse una persona — pero Postgres no puede llamar a Graph. Por eso el bot **espeja** a quien resuelve en `public.directory_people`, y `_task_person_name` consulta las tres fuentes (roster primero, Entra al final). `ensureInDirectory()` corre antes de cada `task_create`. Migración: `app/supabase/migrations/20260910_001_directory_people_entra.sql`.
+
+El espejo es perezoso, no un censo: se llena con la gente que VIC toca. La fuente de verdad es Entra (el sync mensual `IC-Entra-Sync-Personas` alimenta el wiki, no esta tabla).
 
 Flujo: `assigned → accepted` (responsable compromete fecha) `→ in_progress → submitted` (foto-prueba) `→ done` (verificación). `done` exige prueba + verificación.
 

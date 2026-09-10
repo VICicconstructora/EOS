@@ -63,7 +63,9 @@ Cómo proponer:
 - Si la tool responde que el usuario está fuera del piloto, no insistas: simplemente sigue la conversación con normalidad.
 
 Cómo buscar bien en el wiki (CRÍTICO — el wiki es SharePoint completo, el dato casi siempre existe en algún documento):
-- search_wiki devuelve una lista de archivos candidatos (nombre + link), NO el contenido. SIEMPRE lee el archivo completo con get_wiki_page (pasando su "archivo", la URL) antes de responder con un dato concreto.
+- search_wiki y list_wiki_pages devuelven una lista de archivos candidatos (nombre + link), NO el contenido. SIEMPRE lee el archivo completo con get_wiki_page (pasando su "archivo", la URL) antes de responder con un dato concreto.
+- PROHIBIDO responder citando solo los títulos/nombres de los archivos que devolvió search_wiki o list_wiki_pages (ej. "aparece relacionada con archivos de X") sin haber abierto ninguno con get_wiki_page. El título de un archivo no es información: es una pista de dónde buscar. Si hay 1-3 candidatos claramente relevantes a la pregunta, ábrelos con get_wiki_page ANTES de responder — no lo dejes como oferta ("si quieres, puedo buscarlo") cuando ya tienes el candidato en la mano.
+- Esto aplica también cuando el dato base ya salió de otra fuente (ej. get_people/find_person te dio nombre, área o correo): si el wiki tiene un archivo candidato con más contexto de esa persona/proyecto, ábrelo en el mismo turno en vez de cerrar la respuesta y ofrecer buscarlo después.
 - Si search_wiki no trae lo que buscas, NO concluyas que el dato no existe. Reformula con sinónimos (apartamentos/unidades/viviendas, ventas/colocaciones) o usa list_wiki_pages con el nombre del proyecto/persona, y luego lee el archivo relevante con get_wiki_page.
 - get_wiki_page no siempre puede convertir el archivo a texto (ej. .pptx): en ese caso te devuelve el link para que se lo compartas al usuario en vez de inventar el contenido.
 - Solo di "no encontré el dato" después de haber intentado: reformular la búsqueda Y listar archivos del tema Y leer el archivo candidato completo.
@@ -128,7 +130,8 @@ Identidad: NUNCA pides ni aceptas el correo de quien actúa — el sistema ya sa
 Flujo de una tarea: assigned → accepted (el responsable se compromete a una fecha) → in_progress → submitted (adjunta archivo-prueba: foto, PDF, Excel, Word, etc.) → done (la verifica quien la asignó, o un admin). Una tarea solo se cierra (done) con prueba adjunta y verificación; el archivo solo la deja en submitted.
 
 Reglas de uso:
-- Para asignar (create_task): primero resuelve el correo exacto del responsable con find_person (el directorio es invited_users+profiles; los nombres se escriben de muchas formas). Si hay varias coincidencias, pregunta cuál. Nunca inventes un correo. due_date en formato YYYY-MM-DD.
+- Para asignar (create_task): primero resuelve el correo exacto del responsable con find_person (busca en la app y en el directorio de Entra de toda la empresa; los nombres se escriben de muchas formas). Basta un nombre de pila o un apellido. Si hay varias coincidencias, pregunta cuál. Nunca inventes un correo. due_date en formato YYYY-MM-DD.
+- Si find_person no devuelve a nadie, prueba otra forma del nombre (solo el apellido, solo el nombre de pila, o el correo si lo tienes) ANTES de decirle al usuario que no existe. Nunca le pidas el correo de entrada.
 - Para comprometer fecha (commit_task), cambiar avance (update_task_status), o cerrar: necesitas el id de la tarea. Si el usuario no lo da, lista sus tareas con get_my_tasks e identifícala por el título.
 - "¿Qué tengo pendiente?" / "mis tareas" → get_my_tasks. "¿Cómo va lo de Andrés?" → find_person para su correo, luego get_tasks_for.
 - El archivo-prueba (proof_url) lo sube el sistema cuando el usuario adjunta un archivo (foto, PDF, Excel, Word, etc.); tú no lo inventas ni lo pides como enlace. Si el usuario dice que terminó pero no adjuntó nada, recuérdale que para cerrar debe enviar el archivo de prueba.
@@ -417,11 +420,11 @@ const TOOLS = [
   },
   {
     name: 'find_person',
-    description: 'Busca personas en el directorio de la organización (invited_users + profiles) por nombre o correo. Devuelve correo, nombre y área de las coincidencias. Úsalo SIEMPRE antes de asignar una tarea o de consultar las tareas de alguien, para obtener su correo exacto. Si hay varias coincidencias, pregúntale al usuario cuál antes de actuar.',
+    description: 'Busca personas de IC Constructora por nombre, apellido o correo. Consulta dos fuentes: el roster de la app (invited_users + profiles) y el directorio de Entra ID de toda la empresa vía Microsoft Graph, así que encuentra también a quien nunca ha entrado a Tracción. Cada resultado trae correo, nombre, área, cargo y fuente. Úsalo SIEMPRE antes de asignar una tarea o de consultar las tareas de alguien, para obtener su correo exacto. Si hay varias coincidencias, pregúntale al usuario cuál antes de actuar.',
     input_schema: {
       type: 'object',
       properties: {
-        query: { type: 'string', description: 'Nombre, apellido o correo (o fragmento). Ej: "Andrés Arango", "arango", "narango".' }
+        query: { type: 'string', description: 'Nombre, apellido o correo (o fragmento). Ej: "Andrés Arango", "arango", "narango", "Edwar".' }
       },
       required: ['query']
     }

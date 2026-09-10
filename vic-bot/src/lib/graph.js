@@ -145,4 +145,100 @@ async function uploadProofToSharePoint({ buffer, filename, personEmail, contentT
   return { url: item.webUrl, name: item.name }
 }
 
-module.exports = { emailFromAadObjectId, getGraphToken, uploadProofToSharePoint }
+// ─────────────────────────────────────────────────────────────────────
+// Directorio vivo de la organización (Entra ID).
+//
+// El roster de Supabase (invited_users + profiles) es un subconjunto: solo
+// tiene a quien se invitó a la app. El directorio REAL de IC Constructora es
+// Entra, y ahí sí está toda la gente (Edwar Vasquez, por ejemplo, no estaba
+// en el roster y por eso VIC no podía asignarle una tarea).
+//
+// Requiere el mismo permiso Graph User.Read.All del app registration del bot.
+// ─────────────────────────────────────────────────────────────────────
+
+const CAMPOS_USUARIO = 'id,displayName,mail,userPrincipalName,jobTitle,department,accountEnabled,userType'
+
+// Cuentas que existen en Entra pero no son personas del organigrama
+// (mismo criterio que scripts/entra_sync_personas.py).
+const NO_ES_PERSONA = /^(persona retirada|sala |room |admin|test|prueba|no.?reply|info|contacto|recepcion|portal|sistema|scanner|impresora)/i
+
+function normalizarUsuario(u) {
+  const email = (u.mail || u.userPrincipalName || '').toLowerCase()
+  return {
+    email,
+    name: u.displayName || '',
+    area: u.department || '',
+    cargo: u.jobTitle || '',
+    aadObjectId: u.id || '',
+  }
+}
+
+function esPersona(u) {
+  const email = (u.mail || u.userPrincipalName || '').toLowerCase()
+  if (!email.includes('@')) return false
+  if (u.userType && String(u.userType).toLowerCase() !== 'member') return false
+  return !NO_ES_PERSONA.test(u.displayName || '')
+}
+
+// Busca personas en Entra por nombre, apellido o correo (fragmento).
+// Devuelve [] si Graph no está disponible: nunca rompe al llamador, que
+// siempre tiene además el roster local.
+async function searchDirectory(query, top = 10) {
+  const q = (query || '').replace(/["\\]/g, ' ').trim()
+  if (!q) return []
+
+  const search = ['displayName', 'mail', 'givenName', 'surname']
+    .map((campo) => `"${campo}:${q}"`)
+    .join(' OR ')
+
+  try {
+    const token = await getGraphToken()
+    const url =
+      `https://graph.microsoft.com/v1.0/users?$search=${encodeURIComponent(search)}` +
+      `&$select=${CAMPOS_USUARIO}&$top=${top}&$count=true`
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}`, ConsistencyLevel: 'eventual' },
+    })
+    if (!res.ok) {
+      console.error(`[VIC] Graph $search usuarios → ${res.status}: ${await res.text()}`)
+      return []
+    }
+    const json = await res.json()
+    return (json.value || []).filter(esPersona).map(normalizarUsuario)
+  } catch (err) {
+    console.error('[VIC] Error buscando en el directorio de Entra:', err.message)
+    return []
+  }
+}
+
+// Trae una persona de Entra por su correo exacto (mail o UPN), o null.
+async function getDirectoryUser(email) {
+  const e = (email || '').trim().toLowerCase()
+  if (!e.includes('@')) return null
+
+  try {
+    const token = await getGraphToken()
+    const filtro = `mail eq '${e.replace(/'/g, "''")}' or userPrincipalName eq '${e.replace(/'/g, "''")}'`
+    const url =
+      `https://graph.microsoft.com/v1.0/users?$filter=${encodeURIComponent(filtro)}` +
+      `&$select=${CAMPOS_USUARIO}&$top=1`
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}`, ConsistencyLevel: 'eventual' },
+    })
+    if (!res.ok) {
+      console.error(`[VIC] Graph usuario por correo → ${res.status}`)
+      return null
+    }
+    const json = await res.json()
+    const u = (json.value || [])[0]
+    return u && esPersona(u) ? normalizarUsuario(u) : null
+  } catch (err) {
+    console.error('[VIC] Error resolviendo persona por correo en Entra:', err.message)
+    return null
+  }
+}
+
+module.exports = {
+  emailFromAadObjectId, getGraphToken, uploadProofToSharePoint,
+  searchDirectory, getDirectoryUser,
+}
