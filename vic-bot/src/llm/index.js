@@ -1,15 +1,16 @@
 // Dispatcher de proveedor LLM. Sistema dual Anthropic + OpenAI-compatible.
 //
-// Política:
-//   - Primario para TODOS: Anthropic (Claude). Si la persona registró su key
-//     sk-ant- usa su propia cuota; si no, la compartida del bot
-//     (VIC_ANTHROPIC_API_KEY, o ANTHROPIC_API_KEY del .env raíz).
-//   - OpenAI-compatible (NVIDIA / Llama) queda SOLO de respaldo.
-//   - Antes el default era NVIDIA: un modelo de 70B escribiendo SQL contra
-//     SINCO producía cifras erradas (cartera 8x, facturación 6x). Las consultas
-//     de negocio necesitan el modelo fuerte, no el gratuito.
+// Política (desde el 2026-09-11, tras agotarse el saldo compartido en un día):
+//   - Primario por defecto: NVIDIA (OpenAI-compatible), que es gratis.
+//   - Anthropic (Claude) SOLO para quien registró su propia key sk-ant-: es su
+//     cuota y su decisión, así que va primero para esa persona.
+//   - La key compartida de Anthropic ya no cubre a quien no registró la suya
+//     (ver VIC_SHARED_ANTHROPIC en ./anthropic.js). Ese fallback silencioso fue
+//     lo que vació el saldo: 6 personas sin key propia gastando Opus.
+//   - Contrapartida conocida: NVIDIA escribiendo SQL contra SINCO ya produjo
+//     cifras erradas (cartera 8x, facturación 6x en ago-2026). Las consultas
+//     numéricas de negocio merecen key propia de Anthropic, no la gratuita.
 //   - Fallback cruzado: si el primario falla, se intenta el otro disponible.
-//   - VIC_DEFAULT_PROVIDER=openai invierte el orden (escape hatch para pruebas).
 //
 // La firma que ve el bot: chat(history, ctx, { anthropicKey, openaiKey }).
 
@@ -19,12 +20,11 @@ const openai = require('./openai')
 // Construye la cadena de proveedores a intentar, en orden, para este usuario.
 // Cada entrada: { name, run(history, ctx) }.
 //
-// Orden normal: Anthropic primario, OpenAI respaldo. Con
-// VIC_DEFAULT_PROVIDER=openai se invierte — útil para probar el respaldo sin
-// tocar keys.
+// Orden: NVIDIA primero para todos, salvo que la persona traiga su propia key
+// de Anthropic — en ese caso Claude va primero y NVIDIA queda de respaldo.
 function providerChain({ anthropicKey, openaiKey } = {}) {
-  // anthropicKey = key sk-ant- del usuario (si la registró); anthropic.isReady
-  // cae a la compartida del bot cuando el usuario no trae la suya.
+  // anthropicKey = key sk-ant- del usuario (si la registró). Sin ella,
+  // anthropic.isReady solo es cierto con VIC_SHARED_ANTHROPIC habilitada.
   const anth = anthropic.isReady(anthropicKey)
     ? { name: 'anthropic', run: (h, ctx) => anthropic.chat(h, anthropicKey, ctx) }
     : null
@@ -34,8 +34,8 @@ function providerChain({ anthropicKey, openaiKey } = {}) {
     ? { name: 'openai', run: (h, ctx) => openai.chat(h, ctx, openaiKey) }
     : null
 
-  const preferOpenai = (process.env.VIC_DEFAULT_PROVIDER || '').toLowerCase() === 'openai'
-  const ordered = preferOpenai ? [oai, anth] : [anth, oai]
+  // La única razón para anteponer Claude es que la cuota sea de quien pregunta.
+  const ordered = anthropicKey ? [anth, oai] : [oai, anth]
   return ordered.filter(Boolean)
 }
 
@@ -63,8 +63,8 @@ async function chat(history, ctx = {}, opts = {}) {
   const chain = providerChain(opts)
   if (chain.length === 0) {
     throw new Error(
-      'No hay proveedor LLM configurado: registra una key Anthropic (/registrar-key) ' +
-      'o define VIC_OPENAI_API_KEY en el entorno del bot.'
+      'No hay proveedor LLM configurado: registra tu key gratuita de NVIDIA ' +
+      '(/registrar-nvidia) o define VIC_OPENAI_API_KEY en el entorno del bot.'
     )
   }
 

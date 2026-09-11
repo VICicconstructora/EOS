@@ -3,9 +3,9 @@
 // Mantiene el formato de tool-use nativo de Anthropic. El catálogo TOOLS ya
 // está en ese formato (input_schema), así que se pasa tal cual.
 //
-// Key: la del usuario que habla si la registró (gasta su propia cuota); si no,
-// la key compartida del bot. Claude es el primario para TODOS — antes quien no
-// registraba key caía a Llama-70B, que generaba SQL poco confiable sobre SINCO.
+// Key: la del usuario que habla si la registró (gasta su propia cuota). Quien
+// no la registró NO cae aquí: va por NVIDIA. Claude dejó de ser el primario
+// para todos el 2026-09-11 — ver SHARED_HABILITADA más abajo.
 
 const Anthropic = require('@anthropic-ai/sdk')
 const { TOOLS, runTool, systemWithDate, serializarResultado } = require('./tools')
@@ -21,10 +21,20 @@ const DEFAULT_MODEL = process.env.VIC_ANTHROPIC_MODEL || 'claude-opus-5'
 const MAX_TOKENS = Number(process.env.VIC_ANTHROPIC_MAX_TOKENS || process.env.VIC_MAX_TOKENS || 16000)
 const MAX_ITERATIONS = Number(process.env.VIC_MAX_ITERATIONS || 10)
 
-// Key compartida del bot, usada cuando el usuario no registró la suya.
-const SHARED_API_KEY = process.env.VIC_ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY
+// Key compartida del bot. Apagada por defecto desde el 2026-09-11: ese día se
+// agotó el saldo entero en una jornada. La causa no fue el volumen (74
+// preguntas) sino el costo unitario — sin prompt caching, cada iteración
+// reenvía el SYSTEM y las 26 herramientas (~8.000 tokens de piso), y una
+// consulta de cartera contra SINCO encadena hasta 10 iteraciones de Opus.
+// Quien no registró su `sk-ant-` responde por NVIDIA, que es gratis.
+// `VIC_SHARED_ANTHROPIC=1` la reactiva; hacerlo solo con presupuesto encima.
+const SHARED_HABILITADA = /^(1|true|si|sí|yes)$/i.test(process.env.VIC_SHARED_ANTHROPIC || '')
+const SHARED_API_KEY = SHARED_HABILITADA
+  ? (process.env.VIC_ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY)
+  : null
 
-// Hay proveedor Anthropic si el usuario trae su key o el bot tiene la compartida.
+// Hay proveedor Anthropic si el usuario trae su key o la compartida está
+// habilitada (por defecto no lo está).
 function isReady(userKey) {
   return !!(userKey || SHARED_API_KEY)
 }
