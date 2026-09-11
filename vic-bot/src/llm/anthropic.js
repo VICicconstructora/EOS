@@ -11,10 +11,14 @@ const Anthropic = require('@anthropic-ai/sdk')
 const { TOOLS, runTool, systemWithDate } = require('./tools')
 const { truncatedMessage, exhaustedMessage, unexpectedStopMessage } = require('../lib/errors')
 
-const DEFAULT_MODEL = process.env.VIC_ANTHROPIC_MODEL || 'claude-sonnet-4-6'
-// 8000, no 1500: con 1500 cualquier informe por proyecto se cortaba a media
-// tabla y el texto ya generado se descartaba.
-const MAX_TOKENS = Number(process.env.VIC_MAX_TOKENS || 8000)
+const DEFAULT_MODEL = process.env.VIC_ANTHROPIC_MODEL || 'claude-opus-5'
+// 16000, no 8000: en Opus 5 el pensamiento está activo por defecto y sus tokens
+// cuentan contra max_tokens, así que el tope viejo cortaba informes que antes
+// cabían. (8000 ya había reemplazado a 1500, con el que cualquier informe por
+// proyecto se partía a media tabla y el texto generado se descartaba.)
+// `VIC_ANTHROPIC_MAX_TOKENS` lo separa del tope del respaldo NVIDIA, que es otro
+// modelo con otros límites.
+const MAX_TOKENS = Number(process.env.VIC_ANTHROPIC_MAX_TOKENS || process.env.VIC_MAX_TOKENS || 16000)
 const MAX_ITERATIONS = Number(process.env.VIC_MAX_ITERATIONS || 10)
 
 // Key compartida del bot, usada cuando el usuario no registró la suya.

@@ -14,7 +14,26 @@ const { truncatedMessage, exhaustedMessage } = require('../lib/errors')
 
 const BASE_URL = (process.env.VIC_OPENAI_BASE_URL || 'https://integrate.api.nvidia.com/v1').replace(/\/$/, '')
 const SHARED_API_KEY = process.env.VIC_OPENAI_API_KEY // respaldo compartido del bot
-const MODEL    = process.env.VIC_OPENAI_MODEL || 'openai/gpt-oss-120b'
+
+// El modelo NO es uno solo: es una lista de candidatos en orden de preferencia.
+// NVIDIA retira modelos con poco aviso y cada retiro dejó a VIC sin respaldo
+// (meta/llama-3.3-70b-instruct el 2026-08-26, openai/gpt-oss-120b el
+// 2026-09-03; ambos devuelven 410 Gone). Con un solo modelo fijo, ese 410 se
+// vive como "el bot está caído" y hay que redesplegar para revivirlo. Con la
+// lista, un 404/410 hace pasar al siguiente y el proceso recuerda cuál quedó
+// vivo. VIC_OPENAI_MODEL acepta varios separados por coma.
+// Verificado contra /v1/models el 2026-09-11: los tres responden y soportan
+// tool calling (sin tool calling el modelo no sirve, VIC consulta la BD).
+const DEFAULT_MODELS = [
+  'nvidia/nemotron-3-super-120b-a12b',
+  'deepseek-ai/deepseek-v4-pro-0813',
+]
+const MODELS = (process.env.VIC_OPENAI_MODEL || DEFAULT_MODELS.join(','))
+  .split(',').map(s => s.trim()).filter(Boolean)
+// Índice del primer modelo vivo. Se avanza al recibir 404/410 y no se
+// retrocede: dentro del proceso, un modelo retirado no vuelve.
+let modelIndex = 0
+const MODEL = MODELS[0]
 const MAX_TOKENS  = Number(process.env.VIC_MAX_TOKENS || 8000)
 const MAX_ITERATIONS = Number(process.env.VIC_MAX_ITERATIONS || 10)
 const TEMPERATURE = Number(process.env.VIC_OPENAI_TEMPERATURE || 0.2)
@@ -38,10 +57,10 @@ function isReady(userKey) {
 }
 
 // Lanza un Error con .status para que el dispatcher distinga fallos de red/API.
-async function callCompletions(messages, apiKey) {
-  const key = apiKey || SHARED_API_KEY
-  if (!key) throw new Error('No hay key OpenAI-compatible (ni de usuario ni VIC_OPENAI_API_KEY).')
-
+// `.provider` y `.model` viajan en el error para que el mensaje al usuario
+// nombre al proveedor que realmente falló (antes todo error se le atribuía a
+// Anthropic, y a quien registraba su key de NVIDIA se le pedía una de Anthropic).
+async function unaLlamada(messages, key, model) {
   const ac = new AbortController()
   const timer = setTimeout(() => ac.abort(), TIMEOUT_MS)
   let res
@@ -53,7 +72,7 @@ async function callCompletions(messages, apiKey) {
         Authorization: `Bearer ${key}`
       },
       body: JSON.stringify({
-        model: MODEL,
+        model,
         messages,
         tools: OPENAI_TOOLS,
         tool_choice: 'auto',
@@ -66,7 +85,7 @@ async function callCompletions(messages, apiKey) {
     })
   } catch (err) {
     if (err && err.name === 'AbortError') {
-      const e = new Error(`El proveedor OpenAI-compatible (${MODEL}) no respondió en ${TIMEOUT_MS} ms (timeout).`)
+      const e = new Error(`El proveedor OpenAI-compatible (${model}) no respondió en ${TIMEOUT_MS} ms (timeout).`)
       e.status = 504
       throw e
     }
@@ -78,11 +97,46 @@ async function callCompletions(messages, apiKey) {
   if (!res.ok) {
     let detail = ''
     try { detail = JSON.stringify(await res.json()) } catch { detail = await res.text().catch(() => '') }
-    const err = new Error(`OpenAI-compat ${res.status}: ${detail || res.statusText}`)
+    const err = new Error(`OpenAI-compat ${res.status} (${model}): ${detail || res.statusText}`)
     err.status = res.status
+    err.model = model
     throw err
   }
   return res.json()
+}
+
+// Recorre los modelos candidatos desde el primero vivo. 404/410 = el modelo ya
+// no existe (retiro de NVIDIA): se anota y se prueba el siguiente. Cualquier
+// otro error (401, 429, timeout) es del proveedor o de la key, no del modelo,
+// y se propaga tal cual — probar otro modelo no lo arreglaría.
+async function callCompletions(messages, apiKey) {
+  const key = apiKey || SHARED_API_KEY
+  if (!key) throw new Error('No hay key OpenAI-compatible (ni de usuario ni VIC_OPENAI_API_KEY).')
+
+  let ultimoErr
+  for (let i = modelIndex; i < MODELS.length; i++) {
+    try {
+      const data = await unaLlamada(messages, key, MODELS[i])
+      if (i !== modelIndex) {
+        console.warn(`[VIC] modelo ${MODELS[modelIndex]} retirado; VIC usa ${MODELS[i]} de aquí en adelante.`)
+        modelIndex = i
+      }
+      return data
+    } catch (err) {
+      err.provider = 'openai'
+      if (err.status !== 404 && err.status !== 410) throw err
+      ultimoErr = err
+      console.warn(`[VIC] modelo ${MODELS[i]} no disponible (${err.status}) — probando el siguiente.`)
+    }
+  }
+
+  const e = new Error(
+    `Ningún modelo OpenAI-compatible sigue disponible (probados: ${MODELS.join(', ')}). ` +
+    `Último detalle: ${ultimoErr ? ultimoErr.message : 'sin detalle'}`
+  )
+  e.status = 410
+  e.provider = 'openai'
+  throw e
 }
 
 // Agentic loop equivalente al de Anthropic, con el formato de OpenAI.

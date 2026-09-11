@@ -57,6 +57,9 @@ async function chat(history, ctx = {}, opts = {}) {
       const text = await p.run(history, ctx)
       return { text, provider: p.name }
     } catch (err) {
+      // Marcar quién falló: el mensaje al usuario nombra al proveedor real y
+      // le pide (si acaso) la key que sí corresponde.
+      if (err && !err.provider) err.provider = p.name
       lastErr = err
       const hayMas = i < chain.length - 1
       console.warn(

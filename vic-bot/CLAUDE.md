@@ -75,17 +75,20 @@ VIC corre sobre **dos proveedores** detrás de un dispatcher común (`src/llm/in
 
 | Adaptador | API | Modelo (default) | Key |
 |-----------|-----|------------------|-----|
-| `llm/anthropic.js` | SDK `@anthropic-ai/sdk` (tool-use nativo) | `claude-sonnet-4-6` | la del usuario (`sk-ant-...`), su propia cuota; si no la registró, la compartida del bot (`VIC_ANTHROPIC_API_KEY` o `ANTHROPIC_API_KEY`) |
-| `llm/openai.js` | Chat Completions vía `fetch` (sin dependencia) | `openai/gpt-oss-120b` en NVIDIA build | **la del usuario** (`nvapi-...`, su cuota gratuita); la compartida del bot (`VIC_OPENAI_API_KEY`) es solo respaldo |
+| `llm/anthropic.js` | SDK `@anthropic-ai/sdk` (tool-use nativo) | `claude-opus-5` | la del usuario (`sk-ant-...`), su propia cuota; si no la registró, la compartida del bot (`VIC_ANTHROPIC_API_KEY` o `ANTHROPIC_API_KEY`) |
+| `llm/openai.js` | Chat Completions vía `fetch` (sin dependencia) | **lista** de candidatos en NVIDIA build: `nvidia/nemotron-3-super-120b-a12b`, luego `deepseek-ai/deepseek-v4-pro-0813` | **la del usuario** (`nvapi-...`, su cuota gratuita); la compartida del bot (`VIC_OPENAI_API_KEY`) cubre a quien no la registró |
 
 **Política de selección** (`providerChain` en `llm/index.js`):
 - **Primario para todos: Anthropic (Claude).** Quien registró su key `sk-ant-...` usa su propia cuota; quien no, la compartida del bot (`VIC_ANTHROPIC_API_KEY`, o `ANTHROPIC_API_KEY` del `.env` raíz). *(Cambio 2026-08-30: antes el default era NVIDIA/Llama-70B; generando SQL contra SINCO producía cifras erradas — cartera 8x, facturación 6x. Las consultas de negocio van al modelo fuerte.)*
 - **NVIDIA (OpenAI-compatible) queda solo de respaldo.** Cada persona puede registrar su `nvapi-...` con `/registrar-nvidia` para no depender de la cuota compartida cuando se usa el respaldo. `VIC_DEFAULT_PROVIDER=openai` invierte el orden (escape hatch de pruebas).
-- **Fallback cruzado:** si el primario lanza error, se intenta el otro proveedor disponible. El `provider` efectivo se loguea por mensaje.
+- **Fallback cruzado:** si el primario lanza error, se intenta el otro proveedor disponible. El `provider` efectivo se loguea por mensaje. El error lleva `.provider` para que el mensaje al usuario nombre al proveedor que falló de verdad.
+- **Estado desde el 2026-09-11: no hay key compartida de Anthropic.** La que había quedó revocada (401) y se eliminó de App Settings, junto con `VIC_DEFAULT_PROVIDER=openai`, que tenía invertido el orden documentado. En la práctica: quien registró su `sk-ant-...` responde con Claude; **todos los demás responden con NVIDIA**. Para devolverle Claude a la organización hay que cargar una key válida en `ANTHROPIC_API_KEY` (App Settings) — mientras tanto, ojo con las consultas numéricas contra SINCO.
+- **El modelo de NVIDIA es una lista, no uno solo.** NVIDIA retira modelos con poco aviso y cada retiro dejó a VIC mudo para toda la empresa (`meta/llama-3.3-70b-instruct` el 2026-08-26, `openai/gpt-oss-120b` el 2026-09-03 — entre esa fecha y el 2026-09-11 nadie recibió respuesta salvo quien tenía su propia key Anthropic). Ante 404/410 el adaptador pasa al siguiente candidato y recuerda cuál quedó vivo.
 
 Flujo en cada mensaje (`src/bot.js`):
 
 1. Se extrae el email AAD del usuario (`emailFromContext`, mismo criterio que `push.js`).
+1b. La pregunta se guarda en la bitácora (`vic.vic_chat_log`) **con las keys enmascaradas** (`redactarKeys`): el comando de registro llega como texto del usuario y quedaba en claro en la tabla, mientras al usuario se le pedía borrar el mensaje de Teams. Las 11 filas que ya habían quedado así se enmascararon el 2026-09-11.
 2. Comandos de gestión se atienden primero y **no consumen tokens**:
    - `/nvidia` (o `/instrucciones`) — muestra el paso a paso para abrir la API gratuita de NVIDIA. También se envía al entrar al chat (`onMembersAdded`).
    - `/registrar-nvidia nvapi-...` — registra/actualiza la key NVIDIA del usuario (su cuota gratuita en el proveedor por defecto).
@@ -95,7 +98,7 @@ Flujo en cada mensaje (`src/bot.js`):
 3. Se resuelven ambas keys con `getUserKey(email, 'nvidia')` y `getUserKey(email, 'anthropic')` (`src/lib/keys.js`); cualquiera puede ser `null`.
 4. Se llama al dispatcher con `{ anthropicKey, openaiKey }`; este arma la cadena de proveedores y aplica el fallback.
 
-> **Config (`.env` raíz):** `VIC_ANTHROPIC_API_KEY` (o `ANTHROPIC_API_KEY`) para el primario; `VIC_OPENAI_API_KEY`, `VIC_OPENAI_BASE_URL` (default `https://integrate.api.nvidia.com/v1`), `VIC_OPENAI_MODEL`, `VIC_OPENAI_TEMPERATURE`, `VIC_OPENAI_TOP_P` para el respaldo. Opcionales: `VIC_ANTHROPIC_MODEL`, `VIC_MAX_TOKENS` (default **8000**), `VIC_MAX_ITERATIONS` (default 10), `VIC_DEFAULT_PROVIDER`. El adaptador OpenAI usa `fetch` nativo (Node ≥18), sin añadir dependencias.
+> **Config (`.env` raíz):** `VIC_ANTHROPIC_API_KEY` (o `ANTHROPIC_API_KEY`) para el primario; `VIC_OPENAI_API_KEY`, `VIC_OPENAI_BASE_URL` (default `https://integrate.api.nvidia.com/v1`), `VIC_OPENAI_MODEL`, `VIC_OPENAI_TEMPERATURE`, `VIC_OPENAI_TOP_P` para el respaldo. Opcionales: `VIC_ANTHROPIC_MODEL` (hoy `claude-opus-5`), `VIC_ANTHROPIC_MAX_TOKENS` (default **16000**), `VIC_MAX_TOKENS` (respaldo NVIDIA, default **8000**), `VIC_MAX_ITERATIONS` (default 10), `VIC_DEFAULT_PROVIDER`. El adaptador OpenAI usa `fetch` nativo (Node ≥18), sin añadir dependencias.
 
 ### Respuestas incompletas ≠ errores de la API
 
@@ -109,6 +112,8 @@ Los dos adaptadores comparten el manejo de cierre del agentic loop (`src/lib/err
 | Error real de la API | excepción | `userMessageForChatError()` — sin cambios |
 
 `VIC_MAX_TOKENS` subió de 1500 a **8000**: con 1500 cualquier informe por proyecto se cortaba a media tabla.
+
+En Anthropic el tope es aparte (`VIC_ANTHROPIC_MAX_TOKENS`, **16000**). Desde el paso a `claude-opus-5` (2026-09-11) el pensamiento está activo por defecto y **sus tokens cuentan contra `max_tokens`**, así que 8000 volvía a cortar informes que antes cabían. El adaptador no pasa `thinking`, `temperature` ni prefill — por eso cambiar de modelo es solo la variable.
 
 ### Resultados de SQL truncados
 
@@ -172,9 +177,9 @@ Así una alarma aparece en los tres canales: el portal `/alarmas`, las respuesta
 |----------|----------|
 | `VIC_PUSH_SECRET` | Secreto compartido que autentica el endpoint `/api/push`. Debe coincidir con el secreto homónimo de la Edge Function `alarmas-push`. |
 | `VIC_KEYS_SECRET` | Clave maestra para cifrar/descifrar las API keys de usuario en `vic_user_keys`. Cadena larga y aleatoria; NO la cambies tras registrar keys (las invalida). |
-| `VIC_ANTHROPIC_API_KEY` | Key **compartida** del proveedor primario (Claude). Si falta, se usa `ANTHROPIC_API_KEY` del `.env` raíz. Cubre a quien no registró la suya con `/registrar-key`. |
+| `VIC_ANTHROPIC_API_KEY` | Key **compartida** del proveedor primario (Claude). Si falta, se usa `ANTHROPIC_API_KEY` del `.env` raíz. Cubre a quien no registró la suya con `/registrar-key`. ⚠ **Hoy no está definida en Azure** (la anterior fue revocada): sin ella, quien no tenga key propia responde con NVIDIA. |
 | `VIC_OPENAI_API_KEY` | Key **compartida de respaldo** (OpenAI-compatible; NVIDIA build `nvapi-...`). Cada usuario puede registrar la suya con `/registrar-nvidia`; esta cubre a quienes no lo hicieron. |
-| `VIC_OPENAI_BASE_URL` / `VIC_OPENAI_MODEL` | Endpoint y modelo del proveedor por defecto. Defaults: `https://integrate.api.nvidia.com/v1` y `openai/gpt-oss-120b`. ⚠ `meta/llama-3.3-70b-instruct` quedó en end-of-life el 2026-08-26 (410 Gone); al cambiar de modelo, verifícalo contra `/v1/models` y comprueba que soporte tool calling. |
+| `VIC_OPENAI_BASE_URL` / `VIC_OPENAI_MODEL` | Endpoint y **lista de modelos separados por coma**, en orden de preferencia. Defaults: `https://integrate.api.nvidia.com/v1` y `nvidia/nemotron-3-super-120b-a12b,deepseek-ai/deepseek-v4-pro-0813`. Ante 404/410 VIC pasa al siguiente. ⚠ Al agregar un modelo verifícalo contra `/v1/models` **y comprueba que devuelva `tool_calls`**: sin tool calling contesta de memoria sobre la operación, que es peor que no contestar. Ya murieron `meta/llama-3.3-70b-instruct` (2026-08-26) y `openai/gpt-oss-120b` (2026-09-03). |
 
 (Las demás están documentadas en `README.md`.)
 

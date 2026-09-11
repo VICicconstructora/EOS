@@ -23,52 +23,80 @@ function anthropicDetails(err) {
 
 // Devuelve un mensaje para el usuario final dado un error de chat().
 // Reconoce: sin saldo, key inválida/ausente, rate limit, sobrecarga, timeout.
-function userMessageForChatError(err) {
+//
+// `err.provider` ('anthropic' | 'openai') lo pone el dispatcher: es el
+// proveedor que falló de verdad. Sin él, un 401 de NVIDIA se le atribuía a
+// Anthropic y el usuario terminaba registrando la key equivocada (le pasó a
+// José Darío el 2026-09-10: registró su NVIDIA y VIC le siguió pidiendo una
+// sk-ant-). `opts` dice si la key que falló era SUYA o la compartida del bot:
+// solo tiene sentido pedirle que la vuelva a registrar si era suya.
+function userMessageForChatError(err, opts = {}) {
   const raw = (err && err.message) || ''
   const { status, apiMsg, apiType } = anthropicDetails(err)
   const blob = `${raw} ${apiMsg || ''}`.toLowerCase()
+  const esNvidia = (err && err.provider) === 'openai'
+  const proveedor = esNvidia ? 'NVIDIA' : 'Anthropic'
+  // ¿La key que falló era la propia del usuario o la compartida del bot?
+  const eraSuya = esNvidia ? !!opts.ownNvidia : !!opts.ownAnthropic
+  const avisarATI = 'Avísale a TI: es la cuota compartida del bot, no algo que puedas arreglar tú.'
 
   // Key ausente (la lanza clientFor antes de llamar a la API).
-  if (blob.includes('falta api key')) {
-    return 'No tienes una API key de Anthropic registrada. Regístrala con `/registrar-key sk-ant-...`.'
+  if (blob.includes('falta api key') || blob.includes('no hay key openai-compatible')) {
+    return esNvidia
+      ? 'No hay key de NVIDIA disponible. Registra la tuya con `/nvidia` (te doy los pasos) o avísale a TI.'
+      : 'No tienes una API key de Anthropic registrada. Regístrala con `/registrar-key sk-ant-...`.'
   }
 
   // Saldo agotado de la cuenta de Anthropic.
   if (blob.includes('credit balance is too low') || blob.includes('credit balance')) {
-    return 'Tu cuenta de Anthropic se quedó sin saldo. Recarga créditos en console.anthropic.com → Plans & Billing y vuelve a intentar.'
+    return eraSuya
+      ? 'Tu cuenta de Anthropic se quedó sin saldo. Recarga créditos en console.anthropic.com → Plans & Billing y vuelve a intentar.'
+      : `La cuenta compartida de Anthropic se quedó sin saldo. ${avisarATI}`
+  }
+
+  // Ningún modelo del proveedor sigue vivo (NVIDIA retira modelos sin aviso).
+  if (esNvidia && blob.includes('ningún modelo')) {
+    return 'Los modelos gratuitos de NVIDIA que usa VIC fueron retirados. ' + avisarATI
   }
 
   // Key inválida o sin permisos (401/403 o authentication_error).
   if (status === 401 || status === 403 || apiType === 'authentication_error' || blob.includes('invalid x-api-key') || blob.includes('authentication')) {
-    return 'Tu API key de Anthropic no es válida o fue revocada. Regístrala de nuevo con `/registrar-key sk-ant-...`.'
+    if (!eraSuya) {
+      return `La API key compartida de ${proveedor} no es válida o fue revocada, así que VIC no puede responder. ${avisarATI}`
+    }
+    return esNvidia
+      ? 'Tu API key de NVIDIA no es válida o fue revocada. Regístrala de nuevo con `/registrar-nvidia nvapi-...`.'
+      : 'Tu API key de Anthropic no es válida o fue revocada. Regístrala de nuevo con `/registrar-key sk-ant-...`.'
   }
 
   // Rate limit.
   if (status === 429 || apiType === 'rate_limit_error' || blob.includes('rate limit')) {
-    return 'Anthropic está limitando las solicitudes en este momento (rate limit). Espera unos segundos y vuelve a intentar.'
+    return `${proveedor} está limitando las solicitudes en este momento (rate limit). Espera unos segundos y vuelve a intentar.`
   }
 
   // Modelo inexistente o inaccesible para esta key.
-  if (blob.includes('model') && (status === 404 || blob.includes('not_found') || blob.includes('not found'))) {
-    return 'El modelo configurado no está disponible para tu cuenta de Anthropic. Avisa a TI para revisar la configuración del bot.'
+  if (blob.includes('model') && (status === 404 || status === 410 || blob.includes('not_found') || blob.includes('not found'))) {
+    return `El modelo configurado ya no está disponible en ${proveedor}. ${avisarATI}`
   }
 
   // Sobrecarga temporal de Anthropic.
   if (status === 529 || apiType === 'overloaded_error' || blob.includes('overloaded')) {
-    return 'Los servidores de Anthropic están sobrecargados ahora mismo. Intenta de nuevo en un momento.'
+    return `Los servidores de ${proveedor} están sobrecargados ahora mismo. Intenta de nuevo en un momento.`
   }
 
   // Timeout / red. Puede ser Anthropic o el proveedor por defecto (NVIDIA), así
   // que el texto es neutral y sugiere registrar la key propia (el tier gratuito
   // compartido de NVIDIA a veces se congestiona).
   if (status === 504 || blob.includes('timeout') || blob.includes('timed out') || blob.includes('econnreset') || blob.includes('fetch failed') || blob.includes('aborted')) {
-    return 'El servicio de IA tardó demasiado o falló la conexión. Intenta de nuevo en un momento.\n\n' +
-      'Si sigue fallando, registra tu propia API de NVIDIA (gratis) para no depender de la cuota compartida: escribe `/nvidia` y te doy los pasos.'
+    const sugerencia = opts.ownNvidia
+      ? ''
+      : '\n\nSi sigue fallando, registra tu propia API de NVIDIA (gratis) para no depender de la cuota compartida: escribe `/nvidia` y te doy los pasos.'
+    return 'El servicio de IA tardó demasiado o falló la conexión. Intenta de nuevo en un momento.' + sugerencia
   }
 
   // No reconocido: mostramos el detalle (entorno interno) para no ocultar la causa.
   const detalle = apiMsg || raw || 'sin detalle'
-  return `Ocurrió un error al procesar tu solicitud. Detalle técnico: ${detalle}`
+  return `Ocurrió un error al procesar tu solicitud (proveedor: ${proveedor}). Detalle técnico: ${detalle}`
 }
 
 // ── Respuestas incompletas (NO son errores de la API) ────────────────

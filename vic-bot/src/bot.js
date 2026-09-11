@@ -23,6 +23,12 @@ const NVIDIA_INSTRUCCIONES =
 
 // Maneja los comandos de gestión de las API keys del usuario (Anthropic y NVIDIA).
 // Devuelve un texto de respuesta si el mensaje era un comando, o null si no.
+// Enmascara cualquier API key que venga en el texto antes de guardarlo en la
+// bitácora. Deja los últimos 4 caracteres, que es lo que muestran las pistas.
+function redactarKeys(texto) {
+  return (texto || '').replace(/(sk-ant-|nvapi-)[A-Za-z0-9_\-]{8,}/g, (m) => `${m.slice(0, 7)}…${m.slice(-4)}`)
+}
+
 async function handleKeyCommand(userText, email) {
   const lower = userText.toLowerCase()
 
@@ -131,8 +137,11 @@ class VicBot extends ActivityHandler {
       const userName = (context.activity.from && context.activity.from.name) || null
 
       // Registrar la pregunta del usuario (best-effort; no bloquea el chat).
+      // Nunca la key en claro: el comando de registro llega como texto del
+      // usuario y quedaba guardado tal cual en vic_chat_log — le pedimos borrar
+      // el mensaje de Teams mientras la bitácora conservaba la key legible.
       if (userText) {
-        logChat({ email, name: userName, conversationId: convId, role: 'user', content: userText })
+        logChat({ email, name: userName, conversationId: convId, role: 'user', content: redactarKeys(userText) })
       }
 
       // Comandos de gestión de key (/registrar-key, /mi-key, /borrar-key).
@@ -238,7 +247,11 @@ class VicBot extends ActivityHandler {
           `[VIC] Error en chat (email=${email || 'desconocido'}, status=${status || '-'}, type=${apiType || '-'}):`,
           apiMsg || err.message
         )
-        await context.sendActivity(MessageFactory.text(userMessageForChatError(err)))
+        // Las banderas dicen si la key que falló era del usuario o la compartida:
+        // solo tiene sentido pedirle que la re-registre si era suya.
+        await context.sendActivity(MessageFactory.text(
+          userMessageForChatError(err, { ownAnthropic: !!anthropicKey, ownNvidia: !!openaiKey })
+        ))
       }
 
       await next()
