@@ -14,6 +14,19 @@
 //              recaudo mueve los saldos cada día.
 //
 // Si una ANCLA falla, la definición de la vista cambió: no publiques.
+//
+// ⚠ Anclas caducadas (verificado el 2026-09-11, al aplicar por fin la migración
+// 20260830_001 — llevaba 12 días escrita sin aplicar). Las dos anclas fallan y
+// NO es la vista: entre el corte del 2026-08-28 y hoy pasó un ciclo de
+// facturación completo. Castilla Living crédito son hoy $3.247.133.450 porque
+// 21 cuotas vencieron el 30-31 de agosto ($2.307 M, mora ≤30 días) más 8 del
+// 30 de julio ($940 M); el día que se fijó el ancla esas 21 aún no vencían.
+// La premisa "crédito y subsidio no se mueven entre cortes" vale entre dos
+// días, no entre dos meses.
+//
+// Para re-anclar hace falta una cifra CONFIRMADA POR CARTERA de un corte nuevo.
+// No copies aquí lo que devuelva la base hoy: el test existe porque VIC
+// inventaba cifras, y un ancla que se ajusta sola a la base no prueba nada.
 
 require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') })
 const { queryDb } = require('../src/tools/sinco')
