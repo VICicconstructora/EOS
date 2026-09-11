@@ -69,6 +69,16 @@ function userMessageForChatError(err, opts = {}) {
       : 'Tu API key de Anthropic no es válida o fue revocada. Regístrala de nuevo con `/registrar-key sk-ant-...`.'
   }
 
+  // Prompt por encima de la ventana de contexto. No es la key ni el modelo: el
+  // agentic loop apiló demasiados resultados de tools (un get_wiki_page sobre
+  // un Excel grande basta). El tope por resultado lo acota, pero una consulta
+  // que abre muchos documentos todavía puede llegar aquí.
+  if (blob.includes('prompt is too long') || blob.includes('context_length') || blob.includes('too many tokens')) {
+    return 'La consulta acumuló más contexto del que cabe en una sola petición: abrí demasiados documentos o tablas grandes.\n\n' +
+      'Acótala y la respondo completa — un proyecto a la vez, un documento concreto en vez de "todos los informes", ' +
+      'o dime el dato puntual que necesitas.'
+  }
+
   // Rate limit.
   if (status === 429 || apiType === 'rate_limit_error' || blob.includes('rate limit')) {
     return `${proveedor} está limitando las solicitudes en este momento (rate limit). Espera unos segundos y vuelve a intentar.`

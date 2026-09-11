@@ -9,7 +9,7 @@
 // canónico TOOLS (formato Anthropic, input_schema) al formato de function-calling
 // de OpenAI, y reproduce el agentic loop con tool_calls / finish_reason.
 
-const { TOOLS, runTool, systemWithDate } = require('./tools')
+const { TOOLS, runTool, systemWithDate, serializarResultado } = require('./tools')
 const { truncatedMessage, exhaustedMessage } = require('../lib/errors')
 
 const BASE_URL = (process.env.VIC_OPENAI_BASE_URL || 'https://integrate.api.nvidia.com/v1').replace(/\/$/, '')
@@ -105,10 +105,15 @@ async function unaLlamada(messages, key, model) {
   return res.json()
 }
 
-// Recorre los modelos candidatos desde el primero vivo. 404/410 = el modelo ya
-// no existe (retiro de NVIDIA): se anota y se prueba el siguiente. Cualquier
-// otro error (401, 429, timeout) es del proveedor o de la key, no del modelo,
-// y se propaga tal cual — probar otro modelo no lo arreglaría.
+// Recorre los modelos candidatos desde el primero vivo.
+//   - 404/410: el modelo ya no existe (retiro de NVIDIA). Se anota como muerto
+//     y el proceso no vuelve a intentarlo.
+//   - 5xx: falla del servidor de NVIDIA con ESE modelo, no del nuestro. Se
+//     prueba el siguiente candidato sin marcar el primero como muerto (Pablo
+//     Ángel vio un 500 de nemotron el 2026-09-11 y ahí se acabó su consulta,
+//     teniendo deepseek disponible al lado).
+//   - 401, 429, timeout: es del proveedor o de la key, no del modelo. Se
+//     propaga tal cual — probar otro modelo no lo arreglaría.
 async function callCompletions(messages, apiKey) {
   const key = apiKey || SHARED_API_KEY
   if (!key) throw new Error('No hay key OpenAI-compatible (ni de usuario ni VIC_OPENAI_API_KEY).')
@@ -117,16 +122,20 @@ async function callCompletions(messages, apiKey) {
   for (let i = modelIndex; i < MODELS.length; i++) {
     try {
       const data = await unaLlamada(messages, key, MODELS[i])
-      if (i !== modelIndex) {
-        console.warn(`[VIC] modelo ${MODELS[modelIndex]} retirado; VIC usa ${MODELS[i]} de aquí en adelante.`)
-        modelIndex = i
-      }
+      if (i !== modelIndex) console.warn(`[VIC] respondió ${MODELS[i]} (preferido: ${MODELS[modelIndex]}).`)
       return data
     } catch (err) {
       err.provider = 'openai'
-      if (err.status !== 404 && err.status !== 410) throw err
+      const retirado = err.status === 404 || err.status === 410
+      const falloServidor = err.status >= 500 && err.status < 600
+      if (!retirado && !falloServidor) throw err
       ultimoErr = err
-      console.warn(`[VIC] modelo ${MODELS[i]} no disponible (${err.status}) — probando el siguiente.`)
+      // Solo el retiro mueve el puntero: un 500 es pasajero y el modelo
+      // preferido debe seguir siendo el primero en la próxima consulta.
+      if (retirado) modelIndex = Math.max(modelIndex, i + 1)
+      console.warn(
+        `[VIC] modelo ${MODELS[i]} ${retirado ? 'no disponible' : 'falló'} (${err.status}) — probando el siguiente.`
+      )
     }
   }
 
@@ -190,7 +199,7 @@ async function chat(history, ctx = {}, apiKey) {
       messages.push({
         role: 'tool',
         tool_call_id: call.id,
-        content: JSON.stringify(result, null, 2)
+        content: serializarResultado(result)
       })
     }
   }

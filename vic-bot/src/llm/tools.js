@@ -618,4 +618,23 @@ function systemWithDate(ctx = {}) {
     `a partir de esta y pásala como YYYY-MM-DD. Nunca inventes el año ni la fecha.`
 }
 
-module.exports = { SYSTEM, TOOLS, runTool, systemWithDate, scopesFor }
+// ── Tope de tamaño por resultado de tool ──────────────────────────────
+// Un get_wiki_page sobre un Excel o un PDF convertido puede traer megabytes, y
+// el agentic loop los va apilando en el prompt. Sin tope, una sola consulta
+// llegó a 1.085.958 tokens contra el límite de 1.000.000 de Claude (log del
+// 2026-09-11): la API respondía 400 y el usuario veía un error del proveedor de
+// respaldo, sin pista de la causa real. Cortamos cada resultado y le decimos al
+// modelo que lo hicimos, para que acote la búsqueda en vez de creer que el
+// documento termina ahí.
+const TOOL_RESULT_MAX_CHARS = Number(process.env.VIC_TOOL_RESULT_MAX_CHARS || 40000)
+
+function serializarResultado(result) {
+  const texto = JSON.stringify(result, null, 2)
+  if (!texto || texto.length <= TOOL_RESULT_MAX_CHARS) return texto
+  const cortado = texto.slice(0, TOOL_RESULT_MAX_CHARS)
+  return `${cortado}
+
+[... RESULTADO CORTADO: traía ${texto.length.toLocaleString('es-CO')} caracteres y el tope es ${TOOL_RESULT_MAX_CHARS.toLocaleString('es-CO')}. NO es el final del documento ni de la tabla. Si lo que buscabas no aparece arriba, acota: una consulta SQL con menos columnas o un WHERE más estrecho, o un documento más específico en vez del archivo completo. No afirmes que el dato no existe por no verlo aquí.]`
+}
+
+module.exports = { SYSTEM, TOOLS, runTool, systemWithDate, scopesFor, serializarResultado }

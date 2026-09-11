@@ -8,7 +8,7 @@
 // registraba key caía a Llama-70B, que generaba SQL poco confiable sobre SINCO.
 
 const Anthropic = require('@anthropic-ai/sdk')
-const { TOOLS, runTool, systemWithDate } = require('./tools')
+const { TOOLS, runTool, systemWithDate, serializarResultado } = require('./tools')
 const { truncatedMessage, exhaustedMessage, unexpectedStopMessage } = require('../lib/errors')
 
 const DEFAULT_MODEL = process.env.VIC_ANTHROPIC_MODEL || 'claude-opus-5'
@@ -90,7 +90,7 @@ async function chat(history, apiKey, ctx = {}) {
         toolResults.push({
           type: 'tool_result',
           tool_use_id: block.id,
-          content: JSON.stringify(result, null, 2)
+          content: serializarResultado(result)
         })
       }
       messages.push({ role: 'user', content: toolResults })

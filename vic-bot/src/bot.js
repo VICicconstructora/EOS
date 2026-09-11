@@ -115,6 +115,33 @@ const MAX_TURNS = 12 // ~6 intercambios conservados
 
 // Conversaciones a las que ya les mostramos las instrucciones de NVIDIA
 // (para no repetirlas en cada mensaje). Se reinicia al redeployar; aceptable.
+// Conversaciones a las que ya se les avisó que su key propia está fallando.
+const keyFallidaAvisada = new Set()
+
+// Aviso de una sola vez: la key que la persona registró falló y respondió el
+// respaldo. Sin esto el fallback es silencioso — Pablo Ángel registró su key de
+// Anthropic el 2026-09-11, VIC le contestó por NVIDIA y nada indicaba que su
+// key no servía. Best-effort: nunca rompe la respuesta ya enviada.
+async function avisarKeyPropiaFallida(context, convId, fallos, { anthropicKey, openaiKey }) {
+  try {
+    if (!fallos || fallos.length === 0 || keyFallidaAvisada.has(convId)) return
+    const propio = fallos.find(e =>
+      (e.provider === 'anthropic' && anthropicKey) || (e.provider === 'openai' && openaiKey)
+    )
+    if (!propio) return
+    keyFallidaAvisada.add(convId)
+    const cual = propio.provider === 'anthropic'
+      ? 'tu API key de Anthropic (`/registrar-key`)'
+      : 'tu API key de NVIDIA (`/registrar-nvidia`)'
+    await context.sendActivity(MessageFactory.text(
+      `Aviso: te respondí con la cuota compartida porque ${cual} falló en esta consulta. ` +
+      `Motivo: ${userMessageForChatError(propio, { ownAnthropic: !!anthropicKey, ownNvidia: !!openaiKey })}`
+    ))
+  } catch (err) {
+    console.error('[VIC] Error avisando key propia fallida:', err.message)
+  }
+}
+
 const nvidiaNudged = new Set()
 
 class VicBot extends ActivityHandler {
@@ -231,12 +258,16 @@ class VicBot extends ActivityHandler {
       await context.sendActivity({ type: 'typing' })
 
       try {
-        const { text: response, provider } = await chat(
+        const { text: response, provider, fallosPrevios } = await chat(
           history,
           { email, name: userName, conversationId: convId },
           { anthropicKey, openaiKey }
         )
         console.log(`[VIC] Respuesta vía proveedor: ${provider} (email=${email || 'desconocido'})`)
+        // Si la persona registró su key y esa key falló, el fallback contesta y
+        // ella nunca se entera: cree que consume su cuota cuando en realidad
+        // gasta la compartida. Se lo decimos UNA vez por conversación.
+        avisarKeyPropiaFallida(context, convId, fallosPrevios, { anthropicKey, openaiKey })
         history.push({ role: 'assistant', content: response })
         // Registrar la respuesta de VIC (best-effort).
         logChat({ email, name: userName, conversationId: convId, role: 'assistant', content: response, provider })

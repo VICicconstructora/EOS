@@ -39,8 +39,26 @@ function providerChain({ anthropicKey, openaiKey } = {}) {
   return ordered.filter(Boolean)
 }
 
-// Devuelve { text, provider }. Intenta el primario; ante un error, cae al
-// siguiente proveedor de la cadena. Si todos fallan, relanza el último error.
+// Devuelve { text, provider, fallosPrevios }. Intenta el primario; ante un
+// error, cae al siguiente proveedor de la cadena.
+//
+// `fallosPrevios` son los errores de los proveedores que se saltaron cuando
+// otro sí respondió. Importan: si la persona registró su key y esa key falla en
+// cada mensaje, el fallback la deja invisible — VIC contesta por NVIDIA y ella
+// cree que está usando su Claude. Le pasó a Pablo Ángel el 2026-09-11.
+//
+// Si fallan todos, se lanza el error MÁS ACCIONABLE, no el último. Un 500
+// pasajero del respaldo tapaba el 400/401 del primario, que es el que dice qué
+// hacer ("prompt demasiado largo", "key revocada").
+function masAccionable(errores) {
+  // 4xx = algo que el usuario o TI puede corregir. 5xx/timeout = pasajero.
+  const accionable = errores.find(e => {
+    const st = e && (e.status || e.statusCode)
+    return st && st >= 400 && st < 500
+  })
+  return accionable || errores[errores.length - 1]
+}
+
 async function chat(history, ctx = {}, opts = {}) {
   const chain = providerChain(opts)
   if (chain.length === 0) {
@@ -50,26 +68,25 @@ async function chat(history, ctx = {}, opts = {}) {
     )
   }
 
-  let lastErr
+  const errores = []
   for (let i = 0; i < chain.length; i++) {
     const p = chain[i]
     try {
       const text = await p.run(history, ctx)
-      return { text, provider: p.name }
+      return { text, provider: p.name, fallosPrevios: errores }
     } catch (err) {
       // Marcar quién falló: el mensaje al usuario nombra al proveedor real y
       // le pide (si acaso) la key que sí corresponde.
       if (err && !err.provider) err.provider = p.name
-      lastErr = err
+      errores.push(err)
       const hayMas = i < chain.length - 1
       console.warn(
         `[VIC] proveedor ${p.name} falló${hayMas ? ' — intentando fallback' : ''}:`,
         err.message
       )
-      if (!hayMas) throw err
+      if (!hayMas) throw masAccionable(errores)
     }
   }
-  throw lastErr // inalcanzable, pero por claridad
 }
 
 module.exports = { chat, providerChain }
